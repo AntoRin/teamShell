@@ -1,0 +1,30 @@
+.landing-page-main {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   border-bottom: 2px solid lightblue;
+   font-family: "Source Sans Pro", sans-serif;
+   padding: 20px;
+}
+
+.action-card {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+}
+
+#landingCardBtn {
+   padding: 7px 15px;
+   background-color: red;
+   color: white;
+   font-size: 1.1rem;
+   letter-spacing: 3px;
+   font-weight: 700;
+   font-family: "Roboto", sans-serif;
+   outline: none;
+   border: none;
+   border-radius: 10px;
+   cursor: pointer;
+}
