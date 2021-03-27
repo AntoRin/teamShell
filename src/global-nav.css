@@ -1,0 +1,67 @@
+.global-nav-container {
+   width: 100%;
+   height: 90px;
+   margin-bottom: 15px;
+   font-size: 1.2rem;
+   font-family: "Poppins", sans-serif;
+   border-bottom: 2px solid #333;
+   background-color: #111;
+}
+
+.general-nav-section {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin: 10px 15px;
+}
+
+.nav-wrapper {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+}
+
+.user-section {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin: 10px 15px;
+}
+
+.user-links-section {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin: 0px 15px;
+}
+
+.user-links-section a {
+   text-decoration: none;
+   color: white;
+   margin: 0px 10px;
+   border-bottom: 1px solid red;
+   cursor: pointer;
+}
+
+.profile-section {
+   /* display: flex;
+   justify-content: space-between;
+   align-items: center; */
+   position: relative;
+   margin: 0px 15px;
+}
+
+#userProfileImage {
+   width: 50px;
+   height: 50px;
+   border: 1px solid gray;
+   border-radius: 50%;
+   cursor: pointer;
+}
+
+.user-drop-down {
+   position: absolute;
+   background-color: #222;
+   top: 90px;
+   right: 10px;
+}

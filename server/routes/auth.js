@@ -71,7 +71,7 @@ router.get("/login/github/callback", async (req, res) => {
             .redirect("http://localhost:3000/user/home");
       } else {
          let newUser = new User(userInfo);
-         let savedToDb = await newUser.save();
+         await newUser.save();
          return res
             .cookie("token", loginToken, {
                httpOnly: true,
@@ -91,7 +91,7 @@ router.get("/verify", async (req, res) => {
       let { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET);
       let present = await validateRegistration({ UniqueUsername, Email }, User);
       if (!present) throw "Invalid Credentials";
-      return res.json({ status: "ok" });
+      return res.json({ status: "ok", User: present });
    } catch (error) {
       return res.json({ status: error, error: error });
    }

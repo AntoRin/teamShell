@@ -30,12 +30,14 @@ const UserSchema = new Schema(
       Organization: {
          type: String,
          default: "None",
-         unique: true,
       },
       Project: {
          type: String,
          default: "None",
-         unique: true,
+      },
+      Issues: {
+         type: Array,
+         default: [],
       },
    },
    { timestamps: true }

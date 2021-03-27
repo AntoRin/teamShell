@@ -1,7 +1,11 @@
-function UserHome() {
+import GlobalNav from "../GlobalNav";
+
+function UserHome({ User }) {
    return (
       <div>
-         <h1>Home</h1>
+         <div className="home-container">
+            <GlobalNav profileImage={User.ProfileImage} />
+         </div>
       </div>
    );
 }

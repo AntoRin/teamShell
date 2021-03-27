@@ -4,6 +4,7 @@ import { Route, Redirect } from "react-router-dom";
 //--------------------Remove credentials for cross-origin------------------
 
 function ProtectedRoute({ component: Component, ...props }) {
+   const [User, setUser] = useState({});
    const [authenticated, setAuthenticated] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
 
@@ -15,6 +16,7 @@ function ProtectedRoute({ component: Component, ...props }) {
          let serverResponse = await auth.json();
          if (serverResponse.status === "ok") {
             setAuthenticated(true);
+            setUser(serverResponse.User);
             setIsLoading(false);
          } else {
             setAuthenticated(false);
@@ -35,7 +37,7 @@ function ProtectedRoute({ component: Component, ...props }) {
          <Route
             {...props}
             render={componentProps => {
-               return <Component {...componentProps} />;
+               return <Component {...componentProps} User={User} />;
             }}
          />
       ) : (

@@ -1,0 +1,30 @@
+.drop-down-container {
+   border: 1px solid white;
+   width: fit-content;
+   min-height: 200px;
+   position: relative;
+}
+
+.drop-down-container div {
+   margin: 10px;
+   border-bottom: 1px solid crimson;
+}
+
+.drop-down-link {
+   text-decoration: none;
+   color: white;
+}
+
+.drop-down-link:hover {
+   color: red;
+}
+
+#logoutBtn {
+   width: 100%;
+   outline: none;
+   border: none;
+   background-color: #444;
+   padding: 5px;
+   font-size: 1rem;
+   cursor: pointer;
+}
