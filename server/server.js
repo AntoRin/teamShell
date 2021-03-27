@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -21,4 +22,19 @@ app.use("/auth", authRoute);
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+//Server and Database connections
+mongoose.connect(
+   process.env.MONGO_URI,
+   {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      useCreateIndex: true,
+   },
+   (err, connection) => {
+      if (err) return console.log(err);
+      else {
+         console.log("Database connection established");
+         app.listen(port, () => console.log(`Listening on port ${port}`));
+      }
+   }
+);
