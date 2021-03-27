@@ -84,6 +84,12 @@ router.get("/login/github/callback", async (req, res) => {
    }
 });
 
+router.get("/logout", (req, res) => {
+   return res
+      .cookie("token", "", { httpOnly: true, maxAge: 1 })
+      .redirect("http://localhost:3000/");
+});
+
 router.get("/verify", async (req, res) => {
    let token = req.cookies.token;
 

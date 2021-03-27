@@ -27,13 +27,13 @@ const UserSchema = new Schema(
          type: String,
          default: "No Image",
       },
-      Organization: {
-         type: String,
-         default: "None",
+      Organizations: {
+         type: Array,
+         default: [],
       },
-      Project: {
-         type: String,
-         default: "None",
+      Projects: {
+         type: Array,
+         default: [],
       },
       Issues: {
          type: Array,
