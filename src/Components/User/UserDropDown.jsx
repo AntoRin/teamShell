@@ -1,7 +1,7 @@
 import { Link, useHistory } from "react-router-dom";
 import "../../user-drop-down.css";
 
-function UserDropDown({ isOpen }) {
+function UserDropDown({ isOpen, UniqueUsername }) {
    const history = useHistory();
    //----------------------Change logout endpoint & credentials----------------------------
 
@@ -16,17 +16,20 @@ function UserDropDown({ isOpen }) {
    return isOpen ? (
       <div className="drop-down-container">
          <div className="option-profile">
-            <Link className="drop-down-link" to="/user/profile">
+            <Link
+               className="drop-down-link"
+               to={`/user/profile/${UniqueUsername}`}
+            >
                Profile
             </Link>
          </div>
          <div className="option-organizations">
-            <Link className="drop-down-link" to="/user/profile">
+            <Link className="drop-down-link" to="/user/organizations">
                Organizations
             </Link>
          </div>
          <div className="option-projects">
-            <Link className="drop-down-link" to="/user/profile">
+            <Link className="drop-down-link" to="/user/projects">
                Projects
             </Link>
          </div>

@@ -1,0 +1,59 @@
+.profile-picture-section {
+   margin: 20px;
+   padding: 20px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   border-right: 1px solid darkgray;
+}
+
+.profile-tabs {
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
+   margin: 30px 0px;
+}
+
+.tab-link a {
+   text-decoration: none;
+   font-size: 1.1rem;
+   font-family: "Poppins", sans-serif;
+   color: lightcyan;
+   border-bottom: 1px solid lightgreen;
+}
+
+#profilePictureBig {
+   width: 200px;
+   height: 200px;
+   border-radius: 50%;
+   border: 1px solid white;
+}
+
+.profile-picture-caption {
+   font-size: 1.1rem;
+   font-family: "Source Sans Pro", sans-serif;
+   margin: 10px 0px;
+}
+
+.profile-edit {
+   width: 100%;
+}
+
+#profileEditBtn {
+   width: 100%;
+   padding: 10px;
+   border-radius: 10px;
+   background-color: lightcyan;
+   margin: 10px 0px;
+   border: none;
+   outline: none;
+   font-size: 1.2rem;
+   font-weight: 600;
+   font-family: "Source Sans Pro", sans-serif;
+   cursor: pointer;
+}
+
+.profile-contents {
+   display: grid;
+   grid-template-columns: 1fr 3fr;
+}

@@ -99,7 +99,7 @@ router.get("/verify", async (req, res) => {
       if (!present) throw "Invalid Credentials";
       return res.json({ status: "ok", User: present });
    } catch (error) {
-      return res.json({ status: error, error: error });
+      return res.json({ status: "error", error });
    }
 });
 

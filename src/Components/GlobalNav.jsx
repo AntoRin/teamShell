@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import UserDropDown from "./User/UserDropDown";
 import "../global-nav.css";
 
-function GlobalNav({ profileImage }) {
+function GlobalNav({ profileImage, UniqueUsername }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
    function openDropdown() {
@@ -31,6 +31,7 @@ function GlobalNav({ profileImage }) {
                   <div className="user-drop-down">
                      <UserDropDown
                         id="userProfileDropDown"
+                        UniqueUsername={UniqueUsername}
                         isOpen={isDropdownOpen}
                      />
                   </div>
