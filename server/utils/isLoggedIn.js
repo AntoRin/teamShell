@@ -1,15 +1,10 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
 async function isLoggedIn(token) {
    try {
-      const { UniqueUsername, Email } = jwt.verify(
-         token,
-         process.env.JWT_SECRET
-      );
-      const user = await User.findOne({ UniqueUsername, Email });
-      if (user) return true;
-      else throw "User not present in DB";
+      const user = jwt.verify(token, process.env.JWT_SECRET);
+      if (user) return user;
+      else throw "User not found";
    } catch (err) {
       let error = new Error(err);
       return error;

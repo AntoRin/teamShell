@@ -1,13 +1,19 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useHistory } from "react-router-dom";
 import GlobalNav from "../GlobalNav";
 import DetailCard from "./DetailCard";
 import "../../user-profile.css";
 
 function UserProfile({ location, match, User }) {
    const [Profile, setProfile] = useState({});
+   const [owner, setOwner] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
    const [query, setQuery] = useState("");
+
+   const bioElement = useRef();
+   const usernameElement = useRef();
+
+   const history = useHistory();
 
    //-------------------------Change fetch methods--------------------------------
 
@@ -15,14 +21,16 @@ function UserProfile({ location, match, User }) {
       async function getProfile() {
          if (match.params.UniqueUsername === User.UniqueUsername) {
             setProfile(User);
+            setOwner(true);
             setIsLoading(false);
          } else {
             let userRequest = await fetch(
-               `http://localhost:5000/profile/${match.params.UniqueUsername}`,
+               `http://localhost:5000/profile/details/${match.params.UniqueUsername}`,
                { credentials: "include" }
             );
             let profile = await userRequest.json();
             setProfile(profile);
+            setOwner(false);
             setIsLoading(false);
          }
       }
@@ -39,10 +47,43 @@ function UserProfile({ location, match, User }) {
       }
    }, [location]);
 
+   function goToUpdate() {
+      let updateTab = location.pathname + "?tab=update";
+      history.push(updateTab);
+   }
+
+   async function handleProfileUpdate(event) {
+      event.preventDefault();
+      let newBio = bioElement.current.value;
+      let newName = usernameElement.current.value;
+      let body = { Bio: newBio, Username: newName };
+
+      let updateOptions = {
+         method: "PUT",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+      let updateRequest = await fetch(
+         "http://localhost:5000/profile/edit",
+         updateOptions
+      );
+      let updateResponse = await updateRequest.json();
+      if (updateResponse.status === "ok")
+         window.location.href = window.location.origin + location.pathname;
+   }
+
+   function handleCancelUpdate() {
+      history.push(location.pathname);
+   }
+
    function tabComponent() {
       if (query === "") {
          return (
             <>
+               <div className="profile-bio">
+                  <DetailCard header="Bio" detail={Profile.Bio} />
+               </div>
                <div className="profile-unique-name">
                   <DetailCard
                      header="Unique Username"
@@ -67,11 +108,84 @@ function UserProfile({ location, match, User }) {
             </>
          );
       } else if (query === "organizations") {
-         return <h1>Organization Tab</h1>;
+         return (
+            <>
+               <div className="orgs-tab-list">
+                  {Profile.Organizations.map((org, index) => {
+                     return <DetailCard key={index} header={org} detail="" />;
+                  })}
+               </div>
+            </>
+         );
       } else if (query === "projects") {
-         return <h1>Projects Tab</h1>;
+         return (
+            <>
+               <div className="projects-tab-list">
+                  {Profile.Projects.map((project, index) => {
+                     return (
+                        <DetailCard key={index} header={project} detail="" />
+                     );
+                  })}
+               </div>
+            </>
+         );
       } else if (query === "issues") {
-         return <h1>Issues Tab</h1>;
+         return (
+            <>
+               <div className="issues-tab-list">
+                  {Profile.Issues.map((issue, index) => {
+                     return <DetailCard key={index} header={issue} detail="" />;
+                  })}
+               </div>
+            </>
+         );
+      } else if (query === "update") {
+         if (!owner) {
+            return <h1>😑</h1>;
+         } else {
+            return (
+               <div className="profile-edit-section">
+                  <form id="profileEditForm" onSubmit={handleProfileUpdate}>
+                     <div className="edit-bio">
+                        <label htmlFor="bioEdit">Add a bio</label> <br />
+                        <textarea
+                           ref={bioElement}
+                           autoComplete="off"
+                           id="bioEdit"
+                           maxLength="300"
+                           rows="7"
+                        ></textarea>
+                     </div>
+                     <div className="edit-name">
+                        <label htmlFor="nameEdit">Username</label> <br />
+                        <input
+                           ref={usernameElement}
+                           autoComplete="off"
+                           type="text"
+                           id="nameEdit"
+                        />
+                     </div>
+                     <div className="submit-edition">
+                        <button
+                           type="button"
+                           className="form-action-btn dull"
+                           id="cancelEditsBtn"
+                           onClick={handleCancelUpdate}
+                        >
+                           Cancel
+                        </button>
+                        <button
+                           className="form-action-btn bright"
+                           id="saveEditsBtn"
+                           type="submit"
+                        >
+                           Save
+                        </button>
+                     </div>
+                  </form>
+               </div>
+            );
+         }
       }
    }
 
@@ -134,11 +248,15 @@ function UserProfile({ location, match, User }) {
                      alt=""
                   />
                   <div className="profile-picture-caption">
-                     <i>@{Profile.UniqueUsername}</i>
+                     <strong>@{Profile.UniqueUsername}</strong>
                   </div>
-                  <div className="profile-edit">
-                     <button id="profileEditBtn">Edit Profile</button>
-                  </div>
+                  {owner && (
+                     <div className="profile-edit">
+                        <button onClick={goToUpdate} id="profileEditBtn">
+                           Edit Profile
+                        </button>
+                     </div>
+                  )}
                </div>
                <div className="profile-details-section">{tabComponent()}</div>
             </div>

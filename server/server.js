@@ -7,8 +7,11 @@ require("dotenv").config();
 
 const authRoute = require("./routes/auth");
 const profileRoute = require("./routes/profile");
+const checkAuth = require("./middleware/checkAuth");
+
 const app = express();
 
+app.use(express.json());
 app.use(
    cors({
       origin: "http://localhost:3000",
@@ -19,7 +22,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../build")));
 
 app.use("/auth", authRoute);
-app.use("/profile", profileRoute);
+app.use("/profile", checkAuth, profileRoute);
 
 const port = process.env.PORT || 5000;
 

@@ -41,19 +41,84 @@
 
 #profileEditBtn {
    width: 100%;
-   padding: 10px;
+   padding: 7px;
    border-radius: 10px;
-   background-color: lightcyan;
+   background-color: rgba(224, 255, 255, 0.7);
    margin: 10px 0px;
    border: none;
    outline: none;
-   font-size: 1.2rem;
+   font-size: 1.1rem;
    font-weight: 600;
-   font-family: "Source Sans Pro", sans-serif;
+   font-family: "Roboto", sans-serif;
    cursor: pointer;
 }
 
 .profile-contents {
    display: grid;
    grid-template-columns: 1fr 3fr;
+}
+
+.profile-edit-section {
+   margin: 30px;
+   font-size: 1.3rem;
+   font-family: "Roboto", sans-serif;
+   color: Cyan;
+}
+
+#bioEdit {
+   background: transparent;
+   color: white;
+   font-size: 1.2rem;
+   width: 80%;
+   max-width: 80%;
+   margin: 10px 0px;
+   font-family: sans-serif;
+   border: 1px solid lightcyan;
+}
+
+#bioEdit:focus {
+   outline: none;
+}
+
+.edit-name {
+   margin: 10px 0px;
+}
+
+#nameEdit {
+   width: 250px;
+   font-size: 1.2rem;
+   margin: 10px 0px;
+   background: transparent;
+   outline: none;
+   border: none;
+   border-bottom: 2px solid lightcyan;
+   color: white;
+}
+
+.submit-edition {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin: 20px 0px;
+}
+
+.form-action-btn {
+   width: 100px;
+   margin: 0px 10px;
+   padding: 7px;
+   font-family: "Roboto", sans-serif;
+   font-weight: 700;
+   font-size: 1rem;
+   border: none;
+   outline: none;
+   border-radius: 7px;
+   cursor: pointer;
+}
+
+.dull {
+   background-color: darkgray;
+}
+
+.bright {
+   background-color: cyan;
 }

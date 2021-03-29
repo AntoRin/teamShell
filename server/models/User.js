@@ -27,6 +27,10 @@ const UserSchema = new Schema(
          type: String,
          default: "No Image",
       },
+      Bio: {
+         type: String,
+         default: "",
+      },
       Organizations: {
          type: Array,
          default: [],

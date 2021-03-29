@@ -24,7 +24,7 @@ function ProtectedRoute({ component: Component, ...props }) {
          }
       }
       verifyUser();
-   }, []);
+   }, [Component]);
 
    if (isLoading) {
       return (
