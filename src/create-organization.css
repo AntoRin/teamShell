@@ -1,0 +1,60 @@
+.new-organization-form-container {
+   color: white;
+   min-height: 100vh;
+   overflow-x: hidden;
+   font-family: "Poppins", sans-serif;
+}
+
+.new-org-form-card {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+}
+
+#createOrgForm {
+   background: #111;
+   border-radius: 12px;
+   padding: 20px;
+}
+
+#createOrgForm label {
+   font-size: 1.1rem;
+   margin: 10px;
+}
+
+.input-org-create {
+   margin: 10px;
+   width: 95%;
+   background: transparent;
+   font-size: 1.2rem;
+   outline: none;
+   border: none;
+   border-bottom: 1px solid cyan;
+   color: white;
+   padding-bottom: 10px;
+}
+
+#newOrgDescription {
+   color: whitesmoke;
+   font-size: 1.1rem;
+   font-family: sans-serif;
+   width: 95%;
+   position: relative;
+   left: 50%;
+   transform: translateX(-50%);
+   background: transparent;
+   resize: none;
+   border: 1px solid cyan;
+}
+
+#newOrgDescription:focus {
+   outline: none;
+}
+
+.create-form-action {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin: 20px;
+}

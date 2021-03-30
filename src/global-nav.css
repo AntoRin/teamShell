@@ -39,8 +39,9 @@
    text-decoration: none;
    color: white;
    margin: 0px 10px;
-   border-bottom: 1px solid red;
+   border-bottom: 2px solid cyan;
    cursor: pointer;
+   font-weight: 700;
 }
 
 .profile-section {

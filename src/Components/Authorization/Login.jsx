@@ -37,8 +37,30 @@ function Login() {
       }
    }
 
-   function handleLogin(event) {
+   //----------------------Change post otions----------------------------------
+
+   async function handleLogin(event) {
       event.preventDefault();
+
+      let body = {
+         Email: inputs.userId,
+         Password: inputs.password,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         redirect: "manual",
+         credentials: "include",
+      };
+
+      let loginRequest = await fetch(
+         "http://localhost:5000/auth/login",
+         postOptions
+      );
+      if (loginRequest.type === "opaqueredirect")
+         window.location.href = "http://localhost:3000/user/home";
    }
 
    return (

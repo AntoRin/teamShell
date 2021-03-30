@@ -8,6 +8,56 @@ const validateRegistration = require("../utils/validateRegistration");
 
 const router = Router();
 
+router.post("/register", async (req, res) => {
+   let { UniqueUsername, Username, Email, Password } = req.body;
+   let present = await validateRegistration({ UniqueUsername, Email }, User);
+
+   if (present)
+      return res.json({ status: "error", error: "User already exists" });
+
+   let hashedPassword = await bcrypt.hash(Password, 10);
+
+   let newUser = new User({
+      UniqueUsername,
+      Username,
+      Email,
+      Password: hashedPassword,
+   });
+   try {
+      await newUser.save();
+      res.json({ status: "ok" });
+   } catch (error) {
+      console.log(error.message);
+      res.status(401).json({ status: "error", error });
+   }
+});
+
+router.post("/login", async (req, res) => {
+   let { Email, Password } = req.body;
+   let present = await User.findOne({ Email });
+
+   if (!present)
+      return res.status(401).json({ status: "error", error: "User not found" });
+
+   try {
+      let verified = await bcrypt.compare(Password, present.Password);
+      if (!verified) throw "Invalid credentials";
+      let token = jwt.sign(
+         { UniqueUsername: present.UniqueUsername, Email },
+         process.env.JWT_SECRET
+      );
+      return res
+         .cookie("token", token, {
+            httpOnly: true,
+         })
+         .redirect("http://localhost:3000/user/home");
+   } catch (error) {
+      console.log(error);
+      res.status(401).json({ status: "error", error: "Invalid Credentials" });
+   }
+});
+
+//GitHub Login
 router.get("/login/github", async (req, res) => {
    return res.redirect(
       `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=user`

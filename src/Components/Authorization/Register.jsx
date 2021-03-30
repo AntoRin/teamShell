@@ -20,8 +20,28 @@ function Register() {
       });
    }
 
-   function handleRegister(event) {
+   async function handleRegister(event) {
       event.preventDefault();
+
+      let body = {
+         UniqueUsername: inputs.uniqueUsername,
+         Username: inputs.username,
+         Email: inputs.email,
+         Password: inputs.password,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+      };
+
+      let registerRequest = await fetch(
+         "http://localhost:5000/auth/register",
+         postOptions
+      );
+      let registerResponse = await registerRequest.json();
+      if (registerResponse.status === "ok") history.push("/login");
    }
 
    return (

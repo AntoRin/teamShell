@@ -30,3 +30,24 @@ body {
    background: #333;
    border-radius: 5px;
 }
+
+.form-action-btn {
+   width: 100px;
+   margin: 0px 10px;
+   padding: 7px;
+   font-family: "Roboto", sans-serif;
+   font-weight: 700;
+   font-size: 1rem;
+   border: none;
+   outline: none;
+   border-radius: 7px;
+   cursor: pointer;
+}
+
+.dull {
+   background-color: darkgray;
+}
+
+.bright {
+   background-color: cyan;
+}

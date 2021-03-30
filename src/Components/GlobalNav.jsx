@@ -20,8 +20,7 @@ function GlobalNav({ profileImage, UniqueUsername }) {
             </div>
             <div className="user-section">
                <div className="user-links-section">
-                  <Link to="/user/projects">Projects</Link>
-                  <Link to="/user/organizations">Organizations</Link>
+                  <Link to="/user/environment">Your Environment</Link>
                </div>
                <div className="profile-section">
                   <img

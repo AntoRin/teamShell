@@ -1,9 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import GlobalNav from "../GlobalNav";
 import "../../user-home.css";
 
 function UserHome({ User }) {
+   const history = useHistory();
+
+   function createNewOrganization() {
+      history.push("/create/organization");
+   }
+
+   function createNewProject() {
+      history.push("/create/project");
+   }
+
    return (
       <div className="home-container">
          <GlobalNav
@@ -22,7 +32,10 @@ function UserHome({ User }) {
                      );
                   })}
                   <div className="create-org-btn">
-                     <button className="create-btn">
+                     <button
+                        onClick={createNewOrganization}
+                        className="create-btn"
+                     >
                         <span>New Organization</span>
                         <AddBoxIcon />
                      </button>
@@ -37,8 +50,8 @@ function UserHome({ User }) {
                         </div>
                      );
                   })}
-                  <div className="create-org-btn">
-                     <button className="create-btn">
+                  <div className="create-project-btn">
+                     <button onClick={createNewProject} className="create-btn">
                         <span>New Project</span>
                         <AddBoxIcon />
                      </button>

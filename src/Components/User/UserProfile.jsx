@@ -14,7 +14,6 @@ function UserProfile({ location, match, User }) {
    const usernameElement = useRef();
 
    const history = useHistory();
-
    //-------------------------Change fetch methods--------------------------------
 
    useEffect(() => {
@@ -29,7 +28,7 @@ function UserProfile({ location, match, User }) {
                { credentials: "include" }
             );
             let profile = await userRequest.json();
-            setProfile(profile);
+            setProfile(profile.user);
             setOwner(false);
             setIsLoading(false);
          }

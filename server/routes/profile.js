@@ -6,9 +6,13 @@ const router = Router();
 
 router.get("/details/:UniqueUsername", async (req, res) => {
    let requestedUser = req.params.UniqueUsername;
-   console.log(req.thisUser);
+
    try {
-      let user = await User.findOne({ UniqueUsername: requestedUser });
+      let { _doc } = await User.findOne({
+         UniqueUsername: requestedUser,
+      });
+      let { Password, _id, ...user } = _doc;
+      console.log(user);
       if (user) return res.json({ status: "ok", user });
       else throw "User not found";
    } catch (error) {
