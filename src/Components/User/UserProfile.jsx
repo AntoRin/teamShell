@@ -112,11 +112,15 @@ function UserProfile({ location, match, User }) {
                <div className="orgs-tab-list">
                   {Profile.Organizations.map((org, index) => {
                      return (
-                        <DetailCard
+                        <Link
                            key={index}
-                           header={org.OrganizationName}
-                           detail=""
-                        />
+                           to={`/organization/${org.OrganizationName}`}
+                        >
+                           <DetailCard
+                              header={org.OrganizationName}
+                              detail=""
+                           />
+                        </Link>
                      );
                   })}
                </div>

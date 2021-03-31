@@ -1,0 +1,47 @@
+.organization-home-container {
+   min-height: 100vh;
+   overflow-x: hidden;
+   font-family: "Roboto", sans-serif;
+}
+
+.org-main-wrapper {
+   display: grid;
+   grid-template-columns: 1fr 4fr;
+}
+
+.org-side-nav {
+   margin: 20px;
+   border-right: 1px solid gray;
+}
+
+.side-nav-section {
+   margin: 15px 10px;
+   border: 1px solid cyan;
+}
+
+.side-nav-header {
+   text-align: center;
+   font-size: 1.1rem;
+   padding: 5px 0px;
+}
+
+.side-nav-section-member {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.side-nav-list-btn {
+   width: 100%;
+   outline: none;
+   border: none;
+   background-color: rgb(65, 65, 65);
+   color: white;
+   padding: 5px 0px;
+   border-radius: 3px;
+   margin: 7px 15px;
+   font-size: 1.1rem;
+   font-family: "Roboto", sans-serif;
+   font-weight: 950;
+   cursor: pointer;
+}

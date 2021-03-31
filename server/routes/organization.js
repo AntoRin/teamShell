@@ -27,4 +27,22 @@ router.post("/create", async (req, res) => {
    }
 });
 
+router.get("/details/:OrganizationName", async (req, res) => {
+   let OrganizationName = req.params.OrganizationName;
+   let { UniqueUsername, Email } = req.thisUser;
+
+   try {
+      let org = await Organization.findOne({ OrganizationName });
+      if (org.Members.includes(UniqueUsername)) {
+         return res.json({ status: "ok", Organization: org });
+      } else {
+         throw "Unauthorized";
+      }
+   } catch (error) {
+      if (error === "Unauthorized")
+         return res.status(401).json({ status: "error", error });
+      return res.status(501).json({ status: "error", error });
+   }
+});
+
 module.exports = router;
