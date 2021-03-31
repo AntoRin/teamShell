@@ -21,8 +21,28 @@ function CreateOrganization() {
       history.push("/user/home");
    }
 
-   function handleOrgCreation(event) {
+   //------------------Change post options-----------------------
+
+   async function handleOrgCreation(event) {
       event.preventDefault();
+      let body = {
+         OrganizationName: inputs.newOrgName,
+         Description: inputs.newOrgDescription,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let createOrgRequest = await fetch(
+         "http://localhost:5000/organization/create",
+         postOptions
+      );
+      let createOrgResponse = await createOrgRequest.json();
+      console.log(createOrgResponse);
    }
 
    return (
@@ -39,6 +59,7 @@ function CreateOrganization() {
                   value={inputs.newOrgName}
                   type="text"
                   autoComplete="off"
+                  required
                   id="newOrgName"
                   className="input-org-create"
                />
@@ -52,6 +73,7 @@ function CreateOrganization() {
                   value={inputs.newOrgDescription}
                   id="newOrgDescription"
                   maxLength="100"
+                  required
                   rows="7"
                ></textarea>
                <div className="create-form-action">

@@ -12,7 +12,6 @@ router.get("/details/:UniqueUsername", async (req, res) => {
          UniqueUsername: requestedUser,
       });
       let { Password, _id, ...user } = _doc;
-      console.log(user);
       if (user) return res.json({ status: "ok", user });
       else throw "User not found";
    } catch (error) {

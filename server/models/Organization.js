@@ -2,7 +2,12 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const OrganizationSchema = new Schema({
-   Name: {
+   OrganizationName: {
+      type: String,
+      required: true,
+      unique: true,
+   },
+   Description: {
       type: String,
       required: true,
    },
@@ -13,6 +18,7 @@ const OrganizationSchema = new Schema({
    Members: {
       type: Array,
       default: [],
+      required: true,
    },
    Projects: {
       type: Array,
@@ -26,4 +32,4 @@ const Organization = mongoose.model(
    "Organizations"
 );
 
-module.exports = { Organization, OrganizationSchema };
+module.exports = Organization;

@@ -27,7 +27,7 @@ function UserHome({ User }) {
                   {User.Organizations.map((org, index) => {
                      return (
                         <div className="member-list-item" key={index}>
-                           {org}
+                           {org.OrganizationName}
                         </div>
                      );
                   })}

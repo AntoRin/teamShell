@@ -7,6 +7,7 @@ import UserProfile from "./User/UserProfile";
 import ProtectedRoute from "./ProtectedRoute";
 import NonUserRoute from "./NonUserRoute";
 import CreateOrganization from "./Organization/CreateOrganization";
+import OrganizationHome from "./Organization/OrganizationHome";
 import UserEnvironment from "./User/UserEnvironment";
 
 function App() {
@@ -27,6 +28,11 @@ function App() {
                   path="/create/organization"
                   exact
                   component={CreateOrganization}
+               />
+               <ProtectedRoute
+                  path="/organization/:OrganizationName"
+                  exact
+                  component={OrganizationHome}
                />
                <ProtectedRoute
                   path="/user/environment"

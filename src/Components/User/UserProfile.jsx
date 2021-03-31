@@ -111,7 +111,13 @@ function UserProfile({ location, match, User }) {
             <>
                <div className="orgs-tab-list">
                   {Profile.Organizations.map((org, index) => {
-                     return <DetailCard key={index} header={org} detail="" />;
+                     return (
+                        <DetailCard
+                           key={index}
+                           header={org.OrganizationName}
+                           detail=""
+                        />
+                     );
                   })}
                </div>
             </>

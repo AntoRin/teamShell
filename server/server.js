@@ -5,9 +5,11 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+const checkAuth = require("./middleware/checkAuth");
+
 const authRoute = require("./routes/auth");
 const profileRoute = require("./routes/profile");
-const checkAuth = require("./middleware/checkAuth");
+const organizationRoute = require("./routes/organization");
 
 const app = express();
 
@@ -23,6 +25,7 @@ app.use(express.static(path.join(__dirname, "../build")));
 
 app.use("/auth", authRoute);
 app.use("/profile", checkAuth, profileRoute);
+app.use("/organization", checkAuth, organizationRoute);
 
 const port = process.env.PORT || 5000;
 
