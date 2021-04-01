@@ -43,6 +43,8 @@ function CreateOrganization() {
       );
       let createOrgResponse = await createOrgRequest.json();
       console.log(createOrgResponse);
+      if (createOrgResponse.status === "ok")
+         history.push(`/organization/${inputs.newOrgName}`);
    }
 
    return (

@@ -44,6 +44,14 @@
    font-weight: 700;
 }
 
+.notifications-section {
+   position: relative;
+}
+
+.notification-icon {
+   cursor: pointer;
+}
+
 .profile-section {
    /* display: flex;
    justify-content: space-between;

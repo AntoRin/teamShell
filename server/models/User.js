@@ -29,6 +29,10 @@ const UserSchema = new Schema(
          type: String,
          default: "",
       },
+      Notifications: {
+         type: Array,
+         default: [],
+      },
       Organizations: {
          type: [
             {
@@ -43,7 +47,18 @@ const UserSchema = new Schema(
          default: [],
       },
       Issues: {
-         type: Array,
+         type: [
+            {
+               Created: {
+                  type: Array,
+                  default: [],
+               },
+               Assigned: {
+                  type: Array,
+                  default: [],
+               },
+            },
+         ],
          default: [],
       },
    },

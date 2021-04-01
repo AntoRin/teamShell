@@ -19,7 +19,6 @@ function OrganizationHome({ match, User }) {
          );
 
          let orgResponse = await orgRequest.json();
-         console.log(orgResponse);
 
          if (orgResponse.status === "ok") {
             setIsAuthorized(true);
@@ -74,7 +73,7 @@ function OrganizationHome({ match, User }) {
             </div>
          </div>
       ) : (
-         <h1>You're not authorized to view this page</h1>
+         <h1>There was an error</h1>
       );
    }
 }

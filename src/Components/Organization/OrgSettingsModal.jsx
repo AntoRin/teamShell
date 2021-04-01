@@ -1,9 +1,39 @@
+import { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import "../../org-settings-modal.css";
 
-function OrgSettingsModal({ setIsSettingsOpen }) {
+function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
+   const [newDescription, setNewDescription] = useState("");
+
    function closeSettingsModal() {
       setIsSettingsOpen(false);
+   }
+
+   function handleDescriptionChange(event) {
+      setNewDescription(event.target.value);
+   }
+
+   async function updateOrgSettings(event) {
+      event.preventDefault();
+
+      let body = {
+         Org: Organization.OrganizationName,
+         Description: newDescription,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let updateRequest = await fetch(
+         "http://localhost:5000/organization/edit",
+         postOptions
+      );
+      let updateResponse = await updateRequest.json();
+      if (updateResponse.status === "ok") window.location.reload();
    }
 
    return (
@@ -12,8 +42,10 @@ function OrgSettingsModal({ setIsSettingsOpen }) {
             <div className="settings-elements-wrapper">
                <div className="org-settings-form">
                   <h2>Basic Settings</h2>
-                  <form>
+                  <form onSubmit={updateOrgSettings}>
                      <textarea
+                        onChange={handleDescriptionChange}
+                        value={newDescription}
                         className="org-modal-textfield"
                         type="text"
                         placeholder="Change Description"
@@ -22,7 +54,7 @@ function OrgSettingsModal({ setIsSettingsOpen }) {
                      ></textarea>
                      <br />
                      <button className="form-action-btn bright" type="submit">
-                        Change
+                        Update
                      </button>
                   </form>
                </div>

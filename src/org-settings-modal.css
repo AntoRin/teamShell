@@ -34,6 +34,9 @@
    width: 100%;
    font-size: 1.2rem;
    font-family: "Source Sans Pro";
+   background-color: transparent;
+   resize: none;
+   color: white;
 }
 
 .org-creator-settings {

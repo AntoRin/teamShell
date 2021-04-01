@@ -1,0 +1,11 @@
+.notifications-container {
+   position: absolute;
+   top: 75px;
+   right: 0px;
+   min-width: 150px;
+   min-height: 200px;
+   background-color: darkgray;
+   color: black;
+   z-index: 10;
+   border: 2px solid black;
+}

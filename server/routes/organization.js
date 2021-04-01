@@ -33,6 +33,7 @@ router.get("/details/:OrganizationName", async (req, res) => {
 
    try {
       let org = await Organization.findOne({ OrganizationName });
+      if (org === null) throw "Organization not found";
       if (org.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Organization: org });
       } else {
@@ -41,7 +42,21 @@ router.get("/details/:OrganizationName", async (req, res) => {
    } catch (error) {
       if (error === "Unauthorized")
          return res.status(401).json({ status: "error", error });
+      if (error === "Organization not found")
+         return res.status(404).json({ status: "error", error });
       return res.status(501).json({ status: "error", error });
+   }
+});
+
+router.post("/edit", async (req, res) => {
+   let { Org, Description } = req.body;
+
+   try {
+      await Organization.updateOne({ OrganizationName: Org }, { Description });
+      return res.json({ status: "ok" });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
    }
 });
 

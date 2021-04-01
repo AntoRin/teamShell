@@ -1,5 +1,4 @@
 const { Router } = require("express");
-const mongoose = require("mongoose");
 const User = require("../models/User");
 
 const router = Router();
@@ -28,6 +27,19 @@ router.put("/edit", async (req, res) => {
       res.json({ status: "ok", message: "Profile Updated" });
    } catch (error) {
       res.status(501).json({ status: "error", error });
+   }
+});
+
+router.get("/notifications", async (req, res) => {
+   let { UniqueUsername, Email } = req.thisUser;
+
+   try {
+      let user = await User.findOne({ UniqueUsername, Email });
+      let { Notifications } = user;
+      return res.json({ status: "ok", Notifications });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
    }
 });
 

@@ -19,7 +19,10 @@ function OrgSideNav({ Organization }) {
    return (
       <div className="org-side-nav-container">
          {isSettingsOpen && (
-            <OrgSettingsModal setIsSettingsOpen={setIsSettingsOpen} />
+            <OrgSettingsModal
+               Organization={Organization}
+               setIsSettingsOpen={setIsSettingsOpen}
+            />
          )}
          <div className="sid-nav-tools">
             <AppsIcon
