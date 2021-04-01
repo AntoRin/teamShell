@@ -1,0 +1,62 @@
+.settings-modal-container {
+   position: fixed;
+   top: 0;
+   bottom: 0;
+   left: 0;
+   right: 0;
+   background-color: rgba(0, 0, 0, 0.5);
+   z-index: 99;
+}
+
+.org-settings-card {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   width: 80%;
+   min-height: 65%;
+   background-color: rgba(20, 20, 20, 1);
+   border: 1px solid cyan;
+}
+
+.settings-elements-wrapper {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+}
+
+.settings-elements-wrapper h2 {
+   color: crimson;
+}
+
+.org-modal-textfield {
+   width: 100%;
+   font-size: 1.2rem;
+   font-family: "Source Sans Pro";
+}
+
+.org-creator-settings {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.settings-btn {
+   width: 300px;
+   border: none;
+   outline: none;
+   padding: 10px;
+   margin: 20px;
+   background-color: black;
+   color: white;
+   font-size: 1.2rem;
+   cursor: pointer;
+}
+
+.modal-close-btn {
+   position: absolute;
+   top: 10%;
+   right: 10%;
+   cursor: pointer;
+}

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import GlobalNav from "../GlobalNav";
+import OrgSideNav from "./OrgSideNav";
+import DetailCard from "../User/DetailCard";
 import "../../organization-home.css";
 
 function OrganizationHome({ match, User }) {
@@ -43,44 +45,32 @@ function OrganizationHome({ match, User }) {
                UniqueUsername={User.UniqueUsername}
             />
             <div className="org-main-wrapper">
-               <div className="org-side-nav">
-                  <div className="side-nav-projects side-nav-section">
-                     <header className="side-nav-header">
-                        <h3>Projects</h3>
+               <OrgSideNav Organization={Organization} />
+               <div className="org-page-body">
+                  <div className="org-general-details-card">
+                     <header className="org-details-header">
+                        <h1>{Organization.OrganizationName}</h1>
                      </header>
-                     {Organization.Projects.map((project, index) => {
-                        return (
-                           <div className="side-nav-section-member" key={index}>
-                              <button
-                                 className="side-nav-list-btn"
-                                 type="button"
-                              >
-                                 {project}
-                              </button>
-                           </div>
-                        );
-                     })}
-                  </div>
-                  <div className="side-nav-members side-nav-section">
-                     <header className="side-nav-header">
-                        <h3>Members</h3>
-                     </header>
-
-                     {Organization.Members.map((member, index) => {
-                        return (
-                           <div className="side-nav-section-member" key={index}>
-                              <button
-                                 className="side-nav-list-btn"
-                                 type="button"
-                              >
-                                 {member}
-                              </button>
-                           </div>
-                        );
-                     })}
+                     <div className="org-details-content">
+                        <DetailCard
+                           header="Description"
+                           detail={Organization.Description}
+                        />
+                        <DetailCard
+                           header="Created By"
+                           detail={Organization.Creator}
+                        />
+                        <DetailCard
+                           header="No. of Projects"
+                           detail={Organization.Projects.length}
+                        />
+                        <DetailCard
+                           header="No. of Members"
+                           detail={Organization.Members.length}
+                        />
+                     </div>
                   </div>
                </div>
-               <div className="org-page-body"></div>
             </div>
          </div>
       ) : (
