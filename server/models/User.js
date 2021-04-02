@@ -30,7 +30,18 @@ const UserSchema = new Schema(
          default: "",
       },
       Notifications: {
-         type: Array,
+         type: [
+            {
+               NotificationType: {
+                  type: String,
+                  required: true,
+               },
+               NotificationContent: {
+                  type: String,
+                  required: true,
+               },
+            },
+         ],
          default: [],
       },
       Organizations: {

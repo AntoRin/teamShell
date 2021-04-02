@@ -43,6 +43,7 @@
    display: flex;
    justify-content: center;
    align-items: center;
+   flex-wrap: wrap;
 }
 
 .settings-btn {
@@ -62,4 +63,13 @@
    top: 10%;
    right: 10%;
    cursor: pointer;
+}
+
+#addUserToOrgForm input {
+   font-size: 1.2rem;
+   background-color: transparent;
+   outline: none;
+   border: 2px solid cyan;
+   color: white;
+   width: 300px;
 }

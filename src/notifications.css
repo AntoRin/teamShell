@@ -4,8 +4,9 @@
    right: 0px;
    min-width: 150px;
    min-height: 200px;
-   background-color: darkgray;
-   color: black;
+   word-break: break-all;
+   background-color: rgb(58, 58, 58);
+   color: white;
    z-index: 10;
    border: 2px solid black;
 }

@@ -26,7 +26,16 @@ function Notifications({ isNotificationsOpen, setActiveNotifications }) {
       <div className="notifications-container">
          <div className="notification-panel">
             {notifications.map((notification, index) => {
-               return <div key={index}>{notification}</div>;
+               if (notification.NotificationType === "Link")
+                  return (
+                     <div key={index}>
+                        <a href={notification.NotificationContent}>Join Org</a>
+                     </div>
+                  );
+               else
+                  return (
+                     <div key={index}>{notification.NotificationContent}</div>
+                  );
             })}
          </div>
       </div>

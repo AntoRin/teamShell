@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const router = Router();
@@ -37,6 +38,35 @@ router.get("/notifications", async (req, res) => {
       let user = await User.findOne({ UniqueUsername, Email });
       let { Notifications } = user;
       return res.json({ status: "ok", Notifications });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
+   }
+});
+
+router.post("/notifications", async (req, res) => {
+   let { newUser, Org } = req.body;
+
+   try {
+      let user = await User.findOne({ UniqueUsername: newUser });
+      if (!user) throw "User Not Found";
+      let userSecret = jwt.sign(
+         { _id: user._id, OrganizationName: Org },
+         process.env.ORG_JWT_SECRET
+      );
+      let orgLink = `http://localhost:5000/organization/add-new-user/${userSecret}`;
+      await User.updateOne(
+         { _id: user._id },
+         {
+            $push: {
+               Notifications: {
+                  NotificationType: "Link",
+                  NotificationContent: orgLink,
+               },
+            },
+         }
+      );
+      return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);
       return res.json({ status: "error", error });

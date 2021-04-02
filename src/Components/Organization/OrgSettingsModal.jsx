@@ -4,6 +4,8 @@ import "../../org-settings-modal.css";
 
 function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
    const [newDescription, setNewDescription] = useState("");
+   const [newUser, setNewUser] = useState("");
+   const [addUserQuery, setAddUserQuery] = useState(false);
 
    function closeSettingsModal() {
       setIsSettingsOpen(false);
@@ -11,6 +13,14 @@ function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
+   }
+
+   function handleNewUserNameChange(event) {
+      setNewUser(event.target.value);
+   }
+
+   function showAddUserQuery() {
+      setAddUserQuery(prev => !prev);
    }
 
    async function updateOrgSettings(event) {
@@ -34,6 +44,31 @@ function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
       );
       let updateResponse = await updateRequest.json();
       if (updateResponse.status === "ok") window.location.reload();
+   }
+
+   async function addUserToOrg(event) {
+      event.preventDefault();
+      if (Organization.Members.includes(newUser))
+         return console.log("User already present");
+
+      let body = {
+         newUser,
+         Org: Organization.OrganizationName,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let newUserRequest = await fetch(
+         "http://localhost:5000/profile/notifications",
+         postOptions
+      );
+      let newUserResponse = await newUserRequest.json();
+      console.log(newUserResponse);
    }
 
    return (
@@ -61,10 +96,31 @@ function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
                <h2>Advanced Settings</h2>
                <div className="org-creator-settings">
                   <div className="add-user-setting">
-                     <button className="settings-btn" type="button">
+                     <button
+                        onClick={showAddUserQuery}
+                        className="settings-btn"
+                        type="button"
+                     >
                         Add a User
                      </button>
                   </div>
+                  {addUserQuery && (
+                     <div className="add-user-query">
+                        <form id="addUserToOrgForm" onSubmit={addUserToOrg}>
+                           <input
+                              onChange={handleNewUserNameChange}
+                              value={newUser}
+                              type="text"
+                              placeholder="Unique Username of the User"
+                              id="addUserInput"
+                              required
+                           />
+                           <button className="form-action-btn" type="submit">
+                              Add User
+                           </button>
+                        </form>
+                     </div>
+                  )}
                   <div className="create-project-setting">
                      <button className="settings-btn" type="button">
                         Create a Project
