@@ -9,10 +9,15 @@ function ProtectedRoute({ component: Component, ...props }) {
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
+      let abortFetch = new AbortController();
       async function verifyUser() {
          let auth = await fetch("http://localhost:5000/auth/verify", {
             credentials: "include",
+            signal: abortFetch.signal,
          });
+
+         if (abortFetch.signal.aborted) return;
+
          let serverResponse = await auth.json();
          if (serverResponse.status === "ok") {
             setAuthenticated(true);
@@ -24,6 +29,8 @@ function ProtectedRoute({ component: Component, ...props }) {
          }
       }
       verifyUser();
+
+      return () => abortFetch.abort();
    }, [Component]);
 
    if (isLoading) {

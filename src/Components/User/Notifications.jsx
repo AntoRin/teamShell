@@ -21,7 +21,7 @@ function Notifications({ isNotificationsOpen, setActiveNotifications }) {
       }
 
       getNotifications();
-   });
+   }, [setActiveNotifications]);
    return isNotificationsOpen ? (
       <div className="notifications-container">
          <div className="notification-panel">

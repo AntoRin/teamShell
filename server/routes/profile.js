@@ -36,6 +36,7 @@ router.get("/notifications", async (req, res) => {
 
    try {
       let user = await User.findOne({ UniqueUsername, Email });
+      if (!user) throw "User Not Found";
       let { Notifications } = user;
       return res.json({ status: "ok", Notifications });
    } catch (error) {

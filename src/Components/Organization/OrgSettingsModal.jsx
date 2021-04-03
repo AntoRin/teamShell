@@ -68,7 +68,7 @@ function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
          postOptions
       );
       let newUserResponse = await newUserRequest.json();
-      console.log(newUserResponse);
+      if (newUserResponse.status === "ok") window.location.reload();
    }
 
    return (
