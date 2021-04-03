@@ -17,7 +17,6 @@ router.post("/create", async (req, res) => {
 
    try {
       let newOrgData = await org.save();
-      console.log(newOrgData);
       await User.updateOne(
          { UniqueUsername, Email },
          {

@@ -4,7 +4,7 @@ import AppsIcon from "@material-ui/icons/Apps";
 import SettingsIcon from "@material-ui/icons/Settings";
 import "../../org-side-nav.css";
 
-function OrgSideNav({ Organization }) {
+function OrgSideNav({ match, Organization }) {
    const [isNavOpen, setIsNavOpen] = useState(false);
    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -20,6 +20,7 @@ function OrgSideNav({ Organization }) {
       <div className="org-side-nav-container">
          {isSettingsOpen && (
             <OrgSettingsModal
+               match={match}
                Organization={Organization}
                setIsSettingsOpen={setIsSettingsOpen}
             />

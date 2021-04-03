@@ -1,14 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import "../../create-form.css";
 
-function CreateOrganization() {
+function CreateProject({ location }) {
+   const [parentOrg, setParentOrg] = useState("");
    const [inputs, setInputs] = useState({
       newCreateName: "",
       newCreationDescription: "",
    });
 
    const history = useHistory();
+
+   useEffect(() => {
+      if (location.search) {
+         let query = location.search.split("?")[1];
+         let queryKey = query.split("=")[0];
+         if (queryKey === "Organization") {
+            setParentOrg(query.split("=")[1]);
+         }
+      }
+   }, [location]);
 
    function handleChange(event) {
       setInputs({
@@ -17,48 +28,26 @@ function CreateOrganization() {
       });
    }
 
-   function cancelCreateOrg() {
+   function cancelCreateProject() {
       history.push("/user/home");
    }
 
-   //------------------Change post options-----------------------
-
-   async function handleOrgCreation(event) {
+   async function handleProjectCreation(event) {
       event.preventDefault();
-      let body = {
-         OrganizationName: inputs.newCreateName,
-         Description: inputs.newCreationDescription,
-      };
-
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-
-      let createOrgRequest = await fetch(
-         "http://localhost:5000/organization/create",
-         postOptions
-      );
-      let createOrgResponse = await createOrgRequest.json();
-      console.log(createOrgResponse);
-      if (createOrgResponse.status === "ok")
-         history.push(`/organization/${inputs.newCreateName}`);
    }
 
    return (
       <div className="new-create-form-container">
          <div className="new-create-form-card">
             <div className="form-card-title">
-               <h1>Create a new Organization</h1>
+               <h1>Create a new Project</h1>
             </div>
-            <form onSubmit={handleOrgCreation} id="createForm">
+            <form onSubmit={handleProjectCreation} id="createForm">
                <label htmlFor="newCreateName">Name:</label>
                <br />
                <input
                   onChange={handleChange}
-                  value={inputs.newOrgName}
+                  value={inputs.newProjectName}
                   type="text"
                   autoComplete="off"
                   required
@@ -72,7 +61,7 @@ function CreateOrganization() {
                <br />
                <textarea
                   onChange={handleChange}
-                  value={inputs.newOrgDescription}
+                  value={inputs.newProjectDescription}
                   id="newCreationDescription"
                   maxLength="100"
                   required
@@ -80,7 +69,7 @@ function CreateOrganization() {
                ></textarea>
                <div className="create-form-action">
                   <button
-                     onClick={cancelCreateOrg}
+                     onClick={cancelCreateProject}
                      className="form-action-btn dull"
                      type="button"
                   >
@@ -96,4 +85,4 @@ function CreateOrganization() {
    );
 }
 
-export default CreateOrganization;
+export default CreateProject;

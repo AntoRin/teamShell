@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { useHistory } from "react-router-dom";
 import CloseIcon from "@material-ui/icons/Close";
 import "../../org-settings-modal.css";
 
-function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
+function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
    const [newDescription, setNewDescription] = useState("");
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
+
+   const history = useHistory();
 
    function closeSettingsModal() {
       setIsSettingsOpen(false);
@@ -71,6 +74,11 @@ function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
       if (newUserResponse.status === "ok") window.location.reload();
    }
 
+   function createProjectRedirect() {
+      let projectUrl = `/create/project?Organization=${match.params.OrganizationName}`;
+      history.push(projectUrl);
+   }
+
    return (
       <div className="settings-modal-container">
          <div className="org-settings-card">
@@ -122,7 +130,11 @@ function OrgSettingsModal({ Organization, setIsSettingsOpen }) {
                      </div>
                   )}
                   <div className="create-project-setting">
-                     <button className="settings-btn" type="button">
+                     <button
+                        onClick={createProjectRedirect}
+                        className="settings-btn"
+                        type="button"
+                     >
                         Create a Project
                      </button>
                   </div>
