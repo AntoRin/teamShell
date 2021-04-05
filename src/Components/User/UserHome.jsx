@@ -46,7 +46,7 @@ function UserHome({ User }) {
                   {User.Projects.map((project, index) => {
                      return (
                         <div className="member-list-item" key={index}>
-                           {project}
+                           {project.ProjectName}
                         </div>
                      );
                   })}

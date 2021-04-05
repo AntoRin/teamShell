@@ -58,7 +58,7 @@ function CreateOrganization() {
                <br />
                <input
                   onChange={handleChange}
-                  value={inputs.newOrgName}
+                  value={inputs.newCreateName}
                   type="text"
                   autoComplete="off"
                   required
@@ -72,7 +72,7 @@ function CreateOrganization() {
                <br />
                <textarea
                   onChange={handleChange}
-                  value={inputs.newOrgDescription}
+                  value={inputs.newCreationDescription}
                   id="newCreationDescription"
                   maxLength="100"
                   required

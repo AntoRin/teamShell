@@ -58,3 +58,18 @@
    align-items: center;
    margin: 20px;
 }
+
+#parentOrgSelector {
+   width: 200px;
+   font-size: 1.1rem;
+   background-color: transparent;
+   border: none;
+   outline: none;
+   border-bottom: 1px solid cyan;
+   color: white;
+   cursor: pointer;
+}
+
+#parentOrgSelector option {
+   background-color: #111;
+}

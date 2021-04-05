@@ -10,6 +10,7 @@ const checkAuth = require("./middleware/checkAuth");
 const authRoute = require("./routes/auth");
 const profileRoute = require("./routes/profile");
 const organizationRoute = require("./routes/organization");
+const projectRoute = require("./routes/project");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, "../build")));
 app.use("/auth", authRoute);
 app.use("/profile", checkAuth, profileRoute);
 app.use("/organization", checkAuth, organizationRoute);
+app.use("/project", checkAuth, projectRoute);
 
 const port = process.env.PORT || 5000;
 

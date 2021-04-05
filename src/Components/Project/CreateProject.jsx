@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import "../../create-form.css";
 
-function CreateProject({ location }) {
-   const [parentOrg, setParentOrg] = useState("");
+function CreateProject({ location, User }) {
    const [inputs, setInputs] = useState({
       newCreateName: "",
       newCreationDescription: "",
    });
+   const [parentOrg, setParentOrg] = useState("");
 
    const history = useHistory();
 
@@ -16,10 +16,25 @@ function CreateProject({ location }) {
          let query = location.search.split("?")[1];
          let queryKey = query.split("=")[0];
          if (queryKey === "Organization") {
-            setParentOrg(query.split("=")[1]);
+            let queryValue = query.split("=")[1];
+            if (
+               User.Organizations.find(Org => {
+                  return Org.OrganizationName === queryValue;
+               })
+            ) {
+               setParentOrg(queryValue);
+            } else {
+               setParentOrg(User.Organizations[0].OrganizationName);
+            }
          }
+      } else {
+         setParentOrg(User.Organizations[0].OrganizationName);
       }
-   }, [location]);
+   }, [location, User.Organizations]);
+
+   function handleSelectChange(event) {
+      setParentOrg(event.target.value);
+   }
 
    function handleChange(event) {
       setInputs({
@@ -34,6 +49,27 @@ function CreateProject({ location }) {
 
    async function handleProjectCreation(event) {
       event.preventDefault();
+
+      let body = {
+         ProjectName: inputs.newCreateName,
+         ProjectDescription: inputs.newCreationDescription,
+         ParentOrganization: parentOrg,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let createProject = await fetch(
+         "http://localhost:5000/project/create",
+         postOptions
+      );
+      let createProjectResponse = await createProject.json();
+
+      console.log(createProjectResponse.status);
    }
 
    return (
@@ -43,11 +79,27 @@ function CreateProject({ location }) {
                <h1>Create a new Project</h1>
             </div>
             <form onSubmit={handleProjectCreation} id="createForm">
+               <label htmlFor="parentOrgSelector">Organization:</label>
+               <select
+                  value={parentOrg}
+                  onChange={handleSelectChange}
+                  id="parentOrgSelector"
+               >
+                  {User.Organizations.map((Org, index) => {
+                     return (
+                        <option key={index} value={Org.OrganizationName}>
+                           {Org.OrganizationName}
+                        </option>
+                     );
+                  })}
+               </select>
+               <br />
+               <br />
                <label htmlFor="newCreateName">Name:</label>
                <br />
                <input
                   onChange={handleChange}
-                  value={inputs.newProjectName}
+                  value={inputs.newCreateName}
                   type="text"
                   autoComplete="off"
                   required
@@ -61,7 +113,7 @@ function CreateProject({ location }) {
                <br />
                <textarea
                   onChange={handleChange}
-                  value={inputs.newProjectDescription}
+                  value={inputs.newCreationDescription}
                   id="newCreationDescription"
                   maxLength="100"
                   required

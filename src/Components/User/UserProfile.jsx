@@ -132,7 +132,11 @@ function UserProfile({ location, match, User }) {
                <div className="projects-tab-list">
                   {Profile.Projects.map((project, index) => {
                      return (
-                        <DetailCard key={index} header={project} detail="" />
+                        <DetailCard
+                           key={index}
+                           header={project.ProjectName}
+                           detail=""
+                        />
                      );
                   })}
                </div>

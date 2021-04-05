@@ -54,7 +54,12 @@ const UserSchema = new Schema(
          default: [],
       },
       Projects: {
-         type: Array,
+         type: [
+            {
+               ProjectName: { type: String, required: true },
+               Status: { type: String, required: true },
+            },
+         ],
          default: [],
       },
       Issues: {

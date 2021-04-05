@@ -18,6 +18,14 @@ const ProjectSchema = new Schema({
       type: Array,
       default: [],
    },
+   Creator: {
+      type: String,
+      required: true,
+   },
+   Members: {
+      type: Array,
+      default: [],
+   },
 });
 
 const Project = model("Project", ProjectSchema, "Projects");
