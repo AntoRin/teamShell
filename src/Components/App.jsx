@@ -9,6 +9,7 @@ import NonUserRoute from "./NonUserRoute";
 import CreateOrganization from "./Organization/CreateOrganization";
 import OrganizationHome from "./Organization/OrganizationHome";
 import CreateProject from "./Project/CreateProject";
+import ProjectHome from "./Project/ProjectHome";
 import UserEnvironment from "./User/UserEnvironment";
 
 function App() {
@@ -39,6 +40,11 @@ function App() {
                   path="/create/project"
                   exact
                   component={CreateProject}
+               />
+               <ProtectedRoute
+                  path="/organization/:OrganizationName/:ProjectName"
+                  exact
+                  component={ProjectHome}
                />
                <ProtectedRoute
                   path="/user/environment"
