@@ -132,11 +132,12 @@ function UserProfile({ location, match, User }) {
                <div className="projects-tab-list">
                   {Profile.Projects.map((project, index) => {
                      return (
-                        <DetailCard
+                        <Link
+                           to={`/project/${project.ParentOrganization}/${project.ProjectName}`}
                            key={index}
-                           header={project.ProjectName}
-                           detail=""
-                        />
+                        >
+                           <DetailCard header={project.ProjectName} detail="" />
+                        </Link>
                      );
                   })}
                </div>
@@ -208,7 +209,7 @@ function UserProfile({ location, match, User }) {
       return (
          <div className="profile-container">
             <GlobalNav
-               profileImage={User.ProfileImage}
+               ProfileImage={User.ProfileImage}
                UniqueUsername={User.UniqueUsername}
             />
             <div className="profile-tabs">

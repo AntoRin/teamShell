@@ -6,7 +6,7 @@ import Notifications from "./User/Notifications";
 import UserDropDown from "./User/UserDropDown";
 import "../global-nav.css";
 
-function GlobalNav({ profileImage, UniqueUsername }) {
+function GlobalNav({ ProfileImage, UniqueUsername }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
    const [activeNotifications, setActiveNotifications] = useState(false);
@@ -49,7 +49,7 @@ function GlobalNav({ profileImage, UniqueUsername }) {
                   <img
                      onClick={openDropdown}
                      id="userProfileImage"
-                     src={profileImage}
+                     src={ProfileImage}
                      alt=""
                   />
                   <div className="user-drop-down">

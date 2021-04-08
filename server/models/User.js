@@ -57,6 +57,7 @@ const UserSchema = new Schema(
          type: [
             {
                ProjectName: { type: String, required: true },
+               ParentOrganization: { type: String, required: true },
                Status: { type: String, required: true },
             },
          ],

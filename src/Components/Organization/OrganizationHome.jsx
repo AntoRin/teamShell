@@ -10,13 +10,17 @@ function OrganizationHome({ match, User }) {
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
+      let abortFetch = new AbortController();
       async function getOrgData() {
          let orgRequest = await fetch(
             `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
             {
                credentials: "include",
+               signal: abortFetch.signal,
             }
          );
+
+         if (abortFetch.signal.aborted) return;
 
          let orgResponse = await orgRequest.json();
 
@@ -32,6 +36,8 @@ function OrganizationHome({ match, User }) {
       }
 
       getOrgData();
+
+      return () => abortFetch.abort();
    }, [match.params.OrganizationName]);
 
    if (isLoading) {
@@ -40,7 +46,7 @@ function OrganizationHome({ match, User }) {
       return isAuthorized ? (
          <div className="organization-home-container">
             <GlobalNav
-               profileImage={User.ProfileImage}
+               ProfileImage={User.ProfileImage}
                UniqueUsername={User.UniqueUsername}
             />
             <div className="org-main-wrapper">

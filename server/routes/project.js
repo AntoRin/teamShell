@@ -30,6 +30,7 @@ router.post("/create", async (req, res) => {
                Projects: {
                   _id: newProjectData._id,
                   ProjectName,
+                  ParentOrganization,
                   Status: "Creator",
                },
             },

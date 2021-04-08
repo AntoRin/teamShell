@@ -17,7 +17,7 @@ function UserHome({ User }) {
    return (
       <div className="home-container">
          <GlobalNav
-            profileImage={User.ProfileImage}
+            ProfileImage={User.ProfileImage}
             UniqueUsername={User.UniqueUsername}
          />
          <div className="home-main">

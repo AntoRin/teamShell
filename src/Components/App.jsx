@@ -42,7 +42,7 @@ function App() {
                   component={CreateProject}
                />
                <ProtectedRoute
-                  path="/organization/:OrganizationName/:ProjectName"
+                  path="/project/:OrganizationName/:ProjectName"
                   exact
                   component={ProjectHome}
                />
