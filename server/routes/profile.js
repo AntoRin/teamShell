@@ -70,7 +70,7 @@ router.post("/notifications", async (req, res) => {
       return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);
-      return res.json({ status: "error", error });
+      return res.status(404).json({ status: "error", error });
    }
 });
 

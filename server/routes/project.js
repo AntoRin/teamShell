@@ -44,4 +44,28 @@ router.post("/create", async (req, res) => {
    }
 });
 
+router.get("/details/:ProjectName", async (req, res) => {
+   let ProjectName = req.params.ProjectName;
+   let { UniqueUsername, Email } = req.thisUser;
+
+   try {
+      let project = await Project.findOne({ ProjectName });
+      if (project === null) throw "Project not found";
+      if (project.Members.includes(UniqueUsername)) {
+         return res.json({ status: "ok", Project: project });
+      } else {
+         throw "Unauthorized";
+      }
+   } catch (error) {
+      console.log(error);
+      if (error === "Project not found")
+         return res.status(404).json({ status: "error", error });
+
+      if (error === "Unauthorized")
+         return res.status(401).json({ status: "error", error });
+
+      return res.status(501).json({ status: "error", error });
+   }
+});
+
 module.exports = router;
