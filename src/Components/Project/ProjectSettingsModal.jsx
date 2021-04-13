@@ -1,91 +1,43 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
 import CloseIcon from "@material-ui/icons/Close";
 import "../../styles/settings-modal.css";
 
-function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
+function ProjectSettingsModal({ setSettings }) {
    const [newDescription, setNewDescription] = useState("");
-   const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
+   const [newUser, setNewUser] = useState("");
 
-   const history = useHistory();
-
-   function closeSettingsModal() {
-      setIsSettingsOpen(false);
+   function updateProjectSettings(event) {
+      event.preventDefault();
    }
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
    }
 
-   function handleNewUserNameChange(event) {
-      setNewUser(event.target.value);
-   }
-
    function showAddUserQuery() {
       setAddUserQuery(prev => !prev);
    }
 
-   async function updateOrgSettings(event) {
-      event.preventDefault();
-
-      let body = {
-         Org: Organization.OrganizationName,
-         Description: newDescription,
-      };
-
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-
-      let updateRequest = await fetch(
-         "http://localhost:5000/organization/edit",
-         postOptions
-      );
-      let updateResponse = await updateRequest.json();
-      if (updateResponse.status === "ok") window.location.reload();
+   function handleNewUserNameChange(event) {
+      setNewUser(event.target.value);
    }
 
-   async function addUserToOrg(event) {
+   function addUserToProject(event) {
       event.preventDefault();
-      if (Organization.Members.includes(newUser))
-         return console.log("User already present");
-
-      let body = {
-         newUser,
-         Org: Organization.OrganizationName,
-      };
-
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-
-      let newUserRequest = await fetch(
-         "http://localhost:5000/profile/notifications",
-         postOptions
-      );
-      let newUserResponse = await newUserRequest.json();
-      if (newUserResponse.status === "ok") window.location.reload();
    }
 
-   function createProjectRedirect() {
-      let projectUrl = `/create/project?Organization=${match.params.OrganizationName}`;
-      history.push(projectUrl);
+   function closeSettingsModal() {
+      setSettings(false);
    }
 
    return (
       <div className="settings-modal-container">
          <div className="settings-modal-card">
             <div className="settings-elements-wrapper">
-               <div className="org-settings-form">
+               <div className="project-settings-form">
                   <h2>Basic Settings</h2>
-                  <form onSubmit={updateOrgSettings}>
+                  <form onSubmit={updateProjectSettings}>
                      <textarea
                         onChange={handleDescriptionChange}
                         value={newDescription}
@@ -114,13 +66,16 @@ function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
                   </div>
                   {addUserQuery && (
                      <div className="add-user-query">
-                        <form id="addUserToOrgForm" onSubmit={addUserToOrg}>
+                        <form
+                           id="addUserToProjectForm"
+                           onSubmit={addUserToProject}
+                        >
                            <input
                               onChange={handleNewUserNameChange}
                               value={newUser}
                               type="text"
                               placeholder="Unique Username of the User"
-                              id="addUserInput"
+                              id="addUserInput_ProjectModal"
                               required
                            />
                            <button className="form-action-btn" type="submit">
@@ -129,15 +84,6 @@ function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
                         </form>
                      </div>
                   )}
-                  <div className="create-project-setting">
-                     <button
-                        onClick={createProjectRedirect}
-                        className="settings-btn"
-                        type="button"
-                     >
-                        Create a Project
-                     </button>
-                  </div>
                </div>
             </div>
          </div>
@@ -150,4 +96,4 @@ function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
    );
 }
 
-export default OrgSettingsModal;
+export default ProjectSettingsModal;
