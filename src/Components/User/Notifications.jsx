@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "../../notifications.css";
+import "../../styles/notifications.css";
 
 function Notifications({ isNotificationsOpen, setActiveNotifications }) {
    const [notifications, setNotifications] = useState([]);

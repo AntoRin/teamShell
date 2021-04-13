@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import CloseIcon from "@material-ui/icons/Close";
-import "../../org-settings-modal.css";
+import "../../styles/org-settings-modal.css";
 
 function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
    const [newDescription, setNewDescription] = useState("");

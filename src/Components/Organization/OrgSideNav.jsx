@@ -2,7 +2,7 @@ import { useState } from "react";
 import OrgSettingsModal from "./OrgSettingsModal";
 import AppsIcon from "@material-ui/icons/Apps";
 import SettingsIcon from "@material-ui/icons/Settings";
-import "../../org-side-nav.css";
+import "../../styles/org-side-nav.css";
 
 function OrgSideNav({ match, Organization }) {
    const [isNavOpen, setIsNavOpen] = useState(false);

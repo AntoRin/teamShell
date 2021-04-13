@@ -1,4 +1,4 @@
-import "../../detail-card.css";
+import "../../styles/detail-card.css";
 
 function DetailCard({ header, detail }) {
    return (

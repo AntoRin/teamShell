@@ -1,5 +1,5 @@
 import { useHistory, Link } from "react-router-dom";
-import "../../landing-nav.css";
+import "../../styles/landing-nav.css";
 
 function LandingNav() {
    const history = useHistory();

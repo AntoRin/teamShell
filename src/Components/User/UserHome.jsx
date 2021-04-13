@@ -1,7 +1,7 @@
 import { Link, useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import GlobalNav from "../GlobalNav";
-import "../../user-home.css";
+import "../../styles/user-home.css";
 
 function UserHome({ User }) {
    const history = useHistory();

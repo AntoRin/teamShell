@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import "../../create-form.css";
+import "../../styles/create-form.css";
 
 function CreateOrganization() {
    const [inputs, setInputs] = useState({

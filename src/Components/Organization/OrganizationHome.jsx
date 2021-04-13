@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import GlobalNav from "../GlobalNav";
 import OrgSideNav from "./OrgSideNav";
 import DetailCard from "../User/DetailCard";
-import "../../organization-home.css";
+import "../../styles/organization-home.css";
 
 function OrganizationHome({ match, User }) {
    const [isAuthorized, setIsAuthorized] = useState(false);

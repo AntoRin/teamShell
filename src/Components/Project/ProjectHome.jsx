@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
 import GlobalNav from "../GlobalNav";
-import "../../project-home.css";
+import "../../styles/project-home.css";
 
 function ProjectHome({ match, User }) {
    const [isLoading, setIsLoading] = useState(true);

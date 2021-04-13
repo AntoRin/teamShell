@@ -1,5 +1,5 @@
 import { Link, useHistory } from "react-router-dom";
-import "../../user-drop-down.css";
+import "../../styles/user-drop-down.css";
 
 function UserDropDown({ isOpen, UniqueUsername }) {
    const history = useHistory();

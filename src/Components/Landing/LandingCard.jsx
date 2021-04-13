@@ -1,5 +1,5 @@
 import { useHistory } from "react-router-dom";
-import "../../landing-card.css";
+import "../../styles/landing-card.css";
 
 function LandingCard() {
    const history = useHistory();

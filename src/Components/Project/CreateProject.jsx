@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import "../../create-form.css";
+import "../../styles/create-form.css";
 
 function CreateProject({ location, User }) {
    const [inputs, setInputs] = useState({

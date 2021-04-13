@@ -4,7 +4,7 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
 import Notifications from "./User/Notifications";
 import UserDropDown from "./User/UserDropDown";
-import "../global-nav.css";
+import "../styles/global-nav.css";
 
 function GlobalNav({ ProfileImage, UniqueUsername }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);

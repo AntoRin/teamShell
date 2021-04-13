@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import HomeIcon from "@material-ui/icons/Home";
-import "../../register-login.css";
+import "../../styles/register-login.css";
 
 function Register() {
    const [inputs, setInputs] = useState({

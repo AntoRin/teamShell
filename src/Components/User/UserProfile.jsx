@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import GlobalNav from "../GlobalNav";
 import DetailCard from "./DetailCard";
-import "../../user-profile.css";
+import "../../styles/user-profile.css";
 
 function UserProfile({ location, match, User }) {
    const [Profile, setProfile] = useState({});

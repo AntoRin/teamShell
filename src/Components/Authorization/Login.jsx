@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import HomeIcon from "@material-ui/icons/Home";
-import "../../register-login.css";
+import "../../styles/register-login.css";
 
 function Login() {
    const [inputs, setInputs] = useState({
