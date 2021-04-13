@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import SettingsIcon from "@material-ui/icons/Settings";
 import GlobalNav from "../GlobalNav";
 import "../../project-home.css";
 
@@ -108,6 +109,9 @@ function ProjectHome({ match, User }) {
                            : "No issues yet"}
                      </div>
                   </div>
+               </div>
+               <div className="project-settings-icon">
+                  <SettingsIcon fontSize="large" />
                </div>
             </div>
          </div>
