@@ -32,6 +32,10 @@ const UserSchema = new Schema(
       Notifications: {
          type: [
             {
+               NotificationHeader: {
+                  type: String,
+                  required: true,
+               },
                NotificationType: {
                   type: String,
                   required: true,

@@ -22,6 +22,16 @@ function Notifications({ isNotificationsOpen, setActiveNotifications }) {
 
       getNotifications();
    }, [setActiveNotifications]);
+
+   async function clearNotifications() {
+      let update = await fetch(
+         "http://localhost:5000/profile/notifications/clear",
+         { credentials: "include" }
+      );
+      let updateResponse = await update.json();
+      if (updateResponse.status === "ok") window.location.reload();
+   }
+
    return isNotificationsOpen ? (
       <div className="notifications-container">
          <div className="notification-panel">
@@ -29,7 +39,9 @@ function Notifications({ isNotificationsOpen, setActiveNotifications }) {
                if (notification.NotificationType === "Link")
                   return (
                      <div key={index}>
-                        <a href={notification.NotificationContent}>Join Org</a>
+                        <a href={notification.NotificationContent}>
+                           {notification.NotificationHeader}
+                        </a>
                      </div>
                   );
                else
@@ -37,6 +49,7 @@ function Notifications({ isNotificationsOpen, setActiveNotifications }) {
                      <div key={index}>{notification.NotificationContent}</div>
                   );
             })}
+            <button onClick={clearNotifications}>Clear</button>
          </div>
       </div>
    ) : (

@@ -55,8 +55,12 @@ function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
          return console.log("User already present");
 
       let body = {
-         newUser,
-         Org: Organization.OrganizationName,
+         toUser: newUser,
+         primaryPayload: Organization.OrganizationName,
+         meta: {
+            type: "Invitation",
+            invitation_category: "Organization",
+         },
       };
 
       let postOptions = {
@@ -120,7 +124,7 @@ function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
                               value={newUser}
                               type="text"
                               placeholder="Unique Username of the User"
-                              id="addUserInput"
+                              id="addUserInput_OrgModal"
                               required
                            />
                            <button className="form-action-btn" type="submit">

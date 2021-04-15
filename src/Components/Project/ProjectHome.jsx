@@ -122,7 +122,12 @@ function ProjectHome({ match, User }) {
                >
                   <SettingsIcon fontSize="large" />
                </div>
-               {settings && <ProjectSettingsModal setSettings={setSettings} />}
+               {settings && (
+                  <ProjectSettingsModal
+                     Project={Project}
+                     setSettings={setSettings}
+                  />
+               )}
             </div>
          </div>
       ) : (

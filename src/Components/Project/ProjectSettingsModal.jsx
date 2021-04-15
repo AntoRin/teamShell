@@ -2,29 +2,72 @@ import { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import "../../styles/settings-modal.css";
 
-function ProjectSettingsModal({ setSettings }) {
+function ProjectSettingsModal({ Project, setSettings }) {
    const [newDescription, setNewDescription] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [newUser, setNewUser] = useState("");
 
-   function updateProjectSettings(event) {
-      event.preventDefault();
-   }
-
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
-   }
-
-   function showAddUserQuery() {
-      setAddUserQuery(prev => !prev);
    }
 
    function handleNewUserNameChange(event) {
       setNewUser(event.target.value);
    }
 
-   function addUserToProject(event) {
+   function showAddUserQuery() {
+      setAddUserQuery(prev => !prev);
+   }
+
+   async function updateProjectSettings(event) {
       event.preventDefault();
+
+      let body = {
+         ProjectName: Project.ProjectName,
+         ProjectDescription: newDescription,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let update = await fetch(
+         "http://localhost:5000/project/edit",
+         postOptions
+      );
+      let updateResponse = await update.json();
+
+      if (updateResponse.status === "ok") window.location.reload();
+   }
+
+   async function addUserToProject(event) {
+      event.preventDefault();
+
+      let body = {
+         toUser: newUser,
+         primaryPayload: Project.ProjectName,
+         meta: {
+            type: "Invitation",
+            invitation_category: "Project",
+         },
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let newUserRequest = await fetch(
+         "http://localhost:5000/profile/notifications",
+         postOptions
+      );
+      let newUserResponse = await newUserRequest.json();
+      if (newUserResponse.status === "ok") window.location.reload();
    }
 
    function closeSettingsModal() {
