@@ -6,13 +6,21 @@ import "../../styles/user-home.css";
 
 function UserHome({ User }) {
    const [activePanelOrg, setActivePanelOrg] = useState(
-      User.Organizations || ""
+      User.Organizations[0].OrganizationName || ""
    );
 
    const history = useHistory();
 
    function changePanelOrg(event) {
       setActivePanelOrg(event.target.innerHTML);
+   }
+
+   function goToOrg(event) {
+      history.push(`/organization/${event.target.innerHTML}`);
+   }
+
+   function goToProject(event) {
+      history.push(`/project/${activePanelOrg}/${event.target.innerHTML}`);
    }
 
    function createNewOrganization() {
@@ -37,7 +45,12 @@ function UserHome({ User }) {
                      return (
                         <div
                            onClick={changePanelOrg}
-                           className="member-list-item"
+                           onDoubleClick={goToOrg}
+                           className={`member-list-item ${
+                              activePanelOrg === org.OrganizationName
+                                 ? "active-member"
+                                 : ""
+                           }`}
                            key={index}
                         >
                            {org.OrganizationName}
@@ -56,15 +69,23 @@ function UserHome({ User }) {
                </div>
                <div className="details-section">
                   <h3 className="member-list-header">Projects</h3>
-                  {User.Projects.map((project, index) => {
-                     if (project.ParentOrganization === activePanelOrg)
-                        return (
-                           <div className="member-list-item" key={index}>
-                              {project.ProjectName}
-                           </div>
-                        );
-                     else return "";
-                  })}
+                  {User.Projects.length > 0 ? (
+                     User.Projects.map((project, index) => {
+                        if (project.ParentOrganization === activePanelOrg)
+                           return (
+                              <div
+                                 onClick={goToProject}
+                                 className="member-list-item"
+                                 key={index}
+                              >
+                                 {project.ProjectName}
+                              </div>
+                           );
+                        else return "";
+                     })
+                  ) : (
+                     <div className="member-list-item">No projects</div>
+                  )}
                   <div className="create-project-btn">
                      <button onClick={createNewProject} className="create-btn">
                         <span>New Project</span>

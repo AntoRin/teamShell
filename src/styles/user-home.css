@@ -37,6 +37,10 @@
    cursor: pointer;
 }
 
+.active-member {
+   border: 2px solid cyan;
+}
+
 .create-org-btn {
    display: flex;
    justify-content: center;
