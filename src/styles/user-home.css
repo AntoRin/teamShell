@@ -34,6 +34,7 @@
    margin: 5px 0px;
    padding: 10px 5px;
    background: rgb(28, 31, 34);
+   cursor: pointer;
 }
 
 .create-org-btn {

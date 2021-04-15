@@ -1,10 +1,19 @@
+import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import GlobalNav from "../GlobalNav";
 import "../../styles/user-home.css";
 
 function UserHome({ User }) {
+   const [activePanelOrg, setActivePanelOrg] = useState(
+      User.Organizations || ""
+   );
+
    const history = useHistory();
+
+   function changePanelOrg(event) {
+      setActivePanelOrg(event.target.innerHTML);
+   }
 
    function createNewOrganization() {
       history.push("/create/organization");
@@ -26,7 +35,11 @@ function UserHome({ User }) {
                   <h3 className="member-list-header">Organizations</h3>
                   {User.Organizations.map((org, index) => {
                      return (
-                        <div className="member-list-item" key={index}>
+                        <div
+                           onClick={changePanelOrg}
+                           className="member-list-item"
+                           key={index}
+                        >
                            {org.OrganizationName}
                         </div>
                      );
@@ -44,11 +57,13 @@ function UserHome({ User }) {
                <div className="details-section">
                   <h3 className="member-list-header">Projects</h3>
                   {User.Projects.map((project, index) => {
-                     return (
-                        <div className="member-list-item" key={index}>
-                           {project.ProjectName}
-                        </div>
-                     );
+                     if (project.ParentOrganization === activePanelOrg)
+                        return (
+                           <div className="member-list-item" key={index}>
+                              {project.ProjectName}
+                           </div>
+                        );
+                     else return "";
                   })}
                   <div className="create-project-btn">
                      <button onClick={createNewProject} className="create-btn">
