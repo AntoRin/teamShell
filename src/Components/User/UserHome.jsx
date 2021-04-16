@@ -28,7 +28,7 @@ function UserHome({ User }) {
    }
 
    function createNewProject() {
-      history.push("/create/project");
+      history.push(`/create/project?Organization=${activePanelOrg}`);
    }
 
    return (

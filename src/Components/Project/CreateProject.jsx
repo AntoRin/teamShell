@@ -69,7 +69,8 @@ function CreateProject({ location, User }) {
       );
       let createProjectResponse = await createProject.json();
 
-      console.log(createProjectResponse.status);
+      if (createProjectResponse.status === "ok")
+         history.push(`/project/${parentOrg}/${inputs.newCreateName}`);
    }
 
    return (
