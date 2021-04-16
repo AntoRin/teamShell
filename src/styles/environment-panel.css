@@ -10,9 +10,29 @@
 }
 
 .panel-project-selection {
-   border-right: indigo;
+   border-right: 1px solid gray;
+   padding: 5px;
+   margin: 5px;
+   width: 100%;
+}
+
+.panel-project-member {
+   background-color: rgb(40, 40, 40);
+   padding: 5px;
+   margin: 10px;
+   width: 90%;
 }
 
 .panel-project-member {
    font-family: "Roboto", sans-serif;
+}
+
+.environment-workspace {
+   margin: 20px;
+   padding: 20px;
+}
+
+#multilineEditor {
+   color: white;
+   font-size: 1.2rem;
 }

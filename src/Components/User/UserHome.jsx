@@ -31,6 +31,41 @@ function UserHome({ User }) {
       history.push(`/create/project?Organization=${activePanelOrg}`);
    }
 
+   function currentProjects() {
+      if (User.Projects.length < 1)
+         return (
+            <div onClick={goToProject} className="member-list-item">
+               No projects yet.
+            </div>
+         );
+
+      let thisOrgProjects = User.Projects.find(
+         project => project.ParentOrganization === activePanelOrg
+      );
+
+      if (!thisOrgProjects)
+         return (
+            <div className="member-list-item">
+               No project in this organization.
+            </div>
+         );
+
+      let projectTitles = User.Projects.map((project, index) => {
+         return (
+            project.ParentOrganization === activePanelOrg && (
+               <div
+                  key={index}
+                  className="member-list-item"
+                  onClick={goToProject}
+               >
+                  {project.ProjectName}
+               </div>
+            )
+         );
+      });
+      return projectTitles;
+   }
+
    return (
       <div className="home-container">
          <GlobalNav
@@ -69,23 +104,7 @@ function UserHome({ User }) {
                </div>
                <div className="details-section">
                   <h3 className="member-list-header">Projects</h3>
-                  {User.Projects.length > 0 ? (
-                     User.Projects.map((project, index) => {
-                        if (project.ParentOrganization === activePanelOrg)
-                           return (
-                              <div
-                                 onClick={goToProject}
-                                 className="member-list-item"
-                                 key={index}
-                              >
-                                 {project.ProjectName}
-                              </div>
-                           );
-                        else return "";
-                     })
-                  ) : (
-                     <div className="member-list-item">No projects</div>
-                  )}
+                  {currentProjects()}
                   <div className="create-project-btn">
                      <button onClick={createNewProject} className="create-btn">
                         <span>New Project</span>
