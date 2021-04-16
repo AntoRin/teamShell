@@ -1,38 +1,10 @@
 import { useState } from "react";
-import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
+import EnvironmentPanel from "./EnvironmentPanel";
 import GlobalNav from "../GlobalNav";
-
-TabPanel.propTypes = {
-   children: PropTypes.node,
-   index: PropTypes.any.isRequired,
-   value: PropTypes.any.isRequired,
-};
-
-function TabPanel(props) {
-   const { children, value, index, ...other } = props;
-
-   return (
-      <div
-         role="tabpanel"
-         hidden={value !== index}
-         id={`scrollable-auto-tabpanel-${index}`}
-         aria-labelledby={`scrollable-auto-tab-${index}`}
-         {...other}
-      >
-         {value === index && (
-            <Box p={3}>
-               <Typography>{children}</Typography>
-            </Box>
-         )}
-      </div>
-   );
-}
 
 function createTabProps(index) {
    return {
@@ -46,6 +18,7 @@ const useStyles = makeStyles(theme => ({
       flexGrow: 1,
       width: "100%",
       backgroundColor: "#111",
+      minHeight: "300px",
    },
    "app-bar": {
       backgroundColor: "#222",
@@ -64,10 +37,10 @@ function UserEnvironment({ User }) {
    const [currentOrg, setCurrentOrg] = useState(
       User.Organizations[0].OrganizationName
    );
-   console.log(currentOrg);
+
    function handleChange(event, newValue) {
       setValue(newValue);
-      setCurrentOrg(User.Organizations[newValue].OrganizationName);
+      setCurrentOrg(event.target.innerHTML);
    }
 
    return (
@@ -81,7 +54,7 @@ function UserEnvironment({ User }) {
                <AppBar
                   className={classes["app-bar"]}
                   position="static"
-                  color="default"
+                  color="secondary"
                >
                   <Tabs
                      value={value}
@@ -104,37 +77,7 @@ function UserEnvironment({ User }) {
                      })}
                   </Tabs>
                </AppBar>
-               {User.Projects.map((project, index) => {
-                  console.log(project.ParentOrganization === currentOrg);
-                  return project.ParentOrganization === currentOrg ? (
-                     <TabPanel key={index} value={value} index={index}>
-                        {project.ProjectName}
-                     </TabPanel>
-                  ) : (
-                     ""
-                  );
-               })}
-               {/* <TabPanel value={value} index={0}>
-                  Item Oneasdasdasd
-               </TabPanel>
-               <TabPanel value={value} index={1}>
-                  Item Two
-               </TabPanel>
-               <TabPanel value={value} index={2}>
-                  Item Three
-               </TabPanel>
-               <TabPanel value={value} index={3}>
-                  Item Four
-               </TabPanel>
-               <TabPanel value={value} index={4}>
-                  Item Five
-               </TabPanel>
-               <TabPanel value={value} index={5}>
-                  Item Six
-               </TabPanel>
-               <TabPanel value={value} index={6}>
-                  Item Seven
-               </TabPanel> */}
+               <EnvironmentPanel User={User} currentOrg={currentOrg} />
             </div>
          </div>
       </div>
