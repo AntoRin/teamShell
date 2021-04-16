@@ -28,7 +28,7 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
          <div className="nav-wrapper">
             <div className="general-nav-section">
                <div className="nav-logo">
-                  <Link to="/user/home">❤</Link>
+                  <Link to="/user/home">{`<CoLab />`}</Link>
                </div>
             </div>
             <div className="user-section">
