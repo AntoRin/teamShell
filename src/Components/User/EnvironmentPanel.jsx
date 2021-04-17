@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
@@ -25,6 +26,19 @@ const useStyles = makeStyles(theme => ({
 
 function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
+   const [activeProject, setActiveProject] = useState("");
+
+   useEffect(() => {
+      let currentProject = User.Projects.find(
+         project => project.ParentOrganization === currentOrg
+      );
+      if (currentProject) setActiveProject(currentProject.ProjectName);
+      else setActiveProject("");
+   }, [currentOrg, User.Projects]);
+
+   function changeActiveProject(event) {
+      setActiveProject(event.target.textContent);
+   }
 
    function currentProjects() {
       if (User.Projects.length < 1)
@@ -48,7 +62,15 @@ function EnvironmentPanel({ User, currentOrg }) {
       let projectTitles = User.Projects.map((project, index) => {
          return (
             project.ParentOrganization === currentOrg && (
-               <div key={index} className="panel-project-member">
+               <div
+                  key={index}
+                  onClick={changeActiveProject}
+                  className={`panel-project-member ${
+                     activeProject === project.ProjectName
+                        ? "panel-project-active"
+                        : ""
+                  }`}
+               >
                   <h3>{project.ProjectName}</h3>
                </div>
             )
@@ -61,24 +83,31 @@ function EnvironmentPanel({ User, currentOrg }) {
          <div className="environment-panel-main">
             <div className="panel-project-selection">{currentProjects()}</div>
             <div className="environment-workspace">
-               <div className="new-issue-division">
-                  <Accordion className={classes.root}>
-                     <AccordionSummary
-                        expandIcon={
-                           <ExpandMoreIcon className={classes.arrowIcon} />
-                        }
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                     >
-                        <Typography className={classes.heading}>
-                           Create a new issue
-                        </Typography>
-                     </AccordionSummary>
-                     <AccordionDetails>
-                        <IssueEditor />
-                     </AccordionDetails>
-                  </Accordion>
-               </div>
+               {activeProject ? (
+                  <div className="new-issue-division">
+                     <Accordion className={classes.root}>
+                        <AccordionSummary
+                           expandIcon={
+                              <ExpandMoreIcon className={classes.arrowIcon} />
+                           }
+                           aria-controls="panel1a-content"
+                           id="panel1a-header"
+                        >
+                           <Typography className={classes.heading}>
+                              Create a new issue
+                           </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                           <IssueEditor
+                              activeProject={activeProject}
+                              User={User}
+                           />
+                        </AccordionDetails>
+                     </Accordion>
+                  </div>
+               ) : (
+                  <h1>Create a project to get started</h1>
+               )}
             </div>
          </div>
       </div>

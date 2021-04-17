@@ -15,10 +15,11 @@ const useStyles = makeStyles({
       position: "relative",
       left: "50%",
       transform: "translateX(-50%)",
+      margin: "5px",
    },
 });
 
-function IssueEditor() {
+function IssueEditor({ activeProject, User }) {
    const classes = useStyles();
    const [issueInputs, setIssueInputs] = useState({
       issueTitleInput: "",
@@ -28,32 +29,72 @@ function IssueEditor() {
    function handleChange(event) {
       setIssueInputs({
          ...issueInputs,
-         [event.id]: event.target.value,
+         [event.target.id]: event.target.value,
       });
+   }
+
+   async function handleIssueCreation(event) {
+      event.preventDefault();
+
+      let project_id = User.Projects.find(
+         project => project.ProjectName === activeProject
+      );
+
+      if (!project_id) return;
+
+      let body = {
+         IssueTitle: issueInputs.issueTitleInput,
+         IssueDescription: issueInputs.issueBodyInput,
+         ProjectContext: activeProject,
+         project_id,
+         Creator: User.UniqueUsername,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let newIssueRequest = await fetch(
+         "http://localhost:5000/issue/create",
+         postOptions
+      );
+      let newIssueResponse = await newIssueRequest.json();
+
+      console.log(newIssueResponse);
    }
 
    return (
       <div className="issue-editor-container">
-         <form id="issueEditorForm" autoComplete="off">
+         <form
+            onSubmit={handleIssueCreation}
+            id="issueEditorForm"
+            autoComplete="off"
+         >
             <div className="issue-title">
                <input
-                  value={issueInputs.title}
+                  value={issueInputs.issueTitleInput}
                   onChange={handleChange}
                   type="text"
                   id="issueTitleInput"
+                  required
                   placeholder="Issue Title"
                />
             </div>
             <div className="issue-body">
                <textarea
-                  value={issueInputs.title}
+                  value={issueInputs.issueBodyInput}
                   onChange={handleChange}
                   placeholder="State your issue"
                   id="issueBodyInput"
+                  required
                   rows="7"
                ></textarea>
             </div>
             <Button
+               type="submit"
                className={classes.root}
                size="medium"
                variant="contained"

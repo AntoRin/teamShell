@@ -3,11 +3,15 @@ const { Schema } = mongoose;
 
 const issueSchema = new Schema(
    {
-      Title: {
+      IssueTitle: {
          type: String,
          required: true,
       },
       IssueDescription: {
+         type: String,
+         required: true,
+      },
+      ProjectContext: {
          type: String,
          required: true,
       },

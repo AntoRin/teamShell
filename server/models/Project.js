@@ -15,10 +15,10 @@ const ProjectSchema = new Schema(
          type: String,
          required: true,
       },
-      Issues: {
-         type: Array,
-         default: [],
-      },
+      // Issues: {
+      //    type: [issueSchema],
+      //    default: [],
+      // },
       Creator: {
          type: String,
          required: true,

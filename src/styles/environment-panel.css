@@ -25,12 +25,18 @@
 
 .panel-project-member {
    font-family: "Roboto", sans-serif;
+   cursor: pointer;
+}
+
+.panel-project-active {
+   border: 1px solid cyan;
 }
 
 .environment-workspace {
    margin: 20px;
    padding: 20px;
    min-height: 300px;
+   font-family: "Quicksand", sans-serif;
 }
 
 #multilineEditor {

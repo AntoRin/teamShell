@@ -11,6 +11,7 @@ const authRoute = require("./routes/auth");
 const profileRoute = require("./routes/profile");
 const organizationRoute = require("./routes/organization");
 const projectRoute = require("./routes/project");
+const issueRoute = require("./routes/issue");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/auth", authRoute);
 app.use("/profile", checkAuth, profileRoute);
 app.use("/organization", checkAuth, organizationRoute);
 app.use("/project", checkAuth, projectRoute);
+app.use("/issue", checkAuth, issueRoute);
 
 const port = process.env.PORT || 5000;
 
