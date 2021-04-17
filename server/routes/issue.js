@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const Issue = require("../models/Issue");
+const Project = require("../models/Project");
 const router = Router();
 
 router.post("/create", async (req, res) => {
@@ -11,16 +11,18 @@ router.post("/create", async (req, res) => {
       Creator,
    } = req.body;
 
-   let issue = new Issue({
-      _id: project_id,
+   let issue = {
       IssueTitle,
       IssueDescription,
       ProjectContext,
       Creator,
-   });
+   };
 
    try {
-      await issue.save();
+      await Project.updateOne(
+         { _id: project_id },
+         { $push: { Issues: issue } }
+      );
       return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);

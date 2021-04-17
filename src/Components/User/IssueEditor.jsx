@@ -63,7 +63,12 @@ function IssueEditor({ activeProject, User }) {
       );
       let newIssueResponse = await newIssueRequest.json();
 
-      console.log(newIssueResponse);
+      if (newIssueResponse.status === "ok") {
+         setIssueInputs({
+            issueTitleInput: "",
+            issueBodyInput: "",
+         });
+      }
    }
 
    return (

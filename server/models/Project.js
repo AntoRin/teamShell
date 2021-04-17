@@ -1,5 +1,6 @@
 const { model } = require("mongoose");
 const { Schema } = require("mongoose");
+const issueSchema = require("./issueSchema");
 
 const ProjectSchema = new Schema(
    {
@@ -15,10 +16,9 @@ const ProjectSchema = new Schema(
          type: String,
          required: true,
       },
-      // Issues: {
-      //    type: [issueSchema],
-      //    default: [],
-      // },
+      Issues: {
+         type: [issueSchema],
+      },
       Creator: {
          type: String,
          required: true,

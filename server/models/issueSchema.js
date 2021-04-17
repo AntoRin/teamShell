@@ -19,7 +19,7 @@ const issueSchema = new Schema(
          type: String,
          required: true,
       },
-      Comments: {
+      Solutions: {
          type: [
             {
                CommentBy: {
@@ -53,6 +53,4 @@ const issueSchema = new Schema(
    { timestamps: true }
 );
 
-let Issue = mongoose.model("Issue", issueSchema, "Issues");
-
-module.exports = Issue;
+module.exports = issueSchema;
