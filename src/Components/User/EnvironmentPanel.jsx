@@ -27,6 +27,7 @@ const useStyles = makeStyles(theme => ({
 function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
    const [activeProject, setActiveProject] = useState("");
+   const [Issues, setIssues] = useState([]);
 
    useEffect(() => {
       let currentProject = User.Projects.find(
@@ -35,6 +36,25 @@ function EnvironmentPanel({ User, currentOrg }) {
       if (currentProject) setActiveProject(currentProject.ProjectName);
       else setActiveProject("");
    }, [currentOrg, User.Projects]);
+
+   useEffect(() => {
+      async function getIssues() {
+         if (!activeProject) return;
+
+         let issueRequest = await fetch(
+            `http://localhost:5000/issue/details/all/${activeProject}`,
+            { credentials: "include" }
+         );
+         let issueResponse = await issueRequest.json();
+
+         if (issueResponse.status === "ok") {
+            let allIssues = issueResponse.Issues;
+            console.log(allIssues);
+            setIssues(allIssues);
+         }
+      }
+      getIssues();
+   }, [activeProject]);
 
    function changeActiveProject(event) {
       setActiveProject(event.target.textContent);
@@ -108,6 +128,11 @@ function EnvironmentPanel({ User, currentOrg }) {
                ) : (
                   <h1>Create a project to get started</h1>
                )}
+               <div className="all-issues-division">
+                  {Issues.map(issue => (
+                     <h1 style={{ color: "white" }}>{issue.IssueTitle}</h1>
+                  ))}
+               </div>
             </div>
          </div>
       </div>

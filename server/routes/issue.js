@@ -2,6 +2,19 @@ const { Router } = require("express");
 const Project = require("../models/Project");
 const router = Router();
 
+router.get("/details/all/:project", async (req, res) => {
+   let ProjectName = req.params.project;
+   try {
+      let project = await Project.findOne({ ProjectName });
+      if (!project) throw "Not found";
+      let issues = project.Issues;
+      return res.json({ status: "ok", Issues: issues });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
+   }
+});
+
 router.post("/create", async (req, res) => {
    let {
       IssueTitle,
