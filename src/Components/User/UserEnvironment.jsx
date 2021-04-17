@@ -18,7 +18,6 @@ const useStyles = makeStyles(theme => ({
       flexGrow: 1,
       width: "100%",
       backgroundColor: "#111",
-      minHeight: "400px",
    },
    "app-bar": {
       backgroundColor: "#222",
@@ -77,8 +76,8 @@ function UserEnvironment({ User }) {
                      })}
                   </Tabs>
                </AppBar>
-               <EnvironmentPanel User={User} currentOrg={currentOrg} />
             </div>
+            <EnvironmentPanel User={User} currentOrg={currentOrg} />
          </div>
       </div>
    );

@@ -30,6 +30,7 @@
 .environment-workspace {
    margin: 20px;
    padding: 20px;
+   min-height: 300px;
 }
 
 #multilineEditor {
