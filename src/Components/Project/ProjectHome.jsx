@@ -110,7 +110,9 @@ function ProjectHome({ match, User }) {
                         <h2 className="project-home-inner-title">Issues</h2>
                         {Project.Issues.length > 0
                            ? Project.Issues.map((issue, index) => {
-                                return <div key={index}>{issue}</div>;
+                                return (
+                                   <div key={index}>{issue.IssueTitle}</div>
+                                );
                              })
                            : "No issues yet"}
                      </div>
