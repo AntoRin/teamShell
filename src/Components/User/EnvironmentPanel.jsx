@@ -6,6 +6,7 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import IssueEditor from "./IssueEditor";
+import IssueCard from "./IssueCard";
 import "../../styles/environment-panel.css";
 
 const useStyles = makeStyles(theme => ({
@@ -27,7 +28,7 @@ const useStyles = makeStyles(theme => ({
 function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
    const [activeProject, setActiveProject] = useState("");
-   const [Issues, setIssues] = useState([]);
+   const [projectDetails, setProjectDetails] = useState({});
 
    useEffect(() => {
       let currentProject = User.Projects.find(
@@ -38,22 +39,24 @@ function EnvironmentPanel({ User, currentOrg }) {
    }, [currentOrg, User.Projects]);
 
    useEffect(() => {
-      async function getIssues() {
-         if (!activeProject) return;
+      async function getProjectDetails() {
+         if (!activeProject) {
+            setProjectDetails({});
+            return;
+         }
 
-         let issueRequest = await fetch(
-            `http://localhost:5000/issue/details/all/${activeProject}`,
+         let projectRequest = await fetch(
+            `http://localhost:5000/project/details/${activeProject}`,
             { credentials: "include" }
          );
-         let issueResponse = await issueRequest.json();
+         let projectResponse = await projectRequest.json();
 
-         if (issueResponse.status === "ok") {
-            let allIssues = issueResponse.Issues;
-            console.log(allIssues);
-            setIssues(allIssues);
+         if (projectResponse.status === "ok") {
+            let project = projectResponse.Project;
+            setProjectDetails(project);
          }
       }
-      getIssues();
+      getProjectDetails();
    }, [activeProject]);
 
    function changeActiveProject(event) {
@@ -129,9 +132,11 @@ function EnvironmentPanel({ User, currentOrg }) {
                   <h1>Create a project to get started</h1>
                )}
                <div className="all-issues-division">
-                  {Issues.map(issue => (
-                     <h1 style={{ color: "white" }}>{issue.IssueTitle}</h1>
-                  ))}
+                  {projectDetails.Issues &&
+                     projectDetails.Issues.length > 0 &&
+                     projectDetails.Issues.map((issue, index) => (
+                        <IssueCard key={index} issue={issue} />
+                     ))}
                </div>
             </div>
          </div>

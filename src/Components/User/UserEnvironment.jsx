@@ -39,7 +39,7 @@ function UserEnvironment({ User }) {
 
    function handleChange(event, newValue) {
       setValue(newValue);
-      setCurrentOrg(event.target.innerHTML);
+      setCurrentOrg(event.target.textContent);
    }
 
    return (
