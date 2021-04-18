@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import SolutionCard from "./SolutionCard";
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -69,7 +70,7 @@ function IssueCard({ issue }) {
             }
          );
          let userResponse = await userRequest.json();
-         console.log(userResponse);
+
          if (userResponse.status === "ok") {
             setIssueCreator(userResponse.user);
             setIsLoading(false);
@@ -151,6 +152,7 @@ function IssueCard({ issue }) {
                </CardContent>
             </Collapse>
          </Card>
+         <SolutionCard issue={issue} />
       </div>
    ) : (
       <h1>Loading...</h1>

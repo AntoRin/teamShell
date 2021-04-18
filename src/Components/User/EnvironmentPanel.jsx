@@ -29,6 +29,7 @@ function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
    const [activeProject, setActiveProject] = useState("");
    const [projectDetails, setProjectDetails] = useState({});
+   const [accordionExpanded, setAccordionExpanded] = useState(false);
 
    useEffect(() => {
       let currentProject = User.Projects.find(
@@ -59,8 +60,16 @@ function EnvironmentPanel({ User, currentOrg }) {
       getProjectDetails();
    }, [activeProject]);
 
+   useEffect(() => {
+      setAccordionExpanded(false);
+   }, [currentOrg]);
+
    function changeActiveProject(event) {
       setActiveProject(event.target.textContent);
+   }
+
+   function changeAccordionState() {
+      setAccordionExpanded(prev => !prev);
    }
 
    function currentProjects() {
@@ -108,7 +117,12 @@ function EnvironmentPanel({ User, currentOrg }) {
             <div className="environment-workspace">
                {activeProject ? (
                   <div className="new-issue-division">
-                     <Accordion className={classes.root}>
+                     <Accordion
+                        TransitionProps={{ unmountOnExit: true }}
+                        className={classes.root}
+                        expanded={accordionExpanded}
+                        onChange={changeAccordionState}
+                     >
                         <AccordionSummary
                            expandIcon={
                               <ExpandMoreIcon className={classes.arrowIcon} />

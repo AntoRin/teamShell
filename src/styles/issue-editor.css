@@ -6,12 +6,13 @@
 }
 
 #issueEditorForm {
-   width: 80%;
+   width: 100%;
    margin: 5px;
 }
 
 .issue-title {
    width: 100%;
+   overflow-x: hidden;
 }
 
 #issueTitleInput {
@@ -28,6 +29,7 @@
 
 .issue-body {
    width: 100%;
+   overflow-x: hidden;
 }
 
 #issueTitleInput:focus {
