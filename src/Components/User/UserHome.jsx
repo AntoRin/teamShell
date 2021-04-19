@@ -6,7 +6,9 @@ import "../../styles/user-home.css";
 
 function UserHome({ User }) {
    const [activePanelOrg, setActivePanelOrg] = useState(
-      User.Organizations[0].OrganizationName || ""
+      User.Organizations.length > 0
+         ? User.Organizations[0].OrganizationName
+         : ""
    );
 
    const history = useHistory();
@@ -33,11 +35,7 @@ function UserHome({ User }) {
 
    function currentProjects() {
       if (User.Projects.length < 1)
-         return (
-            <div onClick={goToProject} className="member-list-item">
-               No projects yet.
-            </div>
-         );
+         return <div className="member-list-item">No projects yet</div>;
 
       let thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === activePanelOrg
@@ -46,7 +44,7 @@ function UserHome({ User }) {
       if (!thisOrgProjects)
          return (
             <div className="member-list-item">
-               No project in this organization.
+               No project in this organization
             </div>
          );
 
@@ -76,22 +74,28 @@ function UserHome({ User }) {
             <div className="user-details">
                <div className="details-section">
                   <h3 className="member-list-header">Organizations</h3>
-                  {User.Organizations.map((org, index) => {
-                     return (
-                        <div
-                           onClick={changePanelOrg}
-                           onDoubleClick={goToOrg}
-                           className={`member-list-item ${
-                              activePanelOrg === org.OrganizationName
-                                 ? "active-member"
-                                 : ""
-                           }`}
-                           key={index}
-                        >
-                           {org.OrganizationName}
-                        </div>
-                     );
-                  })}
+                  {User.Organizations.length > 0 ? (
+                     User.Organizations.map((org, index) => {
+                        return (
+                           <div
+                              onClick={changePanelOrg}
+                              onDoubleClick={goToOrg}
+                              className={`member-list-item ${
+                                 activePanelOrg === org.OrganizationName
+                                    ? "active-member"
+                                    : ""
+                              }`}
+                              key={index}
+                           >
+                              {org.OrganizationName}
+                           </div>
+                        );
+                     })
+                  ) : (
+                     <div className="member-list-item">
+                        You are not part of any organization
+                     </div>
+                  )}
                   <div className="create-org-btn">
                      <button
                         onClick={createNewOrganization}

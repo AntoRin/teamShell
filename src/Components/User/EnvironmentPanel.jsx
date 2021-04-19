@@ -40,6 +40,8 @@ function EnvironmentPanel({ User, currentOrg }) {
    }, [currentOrg, User.Projects]);
 
    useEffect(() => {
+      let abortFetch = new AbortController();
+
       async function getProjectDetails() {
          if (!activeProject) {
             setProjectDetails({});
@@ -48,8 +50,11 @@ function EnvironmentPanel({ User, currentOrg }) {
 
          let projectRequest = await fetch(
             `http://localhost:5000/project/details/${activeProject}`,
-            { credentials: "include" }
+            { credentials: "include", signal: abortFetch.signal }
          );
+
+         if (abortFetch.signal.aborted) return;
+
          let projectResponse = await projectRequest.json();
 
          if (projectResponse.status === "ok") {
@@ -58,6 +63,8 @@ function EnvironmentPanel({ User, currentOrg }) {
          }
       }
       getProjectDetails();
+
+      return () => abortFetch.abort();
    }, [activeProject]);
 
    useEffect(() => {

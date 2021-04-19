@@ -11,21 +11,25 @@ function ProtectedRoute({ component: Component, ...props }) {
    useEffect(() => {
       let abortFetch = new AbortController();
       async function verifyUser() {
-         let auth = await fetch("http://localhost:5000/auth/verify", {
-            credentials: "include",
-            signal: abortFetch.signal,
-         });
+         try {
+            let auth = await fetch("http://localhost:5000/auth/verify", {
+               credentials: "include",
+               signal: abortFetch.signal,
+            });
 
-         if (abortFetch.signal.aborted) return;
+            if (abortFetch.signal.aborted) return;
 
-         let serverResponse = await auth.json();
-         if (serverResponse.status === "ok") {
-            setAuthenticated(true);
-            setUser(serverResponse.User);
-            setIsLoading(false);
-         } else {
-            setAuthenticated(false);
-            setIsLoading(false);
+            let serverResponse = await auth.json();
+            if (serverResponse.status === "ok") {
+               setAuthenticated(true);
+               setUser(serverResponse.User);
+               setIsLoading(false);
+            } else {
+               setAuthenticated(false);
+               setIsLoading(false);
+            }
+         } catch (error) {
+            console.log("The request was aborted");
          }
       }
       verifyUser();

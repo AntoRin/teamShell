@@ -19,6 +19,8 @@ router.post("/create", async (req, res) => {
          Members: [UniqueUsername],
       });
 
+      if (!ParentOrganization) throw "Unauthorized";
+
       let newProjectData = await project.save();
       await Organization.updateOne(
          { OrganizationName: ParentOrganization },

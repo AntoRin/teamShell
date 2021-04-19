@@ -18,49 +18,53 @@ function ProjectHome({ match, User }) {
       let abortFetch = new AbortController();
 
       async function getProjectDetails() {
-         let orgRequest = await fetch(
-            `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
-            {
-               credentials: "include",
-               signal: abortFetch.signal,
+         try {
+            let orgRequest = await fetch(
+               `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
+               {
+                  credentials: "include",
+                  signal: abortFetch.signal,
+               }
+            );
+
+            if (abortFetch.signal.aborted) return;
+
+            let orgResponse = await orgRequest.json();
+
+            if (orgResponse.status === "ok") {
+               setParentOrg(orgResponse.Organization);
+            } else {
+               setParentOrg({});
+               setIsAuthorized(false);
+               history.push("/user/home");
+               return;
             }
-         );
 
-         if (abortFetch.signal.aborted) return;
+            let projectRequest = await fetch(
+               `http://localhost:5000/project/details/${match.params.ProjectName}`,
+               {
+                  credentials: "include",
+                  signal: abortFetch.signal,
+               }
+            );
 
-         let orgResponse = await orgRequest.json();
+            if (abortFetch.signal.aborted) return;
 
-         if (orgResponse.status === "ok") {
-            setParentOrg(orgResponse.Organization);
-         } else {
-            setParentOrg({});
-            setIsAuthorized(false);
-            history.push("/user/home");
-            return;
-         }
+            let projectResponse = await projectRequest.json();
 
-         let projectRequest = await fetch(
-            `http://localhost:5000/project/details/${match.params.ProjectName}`,
-            {
-               credentials: "include",
-               signal: abortFetch.signal,
+            if (projectResponse.status === "ok") {
+               setProject(projectResponse.Project);
+               setIsAuthorized(true);
+               setIsLoading(false);
+            } else {
+               setParentOrg({});
+               setProject({});
+               setIsAuthorized(false);
+               history.push("/user/home");
+               return;
             }
-         );
-
-         if (abortFetch.signal.aborted) return;
-
-         let projectResponse = await projectRequest.json();
-
-         if (projectResponse.status === "ok") {
-            setProject(projectResponse.Project);
-            setIsAuthorized(true);
-            setIsLoading(false);
-         } else {
-            setParentOrg({});
-            setProject({});
-            setIsAuthorized(false);
-            history.push("/user/home");
-            return;
+         } catch (error) {
+            console.error("The request was aborted");
          }
       }
 

@@ -12,26 +12,30 @@ function OrganizationHome({ match, User }) {
    useEffect(() => {
       let abortFetch = new AbortController();
       async function getOrgData() {
-         let orgRequest = await fetch(
-            `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
-            {
-               credentials: "include",
-               signal: abortFetch.signal,
+         try {
+            let orgRequest = await fetch(
+               `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
+               {
+                  credentials: "include",
+                  signal: abortFetch.signal,
+               }
+            );
+
+            if (abortFetch.signal.aborted) return;
+
+            let orgResponse = await orgRequest.json();
+
+            if (orgResponse.status === "ok") {
+               setIsAuthorized(true);
+               setOrganization(orgResponse.Organization);
+               setIsLoading(false);
+            } else {
+               setIsAuthorized(false);
+               setOrganization({});
+               setIsLoading(false);
             }
-         );
-
-         if (abortFetch.signal.aborted) return;
-
-         let orgResponse = await orgRequest.json();
-
-         if (orgResponse.status === "ok") {
-            setIsAuthorized(true);
-            setOrganization(orgResponse.Organization);
-            setIsLoading(false);
-         } else {
-            setIsAuthorized(false);
-            setOrganization({});
-            setIsLoading(false);
+         } catch (error) {
+            console.error("The request was aborted");
          }
       }
 

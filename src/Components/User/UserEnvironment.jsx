@@ -34,7 +34,9 @@ function UserEnvironment({ User }) {
    const classes = useStyles();
    const [value, setValue] = useState(0);
    const [currentOrg, setCurrentOrg] = useState(
-      User.Organizations[0].OrganizationName
+      User.Organizations.length > 0
+         ? User.Organizations[0].OrganizationName
+         : ""
    );
 
    function handleChange(event, newValue) {
@@ -64,16 +66,23 @@ function UserEnvironment({ User }) {
                      scrollButtons="auto"
                      aria-label="scrollable tab"
                   >
-                     {User.Organizations.map((org, index) => {
-                        return (
-                           <Tab
-                              className={classes.tab}
-                              key={index}
-                              label={org.OrganizationName}
-                              {...createTabProps(index)}
-                           />
-                        );
-                     })}
+                     {User.Organizations.length > 0 ? (
+                        User.Organizations.map((org, index) => {
+                           return (
+                              <Tab
+                                 className={classes.tab}
+                                 key={index}
+                                 label={org.OrganizationName}
+                                 {...createTabProps(index)}
+                              />
+                           );
+                        })
+                     ) : (
+                        <Tab
+                           className={classes.tab}
+                           label="You are not part of any organization"
+                        />
+                     )}
                   </Tabs>
                </AppBar>
             </div>

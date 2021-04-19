@@ -24,11 +24,19 @@ function CreateProject({ location, User }) {
             ) {
                setParentOrg(queryValue);
             } else {
-               setParentOrg(User.Organizations[0].OrganizationName);
+               setParentOrg(
+                  User.Organizations.length > 0
+                     ? User.Organizations[0].OrganizationName
+                     : ""
+               );
             }
          }
       } else {
-         setParentOrg(User.Organizations[0].OrganizationName);
+         setParentOrg(
+            User.Organizations.length > 0
+               ? User.Organizations[0].OrganizationName
+               : ""
+         );
       }
    }, [location, User.Organizations]);
 
@@ -56,6 +64,11 @@ function CreateProject({ location, User }) {
          ParentOrganization: parentOrg,
       };
 
+      if (!parentOrg) {
+         console.error("You are not part of any organization");
+         return;
+      }
+
       let postOptions = {
          method: "POST",
          headers: { "Content-Type": "application/json" },
@@ -73,7 +86,7 @@ function CreateProject({ location, User }) {
          history.push(`/project/${parentOrg}/${inputs.newCreateName}`);
    }
 
-   return (
+   return parentOrg ? (
       <div className="new-create-form-container">
          <div className="new-create-form-card">
             <div className="form-card-title">
@@ -133,6 +146,12 @@ function CreateProject({ location, User }) {
                   </button>
                </div>
             </form>
+         </div>
+      </div>
+   ) : (
+      <div className="new-create-form-container">
+         <div className="new-create-form-card">
+            <h1>You are not part of any organization.</h1>
          </div>
       </div>
    );
