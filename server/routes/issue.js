@@ -35,8 +35,9 @@ router.post("/create", async (req, res) => {
    try {
       await Project.updateOne(
          { _id: Project_id },
-         { $push: { Issues: issue } }
+         { $push: { Issues: { $each: [issue], $position: 0 } } }
       );
+
       return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);

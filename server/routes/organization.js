@@ -22,9 +22,14 @@ router.post("/create", async (req, res) => {
          {
             $push: {
                Organizations: {
-                  _id: newOrgData._id,
-                  OrganizationName,
-                  Status: "Creator",
+                  $each: [
+                     {
+                        _id: newOrgData._id,
+                        OrganizationName,
+                        Status: "Creator",
+                     },
+                  ],
+                  $position: 0,
                },
             },
          }

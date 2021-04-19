@@ -75,9 +75,14 @@ router.post("/notifications", async (req, res) => {
                {
                   $push: {
                      Notifications: {
-                        NotificationHeader: "Join Org",
-                        NotificationType: "Link",
-                        NotificationContent: orgLink,
+                        $each: [
+                           {
+                              NotificationHeader: "Join Org",
+                              NotificationType: "Link",
+                              NotificationContent: orgLink,
+                           },
+                        ],
+                        $position: 0,
                      },
                   },
                }

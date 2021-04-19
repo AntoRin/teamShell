@@ -24,17 +24,22 @@ router.post("/create", async (req, res) => {
       let newProjectData = await project.save();
       await Organization.updateOne(
          { OrganizationName: ParentOrganization },
-         { $push: { Projects: ProjectName } }
+         { $push: { Projects: { $each: [ProjectName], $position: 0 } } }
       );
       await User.updateOne(
          { UniqueUsername, Email },
          {
             $push: {
                Projects: {
-                  _id: newProjectData._id,
-                  ProjectName,
-                  ParentOrganization,
-                  Status: "Creator",
+                  $each: [
+                     {
+                        _id: newProjectData._id,
+                        ProjectName,
+                        ParentOrganization,
+                        Status: "Creator",
+                     },
+                  ],
+                  $position: 0,
                },
             },
          }
