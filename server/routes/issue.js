@@ -20,7 +20,7 @@ router.post("/create", async (req, res) => {
       IssueTitle,
       IssueDescription,
       ProjectContext,
-      project_id,
+      Project_id,
       Creator,
    } = req.body;
 
@@ -29,11 +29,12 @@ router.post("/create", async (req, res) => {
       IssueDescription,
       ProjectContext,
       Creator,
+      Project_id,
    };
 
    try {
       await Project.updateOne(
-         { _id: project_id },
+         { _id: Project_id },
          { $push: { Issues: issue } }
       );
       return res.json({ status: "ok" });

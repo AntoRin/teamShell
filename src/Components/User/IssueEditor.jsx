@@ -36,18 +36,22 @@ function IssueEditor({ activeProject, User }) {
    async function handleIssueCreation(event) {
       event.preventDefault();
 
-      let project_id = User.Projects.find(
+      let Project_id = User.Projects.find(
          project => project.ProjectName === activeProject
       );
 
-      if (!project_id) return;
+      if (!Project_id) return;
 
       let body = {
          IssueTitle: issueInputs.issueTitleInput,
          IssueDescription: issueInputs.issueBodyInput,
          ProjectContext: activeProject,
-         project_id,
-         Creator: User.UniqueUsername,
+         Project_id,
+         Creator: {
+            UniqueUsername: User.UniqueUsername,
+            User_id: User._id,
+            ProfileImage: User.ProfileImage,
+         },
       };
 
       let postOptions = {

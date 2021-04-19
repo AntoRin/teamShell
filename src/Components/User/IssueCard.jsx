@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import SolutionCard from "./SolutionCard";
 import clsx from "clsx";
@@ -58,29 +58,6 @@ const useStyles = makeStyles(theme => ({
 function IssueCard({ issue }) {
    const classes = useStyles();
    const [expanded, setExpanded] = useState(false);
-   const [isLoading, setIsLoading] = useState(true);
-   const [issueCreator, setIssueCreator] = useState("");
-
-   useEffect(() => {
-      async function getIssueCreatorDetails() {
-         let userRequest = await fetch(
-            `http://localhost:5000/profile/details/${issue.Creator}`,
-            {
-               credentials: "include",
-            }
-         );
-         let userResponse = await userRequest.json();
-
-         if (userResponse.status === "ok") {
-            setIssueCreator(userResponse.user);
-            setIsLoading(false);
-         } else {
-            setIssueCreator("");
-            setIsLoading(true);
-         }
-      }
-      getIssueCreatorDetails();
-   }, [issue.Creator]);
 
    function handleExpandClick() {
       setExpanded(prev => !prev);
@@ -92,7 +69,7 @@ function IssueCard({ issue }) {
       else return issue.IssueDescription;
    }
 
-   return !isLoading ? (
+   return (
       <div className="issue-card-container">
          <Card className={classes.root}>
             <CardHeader
@@ -100,7 +77,7 @@ function IssueCard({ issue }) {
                   <Avatar aria-label="recipe" className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
-                        src={issueCreator.ProfileImage}
+                        src={issue.Creator.ProfileImage}
                         alt=""
                      />
                   </Avatar>
@@ -110,7 +87,7 @@ function IssueCard({ issue }) {
                      <MoreVertIcon />
                   </IconButton>
                }
-               title={issue.Creator}
+               title={issue.Creator.UniqueUsername}
                subheader={issue.createdAt}
             />
             <CardMedia className={classes.media}>
@@ -154,8 +131,6 @@ function IssueCard({ issue }) {
          </Card>
          <SolutionCard issue={issue} />
       </div>
-   ) : (
-      <h1>Loading...</h1>
    );
 }
 

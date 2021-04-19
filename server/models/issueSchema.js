@@ -15,8 +15,16 @@ const issueSchema = new Schema(
          type: String,
          required: true,
       },
-      Creator: {
+      Project_id: {
          type: String,
+         required: true,
+      },
+      Creator: {
+         type: {
+            UniqueUsername: { type: String, required: true },
+            User_id: { type: String, required: true },
+            ProfileImage: { type: String, required: true },
+         },
          required: true,
       },
       Solutions: {
