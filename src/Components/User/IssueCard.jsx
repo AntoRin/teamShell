@@ -59,6 +59,16 @@ function IssueCard({ issue }) {
    const classes = useStyles();
    const [expanded, setExpanded] = useState(false);
 
+   const formatDate = dateString =>
+      new Date(Date.parse(issue.createdAt)).toLocaleString("en-US", {
+         weekday: "short",
+         day: "numeric",
+         year: "numeric",
+         month: "long",
+         hour: "numeric",
+         minute: "numeric",
+      });
+
    function handleExpandClick() {
       setExpanded(prev => !prev);
    }
@@ -88,7 +98,7 @@ function IssueCard({ issue }) {
                   </IconButton>
                }
                title={issue.Creator.UniqueUsername}
-               subheader={issue.createdAt}
+               subheader={formatDate(issue.createdAt)}
             />
             <CardMedia className={classes.media}>
                <Typography variant="h3" component="h3">

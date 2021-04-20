@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import io from "socket.io-client";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -8,6 +9,8 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import "../../styles/environment-panel.css";
+
+let socket;
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -32,6 +35,12 @@ function EnvironmentPanel({ User, currentOrg }) {
    const [accordionExpanded, setAccordionExpanded] = useState(false);
 
    useEffect(() => {
+      io("http://localhost:5000", {
+         withCredentials: true,
+      });
+   }, []);
+
+   useEffect(() => {
       let currentProject = User.Projects.find(
          project => project.ParentOrganization === currentOrg
       );
@@ -43,23 +52,27 @@ function EnvironmentPanel({ User, currentOrg }) {
       let abortFetch = new AbortController();
 
       async function getProjectDetails() {
-         if (!activeProject) {
-            setProjectDetails({});
-            return;
-         }
+         try {
+            if (!activeProject) {
+               setProjectDetails({});
+               return;
+            }
 
-         let projectRequest = await fetch(
-            `http://localhost:5000/project/details/${activeProject}`,
-            { credentials: "include", signal: abortFetch.signal }
-         );
+            let projectRequest = await fetch(
+               `http://localhost:5000/project/details/${activeProject}`,
+               { credentials: "include", signal: abortFetch.signal }
+            );
 
-         if (abortFetch.signal.aborted) return;
+            if (abortFetch.signal.aborted) return;
 
-         let projectResponse = await projectRequest.json();
+            let projectResponse = await projectRequest.json();
 
-         if (projectResponse.status === "ok") {
-            let project = projectResponse.Project;
-            setProjectDetails(project);
+            if (projectResponse.status === "ok") {
+               let project = projectResponse.Project;
+               setProjectDetails(project);
+            }
+         } catch (error) {
+            console.log(error);
          }
       }
       getProjectDetails();

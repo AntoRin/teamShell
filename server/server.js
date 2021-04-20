@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const socketio = require("socket.io");
 const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -46,7 +47,24 @@ mongoose.connect(
       if (err) return console.log(err);
       else {
          console.log("Database connection established");
-         app.listen(port, () => console.log(`Listening on port ${port}`));
+         let server = app.listen(port, () =>
+            console.log(`Listening on port ${port}`)
+         );
+
+         let io = socketio(server, {
+            cors: {
+               origin: "http://localhost:3000",
+               methods: ["GET", "POST"],
+               credentials: true,
+            },
+         });
+
+         io.on("connection", socket => {
+            // console.log(socket.handshake.headers.cookie);
+            console.log("Connected");
+
+            socket.on("disconnect", () => console.log("Disconnected"));
+         });
       }
    }
 );
