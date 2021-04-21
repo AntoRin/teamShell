@@ -53,6 +53,9 @@ const useStyles = makeStyles(theme => ({
       fontFamily: `"Quicksand", "sans-serif"`,
       width: "75%",
    },
+   description: {
+      wordBreak: "break-word",
+   },
 }));
 
 function IssueCard({ issue }) {
@@ -135,7 +138,9 @@ function IssueCard({ issue }) {
             </CardActions>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                <CardContent>
-                  <Typography paragraph>{issue.IssueDescription}</Typography>
+                  <Typography className={classes.description} paragraph>
+                     {issue.IssueDescription}
+                  </Typography>
                </CardContent>
             </Collapse>
          </Card>

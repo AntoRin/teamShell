@@ -14,6 +14,8 @@ const organizationRoute = require("./routes/organization");
 const projectRoute = require("./routes/project");
 const issueRoute = require("./routes/issue");
 
+const Project = require("./models/Project");
+
 const app = express();
 
 app.use(express.json());
@@ -61,7 +63,12 @@ mongoose.connect(
 
          io.on("connection", socket => {
             // console.log(socket.handshake.headers.cookie);
-            console.log("Connected");
+            console.log("Connected: ", socket.id);
+            let ProjectStatus = Project.watch();
+
+            ProjectStatus.on("change", () => {
+               io.to(socket.id).emit("Data Available", "new entry");
+            });
 
             socket.on("disconnect", () => console.log("Disconnected"));
          });

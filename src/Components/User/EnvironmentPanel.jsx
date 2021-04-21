@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { SocketInstance } from "../App";
 import { makeStyles } from "@material-ui/core/styles";
-import io from "socket.io-client";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -9,8 +9,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import "../../styles/environment-panel.css";
-
-let socket;
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -34,11 +32,7 @@ function EnvironmentPanel({ User, currentOrg }) {
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
 
-   useEffect(() => {
-      io("http://localhost:5000", {
-         withCredentials: true,
-      });
-   }, []);
+   const socket = useContext(SocketInstance);
 
    useEffect(() => {
       let currentProject = User.Projects.find(
@@ -77,8 +71,15 @@ function EnvironmentPanel({ User, currentOrg }) {
       }
       getProjectDetails();
 
-      return () => abortFetch.abort();
-   }, [activeProject]);
+      socket.on("Data Available", () => {
+         getProjectDetails();
+      });
+
+      return () => {
+         abortFetch.abort();
+         socket.off("Data Available");
+      };
+   }, [activeProject, socket]);
 
    useEffect(() => {
       setAccordionExpanded(false);
