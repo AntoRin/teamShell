@@ -19,6 +19,12 @@ function ProtectedRoute({ component: Component, ...props }) {
    }, []);
 
    useEffect(() => {
+      return () => {
+         if (socket.connected) socket.disconnect();
+      };
+   }, [socket]);
+
+   useEffect(() => {
       let abortFetch = new AbortController();
       async function verifyUser() {
          try {
