@@ -109,11 +109,11 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
             </div>
          );
 
-      let projectTitles = User.Projects.map((project, index) => {
+      let projectTitles = User.Projects.map(project => {
          return (
             project.ParentOrganization === currentOrg && (
                <div
-                  key={index}
+                  key={project._id}
                   onClick={changeActiveProject}
                   className={`panel-project-member ${
                      activeProject === project.ProjectName
@@ -166,8 +166,8 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
                <div className="all-issues-division">
                   {projectDetails.Issues &&
                      projectDetails.Issues.length > 0 &&
-                     projectDetails.Issues.map((issue, index) => (
-                        <IssueCard key={index} issue={issue} />
+                     projectDetails.Issues.map(issue => (
+                        <IssueCard key={issue._id} issue={issue} />
                      ))}
                </div>
             </div>

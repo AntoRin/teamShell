@@ -67,13 +67,13 @@ function UserEnvironment({ socket, User }) {
                      aria-label="scrollable tab"
                   >
                      {User.Organizations.length > 0 ? (
-                        User.Organizations.map((org, index) => {
+                        User.Organizations.map(org => {
                            return (
                               <Tab
                                  className={classes.tab}
-                                 key={index}
+                                 key={org._id}
                                  label={org.OrganizationName}
-                                 {...createTabProps(index)}
+                                 {...createTabProps(org._id)}
                               />
                            );
                         })

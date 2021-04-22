@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const checkAuth = require("./middleware/checkAuth");
+const verifySocketIntegrity = require("./middleware/verifySocketIntegrity");
 
 const authRoute = require("./routes/auth");
 const profileRoute = require("./routes/profile");
@@ -61,8 +62,17 @@ mongoose.connect(
             },
          });
 
+         io.use((socket, next) => {
+            let cookie = socket.handshake.headers.cookie;
+            let token =
+               cookie.split("=")[0] === "token" ? cookie.split("=")[1] : null;
+            socket.authToken = token;
+            next();
+         });
+
+         io.use(verifySocketIntegrity);
+
          io.on("connection", socket => {
-            // console.log(socket.handshake.headers.cookie);
             console.log("Connected: ", socket.id);
             let ProjectStatus = Project.watch();
 
