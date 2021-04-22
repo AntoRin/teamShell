@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function UserEnvironment({ User }) {
+function UserEnvironment({ socket, User }) {
    const classes = useStyles();
    const [value, setValue] = useState(0);
    const [currentOrg, setCurrentOrg] = useState(
@@ -86,7 +86,11 @@ function UserEnvironment({ User }) {
                   </Tabs>
                </AppBar>
             </div>
-            <EnvironmentPanel User={User} currentOrg={currentOrg} />
+            <EnvironmentPanel
+               socket={socket}
+               User={User}
+               currentOrg={currentOrg}
+            />
          </div>
       </div>
    );

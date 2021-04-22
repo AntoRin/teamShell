@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Route, Redirect } from "react-router-dom";
+import io from "socket.io-client";
 
 //--------------------Remove credentials for cross-origin------------------
 
@@ -7,6 +8,11 @@ function ProtectedRoute({ component: Component, ...props }) {
    const [User, setUser] = useState({});
    const [authenticated, setAuthenticated] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+   const [socket, setSocket] = useState("");
+
+   useEffect(() => {
+      setSocket(io("http://localhost:5000"));
+   }, []);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -37,7 +43,7 @@ function ProtectedRoute({ component: Component, ...props }) {
       return () => abortFetch.abort();
    }, [Component]);
 
-   if (isLoading) {
+   if (isLoading || !socket) {
       return (
          <div>
             <h1>Loading...</h1>
@@ -48,7 +54,9 @@ function ProtectedRoute({ component: Component, ...props }) {
          <Route
             {...props}
             render={componentProps => {
-               return <Component {...componentProps} User={User} />;
+               return (
+                  <Component {...componentProps} socket={socket} User={User} />
+               );
             }}
          />
       ) : (

@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext } from "react";
-import { SocketInstance } from "../App";
+import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
@@ -26,13 +25,11 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function EnvironmentPanel({ User, currentOrg }) {
+function EnvironmentPanel({ socket, User, currentOrg }) {
    const classes = useStyles();
    const [activeProject, setActiveProject] = useState("");
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
-
-   const socket = useContext(SocketInstance);
 
    useEffect(() => {
       let currentProject = User.Projects.find(
