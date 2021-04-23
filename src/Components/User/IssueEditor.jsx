@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import SunEditor from "suneditor-react";
 import Button from "@material-ui/core/Button";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import { makeStyles } from "@material-ui/core/styles";
+import { issue_editor_config } from "../../config/editor_config";
 import "../../styles/issue-editor.css";
+import "suneditor/dist/css/suneditor.min.css";
 
 const useStyles = makeStyles({
    root: {
@@ -21,16 +24,12 @@ const useStyles = makeStyles({
 
 function IssueEditor({ activeProject, User }) {
    const classes = useStyles();
-   const [issueInputs, setIssueInputs] = useState({
-      issueTitleInput: "",
-      issueBodyInput: "",
-   });
+   const [issueTitle, setIssueTitle] = useState("");
+
+   const editorRef = useRef();
 
    function handleChange(event) {
-      setIssueInputs({
-         ...issueInputs,
-         [event.target.id]: event.target.value,
-      });
+      setIssueTitle(event.target.value);
    }
 
    async function handleIssueCreation(event) {
@@ -42,9 +41,11 @@ function IssueEditor({ activeProject, User }) {
 
       if (!Project_id) return;
 
+      let IssueDescription = editorRef.current.editor.core.getContents();
+      console.log(IssueDescription);
       let body = {
-         IssueTitle: issueInputs.issueTitleInput,
-         IssueDescription: issueInputs.issueBodyInput,
+         IssueTitle: issueTitle,
+         IssueDescription,
          ProjectContext: activeProject,
          Project_id,
          Creator: {
@@ -61,17 +62,15 @@ function IssueEditor({ activeProject, User }) {
          credentials: "include",
       };
 
-      let newIssueRequest = await fetch(
+      let newIssueSubmit = await fetch(
          "http://localhost:5000/issue/create",
          postOptions
       );
-      let newIssueResponse = await newIssueRequest.json();
+      let newIssueResponse = await newIssueSubmit.json();
       console.log(newIssueResponse);
       if (newIssueResponse.status === "ok") {
-         setIssueInputs({
-            issueTitleInput: "",
-            issueBodyInput: "",
-         });
+         setIssueTitle("");
+         editorRef.current.editor.core.setContents("");
       }
    }
 
@@ -84,7 +83,7 @@ function IssueEditor({ activeProject, User }) {
          >
             <div className="issue-title">
                <input
-                  value={issueInputs.issueTitleInput}
+                  value={issueTitle}
                   onChange={handleChange}
                   type="text"
                   id="issueTitleInput"
@@ -93,14 +92,10 @@ function IssueEditor({ activeProject, User }) {
                />
             </div>
             <div className="issue-body">
-               <textarea
-                  value={issueInputs.issueBodyInput}
-                  onChange={handleChange}
-                  placeholder="State your issue"
-                  id="issueBodyInput"
-                  required
-                  rows="7"
-               ></textarea>
+               <SunEditor
+                  ref={editorRef}
+                  setOptions={issue_editor_config.options}
+               />
             </div>
             <Button
                type="submit"

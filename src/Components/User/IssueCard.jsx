@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SunEditor from "suneditor-react";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
@@ -15,6 +16,8 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import { readonly_editor_config } from "../../config/editor_config";
+import "suneditor/dist/css/suneditor.min.css";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -138,7 +141,11 @@ function IssueCard({ issue }) {
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                <CardContent>
                   <Typography className={classes.description} paragraph>
-                     {issue.IssueDescription}
+                     <SunEditor
+                        {...readonly_editor_config.props}
+                        setOptions={readonly_editor_config.options}
+                        setContents={issue.IssueDescription}
+                     />
                   </Typography>
                </CardContent>
             </Collapse>
