@@ -4,6 +4,7 @@ const socketio = require("socket.io");
 const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const cookie = require("cookie");
 require("dotenv").config();
 
 const checkAuth = require("./middleware/checkAuth");
@@ -63,9 +64,10 @@ mongoose.connect(
          });
 
          io.use((socket, next) => {
-            let cookie = socket.handshake.headers.cookie;
-            let token =
-               cookie.split("=")[0] === "token" ? cookie.split("=")[1] : null;
+            socket.on("disconnect", () => console.log("Disconnected"));
+            let unParsedCookies = socket.handshake.headers.cookie;
+            let allCookies = cookie.parse(unParsedCookies);
+            let token = allCookies.token;
             socket.authToken = token;
             next();
          });
@@ -77,10 +79,8 @@ mongoose.connect(
             let ProjectStatus = Project.watch();
 
             ProjectStatus.on("change", () => {
-               io.to(socket.id).emit("Data Available", "new entry");
+               io.to(socket.id).emit("Data Available");
             });
-
-            socket.on("disconnect", () => console.log("Disconnected"));
          });
       }
    }
