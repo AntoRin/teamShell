@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import SolutionCard from "./SolutionCard";
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -144,7 +143,6 @@ function IssueCard({ issue }) {
                </CardContent>
             </Collapse>
          </Card>
-         <SolutionCard issue={issue} />
       </div>
    );
 }

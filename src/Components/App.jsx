@@ -11,6 +11,7 @@ import OrganizationHome from "./Organization/OrganizationHome";
 import CreateProject from "./Project/CreateProject";
 import ProjectHome from "./Project/ProjectHome";
 import UserEnvironment from "./User/UserEnvironment";
+import IssueHome from "./Issue/IssueHome";
 
 function App() {
    return (
@@ -51,6 +52,7 @@ function App() {
                   exact
                   component={UserEnvironment}
                />
+               <ProtectedRoute path="/issue/:IssueId" component={IssueHome} />
                <ProtectedRoute path="/" component={UserHome} />
             </Switch>
          </div>
