@@ -54,7 +54,7 @@
    transform: translateX(-50%);
 }
 
-a {
+.issue-header-link {
    color: black;
    text-decoration-color: black;
 }

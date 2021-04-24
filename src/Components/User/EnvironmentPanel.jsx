@@ -30,6 +30,7 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
    const [activeProject, setActiveProject] = useState("");
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
+   const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
       let currentProject = User.Projects.find(
@@ -46,6 +47,7 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
          try {
             if (!activeProject) {
                setProjectDetails({});
+               setIsLoading(false);
                return;
             }
 
@@ -61,6 +63,7 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
             if (projectResponse.status === "ok") {
                let project = projectResponse.Project;
                setProjectDetails(project);
+               setIsLoading(false);
             }
          } catch (error) {
             console.log(error);
@@ -128,7 +131,7 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
       });
       return projectTitles;
    }
-   return (
+   return !isLoading ? (
       <div className="environment-panel-container">
          <div className="environment-panel-main">
             <div className="panel-project-selection">{currentProjects()}</div>
@@ -167,12 +170,18 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
                   {projectDetails.Issues &&
                      projectDetails.Issues.length > 0 &&
                      projectDetails.Issues.map(issue => (
-                        <IssueCard key={issue._id} issue={issue} />
+                        <IssueCard
+                           key={issue._id}
+                           issue={issue}
+                           showContent={false}
+                        />
                      ))}
                </div>
             </div>
          </div>
       </div>
+   ) : (
+      <h1>Loading...</h1>
    );
 }
 

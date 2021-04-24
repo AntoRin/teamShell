@@ -47,6 +47,7 @@ export const readonly_editor_config = {
    },
    options: {
       width: "100%",
+      backgroundColor: "blue",
       maxWidth: "100%",
       minHeight: "200px",
       height: "fit-content",

@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const User = require("../models/User");
 const Project = require("../models/Project");
 const router = Router();
 
@@ -12,6 +13,29 @@ router.get("/details/all/:project", async (req, res) => {
    } catch (error) {
       console.log(error);
       return res.json({ status: "error", error });
+   }
+});
+
+router.get("/:IssueID", async (req, res) => {
+   let { UniqueUsername, Email } = req.thisUser;
+   let _id = req.params.IssueID;
+   try {
+      let user = await User.findOne({ UniqueUsername, Email });
+      if (!user) throw "Unauthorized";
+
+      let { Issues } = await Project.findOne(
+         { "Issues._id": _id },
+         { Issues: { $elemMatch: { _id: _id } }, _id: 0 }
+      );
+      let issue = Issues[0];
+      let projectMember = user.Projects.find(project => {
+         return project._id.toString() === issue.Project_id;
+      });
+      if (!projectMember) throw "Unauthorized";
+      return res.json({ status: "ok", data: issue });
+   } catch (error) {
+      console.log(error);
+      res.status(401).json({ status: "error", error });
    }
 });
 

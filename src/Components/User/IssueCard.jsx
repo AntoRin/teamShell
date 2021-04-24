@@ -19,6 +19,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { readonly_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
+import "../../styles/text-editor.css";
 
 const useStyles = makeStyles(theme => ({
    container: {
@@ -58,18 +59,23 @@ const useStyles = makeStyles(theme => ({
       fontWeight: "600",
       fontFamily: `"Quicksand", "sans-serif"`,
       width: "75%",
+      position: "relative",
+      left: "50%",
+      transform: "translateX(-50%)",
+      wordBreak: "break-word",
    },
    "description-content": {
       wordBreak: "break-word",
       overflow: "hidden",
+      backgroundColor: "transparent",
       display: "flex",
       justifyContent: "center",
    },
 }));
 
-function IssueCard({ issue }) {
+function IssueCard({ issue, showContent }) {
    const classes = useStyles();
-   const [expanded, setExpanded] = useState(false);
+   const [expanded, setExpanded] = useState(showContent);
    const [description, setDescription] = useState("");
 
    const editorRef = useRef();
@@ -96,9 +102,13 @@ function IssueCard({ issue }) {
       setExpanded(prev => !prev);
    }
 
-   function lineTruncate(words) {
-      if (words.length > 40) return words.substring(0, 40) + "...";
-      else return words;
+   function createTruncatedWords(rawMarkup) {
+      let tempElement = document.createElement("div");
+      tempElement.innerHTML += rawMarkup;
+      let plainTextContent = tempElement.textContent;
+      if (plainTextContent.length > 50)
+         return plainTextContent.substring(0, 50) + "...";
+      else return plainTextContent;
    }
 
    return (
@@ -123,7 +133,7 @@ function IssueCard({ issue }) {
                subheader={formatDate(issue.createdAt)}
             />
             <CardMedia className={classes.media}>
-               <Link to={`/issue/${issue._id}`}>
+               <Link className="issue-header-link" to={`/issue/${issue._id}`}>
                   <Typography variant="h3" component="h3">
                      {issue.IssueTitle}
                   </Typography>
@@ -136,7 +146,7 @@ function IssueCard({ issue }) {
                   color="textSecondary"
                   component="p"
                >
-                  {lineTruncate(description)}
+                  {createTruncatedWords(description)}
                </Typography>
             </CardContent>
             <CardActions disableSpacing>
@@ -146,16 +156,18 @@ function IssueCard({ issue }) {
                <IconButton aria-label="share">
                   <ShareIcon />
                </IconButton>
-               <IconButton
-                  className={clsx(classes.expand, {
-                     [classes.expandOpen]: expanded,
-                  })}
-                  onClick={handleExpandClick}
-                  aria-expanded={expanded}
-                  aria-label="show more"
-               >
-                  <ExpandMoreIcon />
-               </IconButton>
+               {!showContent && (
+                  <IconButton
+                     className={clsx(classes.expand, {
+                        [classes.expandOpen]: expanded,
+                     })}
+                     onClick={handleExpandClick}
+                     aria-expanded={expanded}
+                     aria-label="show more"
+                  >
+                     <ExpandMoreIcon />
+                  </IconButton>
+               )}
             </CardActions>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                <CardContent className={classes["description-content"]}>

@@ -52,7 +52,7 @@ function App() {
                   exact
                   component={UserEnvironment}
                />
-               <ProtectedRoute path="/issue/:IssueId" component={IssueHome} />
+               <ProtectedRoute path="/issue/:IssueID" component={IssueHome} />
                <ProtectedRoute path="/" component={UserHome} />
             </Switch>
          </div>
