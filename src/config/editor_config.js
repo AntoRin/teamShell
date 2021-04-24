@@ -50,6 +50,7 @@ export const readonly_editor_config = {
    },
    options: {
       width: "100%",
+      maxWidth: "800px",
       minHeight: "200px",
       resizingBar: false,
       overflow: "scroll",

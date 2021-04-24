@@ -41,8 +41,12 @@ function IssueEditor({ activeProject, User }) {
 
       if (!Project_id) return;
 
-      let IssueDescription = editorRef.current.editor.core.getContents();
-      console.log(IssueDescription);
+      let IssueDescriptionRaw = editorRef.current.editor.core.getContents();
+
+      let IssueDescription = editorRef.current.editor.util.HTMLEncoder(
+         IssueDescriptionRaw
+      );
+
       let body = {
          IssueTitle: issueTitle,
          IssueDescription,

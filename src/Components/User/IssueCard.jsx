@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import SunEditor from "suneditor-react";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
@@ -20,9 +20,12 @@ import { readonly_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
 
 const useStyles = makeStyles(theme => ({
+   container: {
+      width: "100%",
+   },
    root: {
-      maxWidth: "100%",
-      margin: "10px",
+      width: "100%",
+      margin: "20px 0px",
       backgroundColor: "darkgray",
    },
    media: {
@@ -57,15 +60,27 @@ const useStyles = makeStyles(theme => ({
    },
    description: {
       wordBreak: "break-word",
+      width: "100%",
    },
 }));
 
 function IssueCard({ issue }) {
    const classes = useStyles();
    const [expanded, setExpanded] = useState(false);
+   const [description, setDescription] = useState("");
+
+   const editorRef = useRef();
+
+   useEffect(() => {
+      if (editorRef.current) {
+         setDescription(
+            editorRef.current.editor.util.HTMLDecoder(issue.IssueDescription)
+         );
+      }
+   }, [expanded]);
 
    const formatDate = dateString =>
-      new Date(Date.parse(issue.createdAt)).toLocaleString("en-US", {
+      new Date(Date.parse(dateString)).toLocaleString("en-US", {
          weekday: "short",
          day: "numeric",
          year: "numeric",
@@ -85,7 +100,7 @@ function IssueCard({ issue }) {
    }
 
    return (
-      <div className="issue-card-container">
+      <div className={classes.container}>
          <Card className={classes.root}>
             <CardHeader
                avatar={
@@ -142,9 +157,10 @@ function IssueCard({ issue }) {
                <CardContent>
                   <Typography className={classes.description} paragraph>
                      <SunEditor
+                        ref={editorRef}
                         {...readonly_editor_config.props}
                         setOptions={readonly_editor_config.options}
-                        setContents={issue.IssueDescription}
+                        setContents={description}
                      />
                   </Typography>
                </CardContent>
