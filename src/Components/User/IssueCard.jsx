@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import SunEditor from "suneditor-react";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
@@ -58,9 +59,11 @@ const useStyles = makeStyles(theme => ({
       fontFamily: `"Quicksand", "sans-serif"`,
       width: "75%",
    },
-   description: {
+   "description-content": {
       wordBreak: "break-word",
-      width: "100%",
+      overflow: "hidden",
+      display: "flex",
+      justifyContent: "center",
    },
 }));
 
@@ -77,7 +80,7 @@ function IssueCard({ issue }) {
             editorRef.current.editor.util.HTMLDecoder(issue.IssueDescription)
          );
       }
-   }, [expanded]);
+   }, [expanded, issue.IssueDescription]);
 
    const formatDate = dateString =>
       new Date(Date.parse(dateString)).toLocaleString("en-US", {
@@ -93,10 +96,9 @@ function IssueCard({ issue }) {
       setExpanded(prev => !prev);
    }
 
-   function issueDescriptionTruncate() {
-      if (issue.IssueDescription.length > 40)
-         return issue.IssueDescription.substring(0, 40) + "...";
-      else return issue.IssueDescription;
+   function lineTruncate(words) {
+      if (words.length > 40) return words.substring(0, 40) + "...";
+      else return words;
    }
 
    return (
@@ -121,9 +123,11 @@ function IssueCard({ issue }) {
                subheader={formatDate(issue.createdAt)}
             />
             <CardMedia className={classes.media}>
-               <Typography variant="h3" component="h3">
-                  {issue.IssueTitle}
-               </Typography>
+               <Link to={`/issue/${issue._id}`}>
+                  <Typography variant="h3" component="h3">
+                     {issue.IssueTitle}
+                  </Typography>
+               </Link>
             </CardMedia>
             <CardContent>
                <Typography
@@ -132,7 +136,7 @@ function IssueCard({ issue }) {
                   color="textSecondary"
                   component="p"
                >
-                  {issueDescriptionTruncate()}
+                  {lineTruncate(description)}
                </Typography>
             </CardContent>
             <CardActions disableSpacing>
@@ -154,15 +158,13 @@ function IssueCard({ issue }) {
                </IconButton>
             </CardActions>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-               <CardContent>
-                  <Typography className={classes.description} paragraph>
-                     <SunEditor
-                        ref={editorRef}
-                        {...readonly_editor_config.props}
-                        setOptions={readonly_editor_config.options}
-                        setContents={description}
-                     />
-                  </Typography>
+               <CardContent className={classes["description-content"]}>
+                  <SunEditor
+                     ref={editorRef}
+                     {...readonly_editor_config.props}
+                     setOptions={readonly_editor_config.options}
+                     setContents={description}
+                  />
                </CardContent>
             </Collapse>
          </Card>

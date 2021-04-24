@@ -38,6 +38,8 @@
    padding: 20px;
    min-height: 300px;
    font-family: "Quicksand", sans-serif;
+   max-width: 100%;
+   overflow-x: hidden;
 }
 
 #multilineEditor {
@@ -50,4 +52,9 @@
    position: relative;
    left: 50%;
    transform: translateX(-50%);
+}
+
+a {
+   color: black;
+   text-decoration-color: black;
 }

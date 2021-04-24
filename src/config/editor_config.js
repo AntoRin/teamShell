@@ -2,7 +2,7 @@ export const issue_editor_config = {
    options: {
       width: "100%",
       height: "100",
-      minHeight: "500px",
+      minHeight: "300px",
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
@@ -23,7 +23,6 @@ export const issue_editor_config = {
 export const solution_editor_config = {
    options: {
       width: "100%",
-      height: "100",
       minHeight: "500px",
       stickyToolbar: true,
       resizingBar: false,
@@ -32,9 +31,7 @@ export const solution_editor_config = {
          ["font", "fontSize", "formatBlock"],
          ["blockquote"],
          ["bold", "underline", "italic", "strike", "subscript", "superscript"],
-         ["fontColor"],
          ["removeFormat"],
-         ["outdent", "indent"],
          ["align", "horizontalRule", "list", "lineHeight"],
          ["link", "image"],
          ["fullScreen"],
@@ -50,8 +47,9 @@ export const readonly_editor_config = {
    },
    options: {
       width: "100%",
-      maxWidth: "800px",
+      maxWidth: "100%",
       minHeight: "200px",
+      height: "fit-content",
       resizingBar: false,
       overflow: "scroll",
       defaultStyle: "font-size: 18px",
