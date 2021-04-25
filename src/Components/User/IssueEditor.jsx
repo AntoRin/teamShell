@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import SunEditor from "suneditor-react";
 import Button from "@material-ui/core/Button";
-import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import AddBoxSharpIcon from "@material-ui/icons/AddBoxSharp";
 import { makeStyles } from "@material-ui/core/styles";
 import { issue_editor_config } from "../../config/editor_config";
 import "../../styles/issue-editor.css";
@@ -107,7 +107,7 @@ function IssueEditor({ activeProject, User }) {
                size="medium"
                variant="contained"
                color="default"
-               endIcon={<ArrowForwardIosIcon />}
+               endIcon={<AddBoxSharpIcon fontSize="large" />}
             >
                Create
             </Button>

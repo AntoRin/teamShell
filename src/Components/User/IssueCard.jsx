@@ -19,7 +19,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { readonly_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
-import "../../styles/text-editor.css";
 
 const useStyles = makeStyles(theme => ({
    container: {

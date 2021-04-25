@@ -23,7 +23,8 @@ export const issue_editor_config = {
 export const solution_editor_config = {
    options: {
       width: "100%",
-      minHeight: "500px",
+      minHeight: "100px",
+      height: "300px",
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
@@ -47,7 +48,6 @@ export const readonly_editor_config = {
    },
    options: {
       width: "100%",
-      backgroundColor: "blue",
       maxWidth: "100%",
       minHeight: "200px",
       height: "fit-content",

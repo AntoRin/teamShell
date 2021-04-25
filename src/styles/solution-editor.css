@@ -1,0 +1,15 @@
+.solution-editor-container {
+   width: 90%;
+   margin: 50px 0px;
+   position: relative;
+   left: 50%;
+   transform: translateX(-50%);
+   border: 2px solid lightseagreen;
+   padding: 20px;
+}
+
+.solution-submit-btn {
+   margin: 7px 0px 3px 0px;
+   display: flex;
+   justify-content: flex-end;
+}
