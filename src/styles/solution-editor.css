@@ -11,5 +11,11 @@
 .solution-submit-btn {
    margin: 7px 0px 3px 0px;
    display: flex;
-   justify-content: flex-end;
+   justify-content: center;
+   background-color: #222;
+   padding: 10px;
+}
+
+.btn-long {
+   font-size: 1.1rem;
 }

@@ -27,7 +27,7 @@ function IssueHome({ match, User }) {
       async function getIssueDetails() {
          try {
             let rawData = await fetch(
-               `http://localhost:5000/issue/${match.params.IssueID}`,
+               `http://localhost:5000/issue/details/${match.params.IssueID}`,
                { credentials: "include", signal: abortFetch.signal }
             );
 
@@ -76,7 +76,7 @@ function IssueHome({ match, User }) {
                   >
                      Write your solution here
                   </Typography>
-                  <SolutionEditor />
+                  <SolutionEditor issueDetails={issueDetails} User={User} />
                </div>
             </div>
          </div>

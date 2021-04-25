@@ -30,11 +30,11 @@ const issueSchema = new Schema(
       Solutions: {
          type: [
             {
-               CommentBy: {
+               SolutionBy: {
                   type: String,
                   required: true,
                },
-               CommentBody: {
+               SolutionBody: {
                   type: String,
                   required: true,
                },

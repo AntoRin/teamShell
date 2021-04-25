@@ -16,7 +16,7 @@ router.get("/details/all/:project", async (req, res) => {
    }
 });
 
-router.get("/:IssueID", async (req, res) => {
+router.get("/details/:IssueID", async (req, res) => {
    let { UniqueUsername, Email } = req.thisUser;
    let _id = req.params.IssueID;
    try {
@@ -66,6 +66,33 @@ router.post("/create", async (req, res) => {
    } catch (error) {
       console.log(error);
       return res.json({ status: "error", error });
+   }
+});
+
+router.post("/solution/create", async (req, res) => {
+   let { UniqueUsername, Email } = req.thisUser;
+   let { Issue_id, Project_id, SolutionBy, SolutionBody } = req.body;
+
+   let newSolution = {
+      SolutionBy,
+      SolutionBody,
+   };
+
+   try {
+      if (UniqueUsername !== SolutionBy) throw "Unauthorized";
+      await Project.updateOne(
+         { _id: Project_id, "Issues._id": Issue_id },
+         {
+            $push: {
+               "Issues.$.Solutions": { $each: [newSolution], $position: 0 },
+            },
+         }
+      );
+
+      return res.json({ status: "ok", data: "" });
+   } catch (error) {
+      console.log(error);
+      res.status(401).json({ status: "error", error });
    }
 });
 
