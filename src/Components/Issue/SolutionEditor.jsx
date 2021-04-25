@@ -4,7 +4,7 @@ import { solution_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-editor.css";
 
-function SolutionCard({ issueDetails, User }) {
+function SolutionEditor({ issueDetails, User }) {
    const editorRef = useRef();
 
    async function handleNewComment(event) {
@@ -58,4 +58,4 @@ function SolutionCard({ issueDetails, User }) {
    );
 }
 
-export default SolutionCard;
+export default SolutionEditor;

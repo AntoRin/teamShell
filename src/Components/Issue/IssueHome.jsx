@@ -3,19 +3,20 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core";
 import GlobalNav from "../GlobalNav";
 import SolutionEditor from "./SolutionEditor";
+import SolutionCard from "./SolutionCard";
 import IssueCard from "../User/IssueCard";
 import "../../styles/issue-home.css";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
    "component-title": {
       color: "lightgreen",
       background: "#222",
       padding: "7px",
       marginTop: "50px",
    },
-});
+}));
 
-function IssueHome({ match, User }) {
+function IssueHome({ match, User, socket }) {
    const classes = useStyles();
 
    const [issueDetails, setIssueDetails] = useState("");
@@ -53,6 +54,8 @@ function IssueHome({ match, User }) {
       return () => abortFetch.abort();
    }, [match.params]);
 
+   useEffect(() => {});
+
    if (isLoading) {
       return <h1>Loading...</h1>;
    } else {
@@ -66,7 +69,18 @@ function IssueHome({ match, User }) {
                <div className="issue-statement-description-main">
                   <IssueCard issue={issueDetails} showContent={true} />
                </div>
-               <div className="solutions-read-section"></div>
+               <div className="solutions-read-section">
+                  {issueDetails.Solutions.length > 0
+                     ? issueDetails.Solutions.map(solution => {
+                          return (
+                             <SolutionCard
+                                key={solution._id}
+                                solution={solution}
+                             />
+                          );
+                       })
+                     : null}
+               </div>
                <div className="solutions-write-section">
                   <Typography
                      className={classes["component-title"]}
@@ -76,7 +90,11 @@ function IssueHome({ match, User }) {
                   >
                      Write your solution here
                   </Typography>
-                  <SolutionEditor issueDetails={issueDetails} User={User} />
+                  <SolutionEditor
+                     issueDetails={issueDetails}
+                     User={User}
+                     socket={socket}
+                  />
                </div>
             </div>
          </div>

@@ -6,6 +6,7 @@ export const issue_editor_config = {
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
+      fontSize: [12, 14, 16, 18, 20, 22, 24, 26],
       buttonList: [
          ["font", "fontSize", "formatBlock"],
          ["blockquote"],
@@ -28,6 +29,7 @@ export const solution_editor_config = {
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
+      fontSize: [12, 14, 16, 18, 20, 22, 24, 26],
       buttonList: [
          ["font", "fontSize", "formatBlock"],
          ["blockquote"],
@@ -54,5 +56,6 @@ export const readonly_editor_config = {
       resizingBar: false,
       overflow: "scroll",
       defaultStyle: "font-size: 18px",
+      fontSize: [12, 14, 16, 18, 20, 22, 24, 26],
    },
 };
