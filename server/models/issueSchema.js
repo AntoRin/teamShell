@@ -30,8 +30,11 @@ const issueSchema = new Schema(
       Solutions: {
          type: [
             {
-               SolutionBy: {
-                  type: String,
+               SolutionCreator: {
+                  type: {
+                     UniqueUsername: { type: String, required: true },
+                     ProfileImage: { type: String, required: true },
+                  },
                   required: true,
                },
                SolutionBody: {

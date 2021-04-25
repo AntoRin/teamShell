@@ -68,19 +68,30 @@ const UserSchema = new Schema(
          default: [],
       },
       Issues: {
-         type: [
-            {
-               Created: {
-                  type: Array,
-                  default: [],
-               },
-               Assigned: {
-                  type: Array,
-                  default: [],
-               },
+         type: {
+            Created: {
+               type: [
+                  {
+                     IssueTitle: { type: String, required: true },
+                     ProjectContext: { type: String, required: true },
+                  },
+               ],
+               default: [],
             },
-         ],
-         default: [],
+            Following: {
+               type: [
+                  {
+                     IssueTitle: { type: String, required: true },
+                     ProjectContext: { type: String, required: true },
+                  },
+               ],
+               default: [],
+            },
+         },
+         default: {
+            Created: [],
+            Following: [],
+         },
       },
    },
    { timestamps: true }

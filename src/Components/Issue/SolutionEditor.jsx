@@ -7,7 +7,7 @@ import "../../styles/solution-editor.css";
 function SolutionEditor({ issueDetails, User }) {
    const editorRef = useRef();
 
-   async function handleNewComment(event) {
+   async function handleNewSolution(event) {
       event.preventDefault();
 
       let solutionPlainText = editorRef.current.editor.core.getContents();
@@ -20,7 +20,10 @@ function SolutionEditor({ issueDetails, User }) {
          Issue_id: issueDetails._id,
          Project_id: issueDetails.Project_id,
          SolutionBody: solutionEncoded,
-         SolutionBy: User.UniqueUsername,
+         SolutionCreator: {
+            UniqueUsername: User.UniqueUsername,
+            ProfileImage: User.ProfileImage,
+         },
       };
 
       let postOptions = {
@@ -40,7 +43,7 @@ function SolutionEditor({ issueDetails, User }) {
 
    return (
       <div className="solution-editor-container">
-         <form onSubmit={handleNewComment} id="solutionForm">
+         <form onSubmit={handleNewSolution} id="solutionForm">
             <SunEditor
                ref={editorRef}
                setOptions={solution_editor_config.options}
