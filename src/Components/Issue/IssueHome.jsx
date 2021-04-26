@@ -51,8 +51,13 @@ function IssueHome({ match, User, socket }) {
 
       getIssueDetails();
 
-      return () => abortFetch.abort();
-   }, [match.params]);
+      socket.on("Data Available", () => getIssueDetails());
+
+      return () => {
+         abortFetch.abort();
+         socket.off("Data Available");
+      };
+   }, [match.params, socket]);
 
    useEffect(() => {});
 
@@ -69,18 +74,6 @@ function IssueHome({ match, User, socket }) {
                <div className="issue-statement-description-main">
                   <IssueCard issue={issueDetails} showContent={true} />
                </div>
-               <div className="solutions-read-section">
-                  {issueDetails.Solutions.length > 0
-                     ? issueDetails.Solutions.map(solution => {
-                          return (
-                             <SolutionCard
-                                key={solution._id}
-                                solution={solution}
-                             />
-                          );
-                       })
-                     : null}
-               </div>
                <div className="solutions-write-section">
                   <Typography
                      className={classes["component-title"]}
@@ -95,6 +88,18 @@ function IssueHome({ match, User, socket }) {
                      User={User}
                      socket={socket}
                   />
+               </div>
+               <div className="solutions-read-section">
+                  {issueDetails.Solutions.length > 0
+                     ? issueDetails.Solutions.map(solution => {
+                          return (
+                             <SolutionCard
+                                key={solution._id}
+                                solution={solution}
+                             />
+                          );
+                       })
+                     : null}
                </div>
             </div>
          </div>

@@ -54,7 +54,6 @@ export const readonly_editor_config = {
       minHeight: "200px",
       height: "fit-content",
       resizingBar: false,
-      overflow: "scroll",
       defaultStyle: "font-size: 18px",
       fontSize: [12, 14, 16, 18, 20, 22, 24, 26],
    },

@@ -38,7 +38,9 @@ function SolutionEditor({ issueDetails, User }) {
          postOptions
       );
       let solutionStatus = await newSolution.json();
-      console.log(solutionStatus);
+
+      if (solutionStatus.status === "ok")
+         editorRef.current.editor.core.setContents("");
    }
 
    return (

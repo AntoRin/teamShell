@@ -18,6 +18,7 @@ import ShareIcon from "@material-ui/icons/Share";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { readonly_editor_config } from "../../config/editor_config";
+import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
 
 const useStyles = makeStyles(theme => ({
@@ -87,16 +88,6 @@ function IssueCard({ issue, showContent }) {
       }
    }, [expanded, issue.IssueDescription]);
 
-   const formatDate = dateString =>
-      new Date(Date.parse(dateString)).toLocaleString("en-US", {
-         weekday: "short",
-         day: "numeric",
-         year: "numeric",
-         month: "long",
-         hour: "numeric",
-         minute: "numeric",
-      });
-
    function handleExpandClick() {
       setExpanded(prev => !prev);
    }
@@ -115,7 +106,7 @@ function IssueCard({ issue, showContent }) {
          <Card className={classes.root}>
             <CardHeader
                avatar={
-                  <Avatar aria-label="recipe" className={classes.avatar}>
+                  <Avatar className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
                         src={issue.Creator.ProfileImage}
