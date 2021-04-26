@@ -91,7 +91,7 @@ router.post("/create", async (req, res) => {
 });
 
 router.post("/solution/create", async (req, res) => {
-   let { UniqueUsername } = req.thisUser;
+   let { UniqueUsername, Email } = req.thisUser;
    let { Issue_id, Project_id, SolutionCreator, SolutionBody } = req.body;
 
    let newSolution = {
@@ -102,11 +102,40 @@ router.post("/solution/create", async (req, res) => {
    try {
       if (UniqueUsername !== SolutionCreator.UniqueUsername)
          throw "Unauthorized";
-      await Project.updateOne(
+      let updatedProject = await Project.findOneAndUpdate(
          { _id: Project_id, "Issues._id": Issue_id },
          {
             $push: {
                "Issues.$.Solutions": { $each: [newSolution], $position: 0 },
+            },
+         },
+         {
+            returnOriginal: false,
+            projection: {
+               Issues: { $elemMatch: { _id: Issue_id } },
+               _id: 0,
+            },
+         }
+      );
+      let updatedIssue = updatedProject.Issues[0];
+      let newSolutionID = updatedIssue.Solutions[0]._id;
+
+      let UserSolutionContext = {
+         _id: newSolutionID,
+         IssueContext: {
+            _id: updatedIssue._id,
+            IssueTitle: updatedIssue.IssueTitle,
+         },
+      };
+
+      await User.updateOne(
+         { UniqueUsername, Email },
+         {
+            $push: {
+               "Solutions.Created": {
+                  $each: [UserSolutionContext],
+                  $position: 0,
+               },
             },
          }
       );

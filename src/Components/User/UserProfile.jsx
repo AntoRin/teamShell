@@ -147,8 +147,14 @@ function UserProfile({ location, match, User }) {
          return (
             <>
                <div className="issues-tab-list">
-                  {Profile.Issues.map((issue, index) => {
-                     return <DetailCard key={index} header={issue} detail="" />;
+                  {Profile.Issues.Created.map((issue, index) => {
+                     return (
+                        <DetailCard
+                           key={index}
+                           header={issue.IssueTitle}
+                           detail=""
+                        />
+                     );
                   })}
                </div>
             </>

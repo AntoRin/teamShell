@@ -93,6 +93,42 @@ const UserSchema = new Schema(
             Following: [],
          },
       },
+      Solutions: {
+         type: {
+            Created: {
+               type: [
+                  {
+                     _id: { type: mongoose.Types.ObjectId, required: true },
+                     IssueContext: {
+                        type: {
+                           _id: mongoose.Types.ObjectId,
+                           IssueTitle: String,
+                        },
+                        required: true,
+                     },
+                  },
+               ],
+            },
+            Liked: {
+               type: [
+                  {
+                     _id: { type: mongoose.Types.ObjectId, required: true },
+                     IssueContext: {
+                        type: {
+                           _id: mongoose.Types.ObjectId,
+                           IssueTitle: String,
+                        },
+                        required: true,
+                     },
+                  },
+               ],
+            },
+         },
+         default: {
+            Created: [],
+            Following: [],
+         },
+      },
    },
    { timestamps: true }
 );
