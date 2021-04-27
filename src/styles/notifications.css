@@ -2,20 +2,26 @@
    position: absolute;
    top: 75px;
    right: 0px;
-   width: 300px;
-   min-height: 200px;
+   width: 350px;
+   min-height: 300px;
    word-break: break-all;
-   background-color: gray;
+   background-color: #111;
    border-radius: 10px;
    color: white;
    z-index: 100;
-   border: 2px solid black;
+   border: 2px solid #111;
 }
 
 .notification-block {
-   background-color: rgb(15, 27, 27);
+   cursor: pointer;
+   background-color: #222;
+   margin: 0 0 5px 0;
 }
 
-.notification-link {
-   text-decoration: none;
+.notification-block:hover {
+   background-color: #444;
+}
+
+.notification-text-content {
+   padding: 5px;
 }

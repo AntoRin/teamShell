@@ -19,7 +19,7 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       setIsDropdownOpen(prev => !prev);
    }
 
-   function openNotifications() {
+   function toggleNotifications() {
       setIsNotificationsOpen(prev => !prev);
    }
 
@@ -38,11 +38,12 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
                <div className="notifications-section">
                   <NotifyIcon
                      className="notification-icon"
-                     onClick={openNotifications}
+                     onClick={toggleNotifications}
                   />
                   <Notifications
                      setActiveNotifications={setActiveNotifications}
                      isNotificationsOpen={isNotificationsOpen}
+                     setIsNotificationsOpen={setIsNotificationsOpen}
                   />
                </div>
                <div className="profile-section">
@@ -57,6 +58,7 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
                         id="userProfileDropDown"
                         UniqueUsername={UniqueUsername}
                         isOpen={isDropdownOpen}
+                        setIsDropdownOpen={setIsDropdownOpen}
                      />
                   </div>
                </div>

@@ -56,6 +56,7 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
             type: "Invitation",
             invitation_category: "Project",
             invitation_dest: Project.ProjectName,
+            caller_info: `Project with ${Project.Members.length} member(s)`,
          },
       };
 

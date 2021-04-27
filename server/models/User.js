@@ -43,15 +43,20 @@ const UserSchema = new Schema(
                   type: String,
                   required: true,
                },
-               NotificationDest: {
+               NotificationCaller: {
                   type: {
                      Category: String,
                      Name: String,
+                     Info: String,
                   },
                },
                Hyperlink: {
                   type: String,
                   required: true,
+               },
+               createdAt: {
+                  type: Date,
+                  default: Date.now,
                },
             },
          ],

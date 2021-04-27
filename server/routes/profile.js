@@ -69,9 +69,10 @@ router.post("/notifications", async (req, res) => {
             let payloadBlueprint = {
                NotificationInitiator: initiator,
                NotificationType: "Invitation",
-               NotificationDest: {
+               NotificationCaller: {
                   Category: metaData.invitation_category,
                   Name: metaData.invitation_dest,
+                  Info: metaData.caller_info,
                },
             };
 

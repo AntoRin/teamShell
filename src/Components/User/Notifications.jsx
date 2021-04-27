@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -8,20 +8,36 @@ import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
+import formatDate from "../../utils/formatDate";
 import "../../styles/notifications.css";
 
 const useStyles = makeStyles(theme => ({
    root: {
       width: "100%",
-      maxWidth: "36ch",
    },
    inline: {
       display: "inline",
-      wordWrap: "normal",
+      wordWrap: "break-word",
+      wordBreak: "keep-all",
+      color: "white",
+      fontWeight: 500,
+   },
+   "notification-initiator": {
+      fontWeight: 1000,
+   },
+   "notification-keyword": {
+      color: "cyan",
+   },
+   "notification-spl": {
+      color: "red",
    },
 }));
 
-function Notifications({ isNotificationsOpen, setActiveNotifications }) {
+function Notifications({
+   isNotificationsOpen,
+   setIsNotificationsOpen,
+   setActiveNotifications,
+}) {
    const classes = useStyles();
 
    const [notifications, setNotifications] = useState([]);
@@ -54,78 +70,116 @@ function Notifications({ isNotificationsOpen, setActiveNotifications }) {
       if (updateResponse.status === "ok") window.location.reload();
    }
 
+   function performNotificationAction(event, action) {
+      window.location.href = action;
+   }
+
+   function closeNotifications() {
+      setIsNotificationsOpen(false);
+   }
+
    return isNotificationsOpen ? (
-      <div className="notifications-container">
-         <List className={classes.root}>
-            {notifications.map((notification, index) => {
-               return (
-                  <ListItem alignItems="flex-start">
-                     <ListItemAvatar>
-                        <Avatar
-                           alt="Remy Sharp"
-                           src={notification.NotificationInitiator.ProfileImage}
-                        />
-                     </ListItemAvatar>
-                     <ListItemText
-                        primary={notification.NotificationType}
-                        secondary={
-                           <React.Fragment>
-                              {notification.NotificationType ===
-                                 "Invitation" && (
-                                 <div className="notification-block">
-                                    <a
-                                       className="notification-link"
-                                       href={notification.Hyperlink}
-                                    >
-                                       <Typography
-                                          component="span"
-                                          variant="body1"
-                                          className={classes.inline}
-                                          color="secondary"
-                                       >
-                                          {
-                                             notification.NotificationInitiator
-                                                .UniqueUsername
-                                          }{" "}
-                                          has invited you to join the{" "}
-                                          {
-                                             notification.NotificationDest
-                                                .Category
-                                          }{" "}
-                                          {notification.NotificationDest.Name}
-                                       </Typography>
-                                    </a>
-                                 </div>
-                              )}
-                           </React.Fragment>
-                        }
-                     />
-                  </ListItem>
-               );
-            })}
-            <Divider variant="inset" component="li" />
-         </List>
-         {/* <div className="notification-panel">
-            {notifications.map((notification, index) => {
-               if (notification.NotificationType === "Link")
+      <ClickAwayListener onClickAway={closeNotifications}>
+         <div className="notifications-container">
+            <List className={classes.root}>
+               {notifications.map(notification => {
                   return (
-                     <div key={index}>
-                        <a href={notification.NotificationContent}>
-                           {notification.NotificationHeader}
-                        </a>
+                     <div
+                        key={notification._id}
+                        onClick={event =>
+                           performNotificationAction(
+                              event,
+                              notification.Hyperlink
+                           )
+                        }
+                        className="notification-block"
+                     >
+                        <ListItem alignItems="flex-start">
+                           <ListItemAvatar>
+                              <Avatar
+                                 alt=""
+                                 src={
+                                    notification.NotificationInitiator
+                                       .ProfileImage
+                                 }
+                              />
+                           </ListItemAvatar>
+                           <ListItemText
+                              disableTypography={true}
+                              primary={notification.NotificationType}
+                              secondary={
+                                 <>
+                                    {notification.NotificationType ===
+                                       "Invitation" && (
+                                       <div className="notification-text-content">
+                                          <Typography
+                                             component="span"
+                                             variant="body1"
+                                             className={classes.inline}
+                                          >
+                                             {
+                                                <span
+                                                   className={
+                                                      classes[
+                                                         "notification-initiator"
+                                                      ]
+                                                   }
+                                                >
+                                                   {
+                                                      notification
+                                                         .NotificationInitiator
+                                                         .UniqueUsername
+                                                   }
+                                                </span>
+                                             }{" "}
+                                             has invited you to join{" "}
+                                             {
+                                                <span
+                                                   className={
+                                                      classes[
+                                                         "notification-keyword"
+                                                      ]
+                                                   }
+                                                >
+                                                   {
+                                                      notification
+                                                         .NotificationCaller
+                                                         .Name
+                                                   }
+                                                </span>
+                                             }
+                                             <br />
+                                             <span
+                                                className={
+                                                   classes["notification-spl"]
+                                                }
+                                             >
+                                                {
+                                                   notification
+                                                      .NotificationCaller.Info
+                                                }
+                                             </span>
+                                             <br />
+                                             <span>
+                                                {formatDate(
+                                                   notification.createdAt
+                                                )}
+                                             </span>
+                                          </Typography>
+                                       </div>
+                                    )}
+                                 </>
+                              }
+                           />
+                        </ListItem>
                      </div>
                   );
-               else
-                  return (
-                     <div key={index}>{notification.NotificationContent}</div>
-                  );
-            })}
-            <button onClick={clearNotifications}>Clear</button>
-         </div> */}
-      </div>
-   ) : (
-      ""
-   );
+               })}
+               <Divider variant="inset" component="li" />
+            </List>
+         </div>
+      </ClickAwayListener>
+   ) : null;
 }
 
 export default Notifications;
