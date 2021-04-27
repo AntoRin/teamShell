@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import CloseIcon from "@material-ui/icons/Close";
 import "../../styles/settings-modal.css";
 
-function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
+function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    const [newDescription, setNewDescription] = useState("");
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
@@ -55,11 +55,15 @@ function OrgSettingsModal({ match, Organization, setIsSettingsOpen }) {
          return console.log("User already present");
 
       let body = {
-         toUser: newUser,
-         primaryPayload: Organization.OrganizationName,
-         meta: {
+         initiator: {
+            UniqueUsername: User.UniqueUsername,
+            ProfileImage: User.ProfileImage,
+         },
+         recipient: newUser,
+         metaData: {
             type: "Invitation",
             invitation_category: "Organization",
+            invitation_dest: Organization.OrganizationName,
          },
       };
 

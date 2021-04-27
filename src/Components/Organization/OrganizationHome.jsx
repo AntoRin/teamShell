@@ -54,7 +54,11 @@ function OrganizationHome({ match, User }) {
                UniqueUsername={User.UniqueUsername}
             />
             <div className="org-main-wrapper">
-               <OrgSideNav match={match} Organization={Organization} />
+               <OrgSideNav
+                  User={User}
+                  match={match}
+                  Organization={Organization}
+               />
                <div className="org-page-body">
                   <div className="org-general-details-card">
                      <header className="org-details-header">

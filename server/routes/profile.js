@@ -38,7 +38,7 @@ router.get("/notifications", async (req, res) => {
       let user = await User.findOne({ UniqueUsername, Email });
       if (!user) throw "User Not Found";
       let { Notifications } = user;
-      return res.json({ status: "ok", Notifications });
+      return res.json({ status: "ok", data: { Notifications } });
    } catch (error) {
       console.log(error);
       return res.json({ status: "error", error });
@@ -58,56 +58,71 @@ router.get("/notifications/clear", async (req, res) => {
 });
 
 router.post("/notifications", async (req, res) => {
-   let { toUser, primaryPayload, meta } = req.body;
+   let { initiator, recipient, metaData } = req.body;
 
    try {
-      if (meta.type === "Invitation") {
-         let user = await User.findOne({ UniqueUsername: toUser });
-         if (!user) throw "User Not Found";
-         if (meta.invitation_category === "Organization") {
-            let userSecret = jwt.sign(
-               { _id: user._id, OrganizationName: primaryPayload },
-               process.env.ORG_JWT_SECRET
-            );
-            let orgLink = `http://localhost:5000/organization/add-new-user/${userSecret}`;
-            await User.updateOne(
-               { _id: user._id },
-               {
-                  $push: {
-                     Notifications: {
-                        $each: [
-                           {
-                              NotificationHeader: "Join Org",
-                              NotificationType: "Link",
-                              NotificationContent: orgLink,
-                           },
-                        ],
-                        $position: 0,
+      switch (metaData.type) {
+         case "Invitation":
+            let user = await User.findOne({ UniqueUsername: recipient });
+            if (!user) throw "User Not Found";
+
+            let payloadBlueprint = {
+               NotificationInitiator: initiator,
+               NotificationType: "Invitation",
+               NotificationDest: {
+                  Category: metaData.invitation_category,
+                  Name: metaData.invitation_dest,
+               },
+            };
+
+            if (metaData.invitation_category === "Organization") {
+               let userSecret = jwt.sign(
+                  { _id: user._id, OrganizationName: metaData.invitation_dest },
+                  process.env.ORG_JWT_SECRET
+               );
+               let orgLink = `http://localhost:5000/organization/add-new-user/${userSecret}`;
+               await User.updateOne(
+                  { _id: user._id },
+                  {
+                     $push: {
+                        Notifications: {
+                           $each: [
+                              {
+                                 ...payloadBlueprint,
+                                 Hyperlink: orgLink,
+                              },
+                           ],
+                           $position: 0,
+                        },
                      },
-                  },
-               }
-            );
-            return res.json({ status: "ok" });
-         } else if (meta.invitation_category === "Project") {
-            let userSecret = jwt.sign(
-               { _id: user._id, ProjectName: primaryPayload },
-               process.env.ORG_JWT_SECRET
-            );
-            let projectLink = `http://localhost:5000/project/add-new-user/${userSecret}`;
-            await User.updateOne(
-               { _id: user._id },
-               {
-                  $push: {
-                     Notifications: {
-                        NotificationHeader: "Join Project",
-                        NotificationType: "Link",
-                        NotificationContent: projectLink,
+                  }
+               );
+               return res.json({ status: "ok", data: "Notification sent" });
+            } else if (metaData.invitation_category === "Project") {
+               let userSecret = jwt.sign(
+                  { _id: user._id, ProjectName: metaData.invitation_dest },
+                  process.env.ORG_JWT_SECRET
+               );
+               let projectLink = `http://localhost:5000/project/add-new-user/${userSecret}`;
+               await User.updateOne(
+                  { _id: user._id },
+                  {
+                     $push: {
+                        Notifications: {
+                           $each: [
+                              {
+                                 ...payloadBlueprint,
+                                 Hyperlink: projectLink,
+                              },
+                           ],
+                           $position: 0,
+                        },
                      },
-                  },
-               }
-            );
-            return res.json({ status: "ok" });
-         }
+                  }
+               );
+               return res.json({ status: "ok", data: "Notification sent" });
+            }
+            break;
       }
    } catch (error) {
       console.log(error);

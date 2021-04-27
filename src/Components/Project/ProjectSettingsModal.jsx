@@ -2,7 +2,7 @@ import { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import "../../styles/settings-modal.css";
 
-function ProjectSettingsModal({ Project, setSettings }) {
+function ProjectSettingsModal({ User, Project, setSettings }) {
    const [newDescription, setNewDescription] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [newUser, setNewUser] = useState("");
@@ -47,11 +47,15 @@ function ProjectSettingsModal({ Project, setSettings }) {
       event.preventDefault();
 
       let body = {
-         toUser: newUser,
-         primaryPayload: Project.ProjectName,
-         meta: {
+         initiator: {
+            UniqueUsername: User.UniqueUsername,
+            ProfileImage: User.ProfileImage,
+         },
+         recipient: newUser,
+         metaData: {
             type: "Invitation",
             invitation_category: "Project",
+            invitation_dest: Project.ProjectName,
          },
       };
 

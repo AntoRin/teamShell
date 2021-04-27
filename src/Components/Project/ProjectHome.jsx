@@ -130,6 +130,7 @@ function ProjectHome({ match, User }) {
                </div>
                {settings && (
                   <ProjectSettingsModal
+                     User={User}
                      Project={Project}
                      setSettings={setSettings}
                   />
