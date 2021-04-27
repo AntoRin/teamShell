@@ -86,6 +86,7 @@ mongoose.connect(
             ProjectStatus.on("change", () => {
                io.to(socket.id).emit("project-data-change");
             });
+
             UserStatus.on("change", () => {
                io.to(socket.id).emit("user-data-change");
             });

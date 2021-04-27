@@ -74,9 +74,7 @@ function EnvironmentPanel({ User, currentOrg }) {
       }
       getProjectDetails();
 
-      socket.on("project-data-change", () => {
-         getProjectDetails();
-      });
+      socket.on("project-data-change", () => getProjectDetails());
 
       return () => {
          abortFetch.abort();

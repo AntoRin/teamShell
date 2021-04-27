@@ -62,7 +62,14 @@ function Notifications({
       }
 
       getNotifications();
-   }, [setActiveNotifications]);
+      socket.on("user-data-change", () => getNotifications());
+      console.log("In notifications useEffect");
+
+      return () => {
+         console.log("Closing notifications socket listener...");
+         socket.off("user-data-change");
+      };
+   }, [setActiveNotifications, socket]);
 
    async function clearNotifications() {
       let update = await fetch(
