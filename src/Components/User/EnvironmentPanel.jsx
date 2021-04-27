@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { SocketInstance } from "../ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import "../../styles/environment-panel.css";
@@ -25,12 +26,14 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function EnvironmentPanel({ socket, User, currentOrg }) {
+function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
    const [activeProject, setActiveProject] = useState("");
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+
+   const socket = useContext(SocketInstance);
 
    useEffect(() => {
       let currentProject = User.Projects.find(
@@ -71,13 +74,13 @@ function EnvironmentPanel({ socket, User, currentOrg }) {
       }
       getProjectDetails();
 
-      socket.on("Data Available", () => {
+      socket.on("project-data-change", () => {
          getProjectDetails();
       });
 
       return () => {
          abortFetch.abort();
-         socket.off("Data Available");
+         socket.off("project-data-change");
       };
    }, [activeProject, socket]);
 

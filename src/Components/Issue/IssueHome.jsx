@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core";
+import { SocketInstance } from "../ProtectedRoute";
 import GlobalNav from "../GlobalNav";
 import SolutionEditor from "./SolutionEditor";
 import SolutionCard from "./SolutionCard";
@@ -16,12 +17,14 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function IssueHome({ match, User, socket }) {
+function IssueHome({ match, User }) {
    const classes = useStyles();
 
    const [issueDetails, setIssueDetails] = useState("");
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+
+   const socket = useContext(SocketInstance);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -51,11 +54,11 @@ function IssueHome({ match, User, socket }) {
 
       getIssueDetails();
 
-      socket.on("Data Available", () => getIssueDetails());
+      socket.on("project-data-change", () => getIssueDetails());
 
       return () => {
          abortFetch.abort();
-         socket.off("Data Available");
+         socket.off("project-data-change");
       };
    }, [match.params, socket]);
 

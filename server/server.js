@@ -7,18 +7,22 @@ const cookieParser = require("cookie-parser");
 const cookie = require("cookie");
 require("dotenv").config();
 
-const checkAuth = require("./middleware/checkAuth");
-const verifySocketIntegrity = require("./middleware/verifySocketIntegrity");
-
+//Routes
 const authRoute = require("./routes/auth");
 const profileRoute = require("./routes/profile");
 const organizationRoute = require("./routes/organization");
 const projectRoute = require("./routes/project");
 const issueRoute = require("./routes/issue");
 
+//Models
 const Project = require("./models/Project");
+const User = require("./models/User");
 
 const app = express();
+
+//Middleware
+const checkAuth = require("./middleware/checkAuth");
+const verifySocketIntegrity = require("./middleware/verifySocketIntegrity");
 
 app.use(express.json());
 app.use(
@@ -77,9 +81,13 @@ mongoose.connect(
          io.on("connection", socket => {
             console.log("Connected: ", socket.id);
             let ProjectStatus = Project.watch();
+            let UserStatus = User.watch();
 
             ProjectStatus.on("change", () => {
-               io.to(socket.id).emit("Data Available");
+               io.to(socket.id).emit("project-data-change");
+            });
+            UserStatus.on("change", () => {
+               io.to(socket.id).emit("user-data-change");
             });
          });
       }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
@@ -8,6 +8,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
+import { SocketInstance } from "../ProtectedRoute";
 import formatDate from "../../utils/formatDate";
 import "../../styles/notifications.css";
 
@@ -41,6 +42,8 @@ function Notifications({
    const classes = useStyles();
 
    const [notifications, setNotifications] = useState([]);
+
+   const socket = useContext(SocketInstance);
 
    useEffect(() => {
       async function getNotifications() {
