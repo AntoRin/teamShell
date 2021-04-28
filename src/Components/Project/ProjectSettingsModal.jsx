@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
+import inititateNewNotification from "../../utils/notificationService";
 import "../../styles/settings-modal.css";
 
 function ProjectSettingsModal({ User, Project, setSettings }) {
@@ -46,7 +47,10 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
    async function addUserToProject(event) {
       event.preventDefault();
 
-      let body = {
+      if (Project.Members.includes(newUser))
+         return console.log("User already present");
+
+      let invitationData = {
          initiator: {
             UniqueUsername: User.UniqueUsername,
             ProfileImage: User.ProfileImage,
@@ -60,19 +64,9 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
          },
       };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
+      let invitationResponse = await inititateNewNotification(invitationData);
 
-      let newUserRequest = await fetch(
-         "http://localhost:5000/profile/notifications",
-         postOptions
-      );
-      let newUserResponse = await newUserRequest.json();
-      if (newUserResponse.status === "ok") window.location.reload();
+      if (invitationResponse.status === "ok") console.log("Invitation sent");
    }
 
    function closeSettingsModal() {

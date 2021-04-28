@@ -83,8 +83,10 @@ mongoose.connect(
             let ProjectStatus = Project.watch();
             let UserStatus = User.watch();
 
-            ProjectStatus.on("change", () => {
-               io.to(socket.id).emit("project-data-change");
+            ProjectStatus.on("change", diff => {
+               if (diff.operationType === "update") {
+                  io.to(socket.id).emit("project-data-change");
+               }
             });
 
             UserStatus.on("change", () => {
