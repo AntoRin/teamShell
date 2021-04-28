@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
-import GlobalNav from "../GlobalNav";
 import "../../styles/user-home.css";
 
 function UserHome({ User }) {
@@ -66,10 +65,6 @@ function UserHome({ User }) {
 
    return (
       <div className="home-container">
-         <GlobalNav
-            ProfileImage={User.ProfileImage}
-            UniqueUsername={User.UniqueUsername}
-         />
          <div className="home-main">
             <div className="user-details">
                <div className="details-section">

@@ -32,22 +32,28 @@ const UserSchema = new Schema(
       Notifications: {
          type: [
             {
-               NotificationInitiator: {
+               Initiator: {
                   type: {
                      UniqueUsername: String,
                      ProfileImage: String,
                   },
                   required: true,
                },
-               NotificationType: {
+               InfoType: {
                   type: String,
                   required: true,
                },
-               NotificationCaller: {
+               Target: {
                   type: {
                      Category: String,
                      Name: String,
                      Info: String,
+                  },
+               },
+               ActivityContent: {
+                  type: {
+                     Action: { type: String, required: true },
+                     Keyword: { type: String, required: true },
                   },
                },
                Hyperlink: {

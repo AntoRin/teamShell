@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
-import GlobalNav from "../GlobalNav";
 import DetailCard from "./DetailCard";
 import "../../styles/user-profile.css";
 
@@ -214,10 +213,6 @@ function UserProfile({ location, match, User }) {
    } else {
       return (
          <div className="profile-container">
-            <GlobalNav
-               ProfileImage={User.ProfileImage}
-               UniqueUsername={User.UniqueUsername}
-            />
             <div className="profile-tabs">
                <div className="user-tab tab-link">
                   <Link

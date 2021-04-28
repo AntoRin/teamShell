@@ -4,7 +4,6 @@ import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import EnvironmentPanel from "./EnvironmentPanel";
-import GlobalNav from "../GlobalNav";
 
 function createTabProps(index) {
    return {
@@ -46,10 +45,6 @@ function UserEnvironment({ socket, User }) {
 
    return (
       <div className="user-environment-container">
-         <GlobalNav
-            ProfileImage={User.ProfileImage}
-            UniqueUsername={User.UniqueUsername}
-         />
          <div className="environment-toolbar">
             <div className={classes.root}>
                <AppBar

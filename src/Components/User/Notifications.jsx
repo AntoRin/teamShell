@@ -106,15 +106,12 @@ function Notifications({
                            <ListItemAvatar>
                               <Avatar
                                  alt=""
-                                 src={
-                                    notification.NotificationInitiator
-                                       .ProfileImage
-                                 }
+                                 src={notification.Initiator.ProfileImage}
                               />
                            </ListItemAvatar>
                            <ListItemText
                               disableTypography={true}
-                              primary={notification.NotificationType}
+                              primary={notification.InfoType}
                               secondary={
                                  <>
                                     {
@@ -133,13 +130,17 @@ function Notifications({
                                                    }
                                                 >
                                                    {
-                                                      notification
-                                                         .NotificationInitiator
+                                                      notification.Initiator
                                                          .UniqueUsername
                                                    }
                                                 </span>
                                              }{" "}
-                                             has invited you to join{" "}
+                                             <span>
+                                                {
+                                                   notification.ActivityContent
+                                                      .Action
+                                                }
+                                             </span>{" "}
                                              {
                                                 <span
                                                    className={
@@ -150,8 +151,8 @@ function Notifications({
                                                 >
                                                    {
                                                       notification
-                                                         .NotificationCaller
-                                                         .Name
+                                                         .ActivityContent
+                                                         .Keyword
                                                    }
                                                 </span>
                                              }
@@ -161,10 +162,7 @@ function Notifications({
                                                    classes["notification-spl"]
                                                 }
                                              >
-                                                {
-                                                   notification
-                                                      .NotificationCaller.Info
-                                                }
+                                                {notification.Target.Info}
                                              </span>
                                              <br />
                                              <span>

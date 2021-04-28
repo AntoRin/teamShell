@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core";
 import { SocketInstance } from "../ProtectedRoute";
-import GlobalNav from "../GlobalNav";
 import SolutionEditor from "./SolutionEditor";
 import SolutionCard from "./SolutionCard";
 import IssueCard from "../User/IssueCard";
@@ -62,17 +61,11 @@ function IssueHome({ match, User }) {
       };
    }, [match.params, socket]);
 
-   useEffect(() => {});
-
    if (isLoading) {
       return <h1>Loading...</h1>;
    } else {
       return isAuthorized ? (
          <div className="issue-home-container">
-            <GlobalNav
-               ProfileImage={User.ProfileImage}
-               UniqueUsername={User.UniqueUsername}
-            />
             <div className="issue-home-contents-wrapper">
                <div className="issue-statement-description-main">
                   <IssueCard issue={issueDetails} showContent={true} />

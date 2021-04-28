@@ -83,12 +83,11 @@ function IssueEditor({ activeProject, User }) {
                ProfileImage: User.ProfileImage,
             },
             recipient: activeProject,
-            recipientType: "Project",
             metaData: {
-               type: "Update_Group",
-               category: "Issue",
-               caller_name: issueTitle,
-               caller_info: `${User.UniqueUsername} created a new Issue`,
+               info_type: "Update_Group",
+               target_category: "Issue",
+               target_name: issueTitle,
+               target_info: "New issue",
             },
          };
          let notificationResponse = await initiateNewNotification(

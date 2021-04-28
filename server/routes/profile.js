@@ -59,29 +59,30 @@ router.get("/notifications/clear", async (req, res) => {
 });
 
 router.post("/notifications", async (req, res) => {
-   let { initiator, recipient, recipientType, metaData } = req.body;
+   let { initiator, recipient, metaData } = req.body;
 
    let payloadBlueprint = {
-      NotificationInitiator: initiator,
-      NotificationType: metaData.type,
-      NotificationCaller: {
-         Category: metaData.category,
-         Name: metaData.caller_name,
-         Info: metaData.caller_info,
+      Initiator: initiator,
+      InfoType: metaData.info_type,
+      Target: {
+         Category: metaData.target_category,
+         Name: metaData.target_name,
+         Info: metaData.target_info,
       },
    };
 
    try {
-      switch (metaData.type) {
+      switch (metaData.info_type) {
          case "Invitation":
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw "User Not Found";
+
             let jwtPayloadName, routeBaseName;
 
-            if (metaData.category === "Organization") {
+            if (metaData.target_category === "Organization") {
                jwtPayloadName = "OrganizationName";
                routeBaseName = "organization";
-            } else if (metaData.category === "Project") {
+            } else if (metaData.target_category === "Project") {
                jwtPayloadName = "ProjectName";
                routeBaseName = "project";
             } else {
@@ -89,22 +90,27 @@ router.post("/notifications", async (req, res) => {
             }
 
             let userSecret = jwt.sign(
-               { _id: user._id, [jwtPayloadName]: metaData.caller_name },
+               { _id: user._id, [jwtPayloadName]: metaData.target_name },
                process.env.ORG_JWT_SECRET
             );
 
             let invitationLink = `http://localhost:5000/${routeBaseName}/add-new-user/${userSecret}`;
+
+            let invitation = {
+               ...payloadBlueprint,
+               Hyperlink: invitationLink,
+               ActivityContent: {
+                  Action: "has invited you to join",
+                  Keyword: metaData.target_name,
+               },
+            };
+
             await User.updateOne(
                { _id: user._id },
                {
                   $push: {
                      Notifications: {
-                        $each: [
-                           {
-                              ...payloadBlueprint,
-                              Hyperlink: invitationLink,
-                           },
-                        ],
+                        $each: [invitation],
                         $position: 0,
                      },
                   },
@@ -114,9 +120,9 @@ router.post("/notifications", async (req, res) => {
             break;
          case "Update_Group":
             let issueQuery = await Project.findOne(
-               { "Issues.IssueTitle": metaData.caller_name },
+               { "Issues.IssueTitle": metaData.target_name },
                {
-                  Issues: { $elemMatch: { IssueTitle: metaData.caller_name } },
+                  Issues: { $elemMatch: { IssueTitle: metaData.target_name } },
                   _id: 0,
                }
             );
@@ -128,9 +134,13 @@ router.post("/notifications", async (req, res) => {
             let notification = {
                ...payloadBlueprint,
                Hyperlink: newIssueLink,
+               ActivityContent: {
+                  Action: "has created a new issue:",
+                  Keyword: metaData.target_name,
+               },
             };
 
-            let notificationQuery = await User.updateMany(
+            await User.updateMany(
                { "Projects.ProjectName": recipient },
                {
                   $push: {

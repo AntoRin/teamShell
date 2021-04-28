@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
-import GlobalNav from "../GlobalNav";
 import ProjectSettingsModal from "./ProjectSettingsModal";
 import "../../styles/project-home.css";
 
@@ -82,10 +81,6 @@ function ProjectHome({ match, User }) {
    } else {
       return isAuthorized ? (
          <div className="project-home-container">
-            <GlobalNav
-               ProfileImage={User.ProfileImage}
-               UniqueUsername={User.UniqueUsername}
-            />
             <div className="project-home-main-wrapper">
                <header className="project-home-header">
                   {parentOrg.OrganizationName}/{Project.ProjectName}

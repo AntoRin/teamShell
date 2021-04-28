@@ -62,12 +62,11 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
             ProfileImage: User.ProfileImage,
          },
          recipient: newUser,
-         recipientType: "User",
          metaData: {
-            type: "Invitation",
-            category: "Organization",
-            caller_name: Organization.OrganizationName,
-            caller_info: `Organization with ${Organization.Members.length} member(s)`,
+            info_type: "Invitation",
+            target_category: "Organization",
+            target_name: Organization.OrganizationName,
+            target_info: `Organization with ${Organization.Members.length} member(s)`,
          },
       };
 

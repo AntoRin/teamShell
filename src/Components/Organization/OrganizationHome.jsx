@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import GlobalNav from "../GlobalNav";
 import OrgSideNav from "./OrgSideNav";
 import DetailCard from "../User/DetailCard";
 import "../../styles/organization-home.css";
@@ -49,10 +48,6 @@ function OrganizationHome({ match, User }) {
    } else {
       return isAuthorized ? (
          <div className="organization-home-container">
-            <GlobalNav
-               ProfileImage={User.ProfileImage}
-               UniqueUsername={User.UniqueUsername}
-            />
             <div className="org-main-wrapper">
                <OrgSideNav
                   User={User}

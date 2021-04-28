@@ -56,12 +56,11 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
             ProfileImage: User.ProfileImage,
          },
          recipient: newUser,
-         recipientType: "User",
          metaData: {
-            type: "Invitation",
-            category: "Project",
-            caller_name: Project.ProjectName,
-            caller_info: `Project with ${Project.Members.length} member(s)`,
+            info_type: "Invitation",
+            target_category: "Project",
+            target_name: Project.ProjectName,
+            target_info: `Project with ${Project.Members.length} member(s)`,
          },
       };
 

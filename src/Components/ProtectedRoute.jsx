@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext } from "react";
 import { Route, Redirect } from "react-router-dom";
 import io from "socket.io-client";
+import GlobalNav from "./GlobalNav";
 
 //--------------------Remove credentials for cross-origin------------------
 
@@ -67,7 +68,19 @@ function ProtectedRoute({ component: Component, ...props }) {
             <Route
                {...props}
                render={componentProps => {
-                  return <Component {...componentProps} User={User} />;
+                  return (
+                     <>
+                        <GlobalNav
+                           UniqueUsername={User.UniqueUsername}
+                           ProfileImage={User.ProfileImage}
+                        />
+                        <Component
+                           {...componentProps}
+                           GlobalNav={GlobalNav}
+                           User={User}
+                        />
+                     </>
+                  );
                }}
             />
          </SocketInstance.Provider>
