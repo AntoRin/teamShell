@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Project = require("../models/Project");
 
 const router = Router();
 
@@ -58,72 +59,85 @@ router.get("/notifications/clear", async (req, res) => {
 });
 
 router.post("/notifications", async (req, res) => {
-   let { initiator, recipient, metaData } = req.body;
+   let { initiator, recipient, recipientType, metaData } = req.body;
+
+   let payloadBlueprint = {
+      NotificationInitiator: initiator,
+      NotificationType: metaData.type,
+      NotificationCaller: {
+         Category: metaData.category,
+         Name: metaData.caller_name,
+         Info: metaData.caller_info,
+      },
+   };
 
    try {
       switch (metaData.type) {
          case "Invitation":
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw "User Not Found";
+            let jwtPayloadName, routeBaseName;
 
-            let payloadBlueprint = {
-               NotificationInitiator: initiator,
-               NotificationType: "Invitation",
-               NotificationCaller: {
-                  Category: metaData.invitation_category,
-                  Name: metaData.invitation_dest,
-                  Info: metaData.caller_info,
-               },
+            if (metaData.category === "Organization") {
+               jwtPayloadName = "OrganizationName";
+               routeBaseName = "organization";
+            } else if (metaData.category === "Project") {
+               jwtPayloadName = "ProjectName";
+               routeBaseName = "project";
+            } else {
+               throw "Internal Error";
+            }
+
+            let userSecret = jwt.sign(
+               { _id: user._id, [jwtPayloadName]: metaData.caller_name },
+               process.env.ORG_JWT_SECRET
+            );
+
+            let invitationLink = `http://localhost:5000/${routeBaseName}/add-new-user/${userSecret}`;
+            await User.updateOne(
+               { _id: user._id },
+               {
+                  $push: {
+                     Notifications: {
+                        $each: [
+                           {
+                              ...payloadBlueprint,
+                              Hyperlink: invitationLink,
+                           },
+                        ],
+                        $position: 0,
+                     },
+                  },
+               }
+            );
+            return res.json({ status: "ok", data: "Notification sent" });
+            break;
+         case "Update_Group":
+            let issueQuery = await Project.findOne(
+               { "Issues.IssueTitle": metaData.caller_name },
+               {
+                  Issues: { $elemMatch: { IssueTitle: metaData.caller_name } },
+                  _id: 0,
+               }
+            );
+
+            let issue = issueQuery.Issues[0];
+
+            let newIssueLink = `http://localhost:3000/issue/${issue._id}`;
+
+            let notification = {
+               ...payloadBlueprint,
+               Hyperlink: newIssueLink,
             };
 
-            if (metaData.invitation_category === "Organization") {
-               let userSecret = jwt.sign(
-                  { _id: user._id, OrganizationName: metaData.invitation_dest },
-                  process.env.ORG_JWT_SECRET
-               );
-               let orgLink = `http://localhost:5000/organization/add-new-user/${userSecret}`;
-               await User.updateOne(
-                  { _id: user._id },
-                  {
-                     $push: {
-                        Notifications: {
-                           $each: [
-                              {
-                                 ...payloadBlueprint,
-                                 Hyperlink: orgLink,
-                              },
-                           ],
-                           $position: 0,
-                        },
-                     },
-                  }
-               );
-               return res.json({ status: "ok", data: "Notification sent" });
-            } else if (metaData.invitation_category === "Project") {
-               let userSecret = jwt.sign(
-                  { _id: user._id, ProjectName: metaData.invitation_dest },
-                  process.env.ORG_JWT_SECRET
-               );
-               let projectLink = `http://localhost:5000/project/add-new-user/${userSecret}`;
-               await User.updateOne(
-                  { _id: user._id },
-                  {
-                     $push: {
-                        Notifications: {
-                           $each: [
-                              {
-                                 ...payloadBlueprint,
-                                 Hyperlink: projectLink,
-                              },
-                           ],
-                           $position: 0,
-                        },
-                     },
-                  }
-               );
-               return res.json({ status: "ok", data: "Notification sent" });
-            }
-            break;
+            let notificationQuery = await User.updateMany(
+               { "Projects.ProjectName": recipient },
+               {
+                  $push: {
+                     Notifications: { $each: [notification], $position: 0 },
+                  },
+               }
+            );
       }
    } catch (error) {
       console.log(error);

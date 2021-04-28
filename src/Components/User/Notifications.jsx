@@ -117,8 +117,7 @@ function Notifications({
                               primary={notification.NotificationType}
                               secondary={
                                  <>
-                                    {notification.NotificationType ===
-                                       "Invitation" && (
+                                    {
                                        <div className="notification-text-content">
                                           <Typography
                                              component="span"
@@ -175,7 +174,7 @@ function Notifications({
                                              </span>
                                           </Typography>
                                        </div>
-                                    )}
+                                    }
                                  </>
                               }
                            />
