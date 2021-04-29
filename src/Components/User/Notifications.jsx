@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { makeStyles } from "@material-ui/core/styles";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
@@ -57,9 +57,18 @@ function Notifications({
          let notificationData = await notificationDataStream.json();
          if (notificationData.status === "ok") {
             let { Notifications } = notificationData.data;
+
+            let unreadNotification = Notifications.find(
+               notification => notification.Seen === false
+            );
+
             if (Notifications.length > 0) {
                setNotifications(Notifications);
-               setActiveNotifications(true);
+               if (unreadNotification) {
+                  setActiveNotifications(true);
+               } else {
+                  setActiveNotifications(false);
+               }
             }
          }
       }

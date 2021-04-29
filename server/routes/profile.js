@@ -158,4 +158,20 @@ router.post("/notifications", async (req, res) => {
    }
 });
 
+router.get("/notifications/seen", async (req, res) => {
+   let { UniqueUsername, Email } = req.thisUser;
+
+   try {
+      await User.updateOne(
+         { UniqueUsername, Email, "Notifications.Seen": false },
+         { $set: { "Notifications.$[].Seen": true } },
+         { multi: true }
+      );
+      return res.json({ status: "ok", data: "" });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
+   }
+});
+
 module.exports = router;

@@ -60,6 +60,11 @@ const UserSchema = new Schema(
                   type: String,
                   required: true,
                },
+               Seen: {
+                  type: Boolean,
+                  required: true,
+                  default: false,
+               },
                createdAt: {
                   type: Date,
                   default: Date.now,

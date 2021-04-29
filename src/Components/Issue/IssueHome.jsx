@@ -26,12 +26,6 @@ function IssueHome({ match, User }) {
    const socket = useContext(SocketInstance);
 
    useEffect(() => {
-      if (
-         issueDetails &&
-         isAuthorized &&
-         issueDetails._id === match.params.IssueID
-      )
-         return;
       let abortFetch = new AbortController();
       async function getIssueDetails() {
          try {

@@ -42,8 +42,6 @@ function IssueEditor({ activeProject, User }) {
 
       let Project_id = userInActiveProject._id;
 
-      console.log(Project_id);
-
       if (!Project_id) return;
 
       let IssueDescriptionRaw = editorRef.current.editor.core.getContents();

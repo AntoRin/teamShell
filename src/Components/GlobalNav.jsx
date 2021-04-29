@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
@@ -14,6 +14,29 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
    const NotifyIcon = activeNotifications
       ? NotificationsActiveIcon
       : NotificationsIcon;
+
+   useEffect(() => {
+      if (!activeNotifications || !isNotificationsOpen) return;
+
+      let abortFetch = new AbortController();
+
+      async function changeNotificationSeenStatus() {
+         let responseStream = await fetch(
+            "http://localhost:5000/profile/notifications/seen",
+            {
+               credentials: "include",
+               signal: abortFetch.signal,
+            }
+         );
+
+         let responseData = await responseStream.json();
+         console.log(responseData);
+      }
+
+      changeNotificationSeenStatus();
+
+      return () => abortFetch.abort();
+   }, [isNotificationsOpen, activeNotifications]);
 
    function openDropdown() {
       setIsDropdownOpen(prev => !prev);
