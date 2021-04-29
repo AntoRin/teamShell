@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
@@ -43,6 +44,8 @@ function Notifications({
 
    const [notifications, setNotifications] = useState([]);
 
+   const history = useHistory();
+
    const socket = useContext(SocketInstance);
 
    useEffect(() => {
@@ -79,7 +82,10 @@ function Notifications({
    }
 
    function performNotificationAction(event, action) {
-      window.location.href = action;
+      let redirectUrl = new URL(action);
+      if (window.location.port !== redirectUrl.port)
+         window.location.href = redirectUrl;
+      else history.push(redirectUrl.pathname);
    }
 
    function closeNotifications() {
