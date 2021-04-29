@@ -46,18 +46,6 @@ router.get("/notifications", async (req, res) => {
    }
 });
 
-router.get("/notifications/clear", async (req, res) => {
-   let { UniqueUsername, Email } = req.thisUser;
-
-   try {
-      await User.updateOne({ UniqueUsername, Email }, { Notifications: [] });
-      return res.json({ status: "ok" });
-   } catch (error) {
-      console.log(error);
-      return res.json({ status: error, error });
-   }
-});
-
 router.post("/notifications", async (req, res) => {
    let { initiator, recipient, metaData } = req.body;
 

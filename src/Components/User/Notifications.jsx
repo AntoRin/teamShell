@@ -81,15 +81,6 @@ function Notifications({
       };
    }, [setActiveNotifications, socket]);
 
-   async function clearNotifications() {
-      let update = await fetch(
-         "http://localhost:5000/profile/notifications/clear",
-         { credentials: "include" }
-      );
-      let updateResponse = await update.json();
-      if (updateResponse.status === "ok") window.location.reload();
-   }
-
    function performNotificationAction(event, action) {
       let redirectUrl = new URL(action);
       if (window.location.port !== redirectUrl.port)
