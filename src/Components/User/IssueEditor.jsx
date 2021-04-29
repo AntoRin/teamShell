@@ -36,9 +36,13 @@ function IssueEditor({ activeProject, User }) {
    async function handleIssueCreation(event) {
       event.preventDefault();
 
-      let Project_id = User.Projects.find(
+      let userInActiveProject = User.Projects.find(
          project => project.ProjectName === activeProject
       );
+
+      let Project_id = userInActiveProject._id;
+
+      console.log(Project_id);
 
       if (!Project_id) return;
 
@@ -84,18 +88,18 @@ function IssueEditor({ activeProject, User }) {
             },
             recipient: activeProject,
             metaData: {
-               info_type: "Update_Group",
+               notification_type: "Group",
+               info_type: "New Issue",
                target_category: "Issue",
                target_name: issueTitle,
-               target_info: "New issue",
+               target_info: "You can propose a solution to this issue now",
+               initiator_opinion: "created",
             },
          };
-         let notificationResponse = await initiateNewNotification(
-            notificationData
-         );
+         initiateNewNotification(notificationData);
 
-         if (notificationResponse.status === "ok")
-            console.log("New issue notification sent");
+         // if (notificationResponse.status === "ok")
+         //    console.log("New issue notification sent");
       }
    }
 

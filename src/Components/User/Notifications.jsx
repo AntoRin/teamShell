@@ -105,8 +105,8 @@ function Notifications({
                         <ListItem alignItems="flex-start">
                            <ListItemAvatar>
                               <Avatar
-                                 alt=""
                                  src={notification.Initiator.ProfileImage}
+                                 alt=""
                               />
                            </ListItemAvatar>
                            <ListItemText

@@ -72,8 +72,8 @@ router.post("/notifications", async (req, res) => {
    };
 
    try {
-      switch (metaData.info_type) {
-         case "Invitation":
+      switch (metaData.notification_type) {
+         case "User":
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw "User Not Found";
 
@@ -100,7 +100,7 @@ router.post("/notifications", async (req, res) => {
                ...payloadBlueprint,
                Hyperlink: invitationLink,
                ActivityContent: {
-                  Action: "has invited you to join",
+                  Action: `${metaData.initiator_opinion} you to join`,
                   Keyword: metaData.target_name,
                },
             };
@@ -118,7 +118,7 @@ router.post("/notifications", async (req, res) => {
             );
             return res.json({ status: "ok", data: "Notification sent" });
             break;
-         case "Update_Group":
+         case "Group":
             let issueQuery = await Project.findOne(
                { "Issues.IssueTitle": metaData.target_name },
                {
@@ -129,19 +129,22 @@ router.post("/notifications", async (req, res) => {
 
             let issue = issueQuery.Issues[0];
 
-            let newIssueLink = `http://localhost:3000/issue/${issue._id}`;
+            let issueLink = `http://localhost:3000/issue/${issue._id}`;
 
             let notification = {
                ...payloadBlueprint,
-               Hyperlink: newIssueLink,
+               Hyperlink: issueLink,
                ActivityContent: {
-                  Action: "has created a new issue:",
+                  Action: `${metaData.initiator_opinion} a new ${metaData.target_category}:`,
                   Keyword: metaData.target_name,
                },
             };
 
             await User.updateMany(
-               { "Projects.ProjectName": recipient },
+               {
+                  "Projects.ProjectName": recipient,
+                  UniqueUsername: { $ne: initiator.UniqueUsername },
+               },
                {
                   $push: {
                      Notifications: { $each: [notification], $position: 0 },

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import SunEditor from "suneditor-react";
+import initiateNewNotification from "../../utils/notificationService";
 import { solution_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-editor.css";
@@ -40,8 +41,27 @@ function SolutionEditor({ issueDetails, User }) {
          );
          let solutionStatus = await newSolution.json();
 
-         if (solutionStatus.status === "ok")
+         if (solutionStatus.status === "ok") {
             editorRef.current.editor.core.setContents("");
+
+            let notificationData = {
+               initiator: {
+                  UniqueUsername: User.UniqueUsername,
+                  ProfileImage: User.ProfileImage,
+               },
+               recipient: issueDetails.ProjectContext,
+               metaData: {
+                  notification_type: "Group",
+                  info_type: "New Solution",
+                  target_category: "Solution",
+                  target_name: issueDetails.IssueTitle,
+                  target_info: "Solution is ready to be reviewed",
+                  initiator_opinion: "created",
+               },
+            };
+
+            initiateNewNotification(notificationData);
+         }
       } catch (error) {
          console.log(error);
       }
