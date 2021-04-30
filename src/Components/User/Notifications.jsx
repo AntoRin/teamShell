@@ -49,11 +49,14 @@ function Notifications({
    const socket = useContext(SocketInstance);
 
    useEffect(() => {
+      let abortFetch = new AbortController();
+
       async function getNotifications() {
          let notificationDataStream = await fetch(
             "http://localhost:5000/profile/notifications",
-            { credentials: "include" }
+            { credentials: "include", signal: abortFetch.signal }
          );
+
          let notificationData = await notificationDataStream.json();
          if (notificationData.status === "ok") {
             let { Notifications } = notificationData.data;
@@ -77,6 +80,7 @@ function Notifications({
       socket.on("user-data-change", () => getNotifications());
 
       return () => {
+         abortFetch.abort();
          socket.off("user-data-change");
       };
    }, [setActiveNotifications, socket]);

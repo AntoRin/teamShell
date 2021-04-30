@@ -54,17 +54,6 @@ const useStyles = makeStyles(theme => ({
       height: "40px",
       borderRadius: "50%",
    },
-   subtitle: {
-      margin: "10px 25px",
-      fontSize: "1.4rem",
-      fontWeight: "600",
-      fontFamily: `"Quicksand", "sans-serif"`,
-      width: "75%",
-      position: "relative",
-      left: "50%",
-      transform: "translateX(-50%)",
-      wordBreak: "break-word",
-   },
    "description-content": {
       wordBreak: "break-word",
       overflow: "hidden",
@@ -91,15 +80,6 @@ function IssueCard({ issue, showContent }) {
 
    function handleExpandClick() {
       setExpanded(prev => !prev);
-   }
-
-   function createTruncatedWords(rawMarkup) {
-      let tempElement = document.createElement("div");
-      tempElement.innerHTML += rawMarkup;
-      let plainTextContent = tempElement.textContent;
-      if (plainTextContent.length > 50)
-         return plainTextContent.substring(0, 50) + "...";
-      else return plainTextContent;
    }
 
    return (
@@ -130,20 +110,7 @@ function IssueCard({ issue, showContent }) {
                   </Typography>
                </Link>
             </CardMedia>
-            <CardContent>
-               <Typography
-                  className={classes.subtitle}
-                  variant="body2"
-                  color="textSecondary"
-                  component="p"
-               >
-                  {createTruncatedWords(description)}
-               </Typography>
-            </CardContent>
             <CardActions disableSpacing>
-               <IconButton aria-label="add to favorites">
-                  <FavoriteIcon />
-               </IconButton>
                <IconButton aria-label="share">
                   <ShareIcon />
                </IconButton>

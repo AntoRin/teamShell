@@ -103,19 +103,9 @@ const UserSchema = new Schema(
                ],
                default: [],
             },
-            Following: {
-               type: [
-                  {
-                     IssueTitle: { type: String, required: true },
-                     ProjectContext: { type: String, required: true },
-                  },
-               ],
-               default: [],
-            },
          },
          default: {
             Created: [],
-            Following: [],
          },
       },
       Solutions: {
