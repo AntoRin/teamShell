@@ -41,21 +41,57 @@ const useStyles = makeStyles(theme => ({
       height: "40px",
       borderRadius: "50%",
    },
+   red: {
+      color: "red",
+   },
 }));
 
 const editorDefaultStyles =
    "background-color: #fff; color: black; font-size: 18px; border: none; outline: none; user-select: text; min-height: 100px; max-height: 300px";
 
-function SolutionCard({ solution }) {
+function SolutionCard({ solution, User }) {
    const classes = useStyles();
    const [solutionContent, setSolutionContent] = useState("");
+   const [liked, setLiked] = useState(false);
 
    const editorRef = useRef();
+
    useEffect(() => {
       setSolutionContent(
          editorRef.current.editor.util.HTMLDecoder(solution.SolutionBody)
       );
    }, [solution]);
+
+   useEffect(() => {
+      let userLike = solution.LikedBy.some(like => {
+         return like.UniqueUsername === User.UniqueUsername;
+      });
+
+      if (userLike) setLiked(true);
+   }, [solution.LikedBy, User]);
+
+   async function handleSolutionLike() {
+      let body = {
+         user_id: User._id,
+         solution_id: solution._id,
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+         credentials: "include",
+      };
+
+      let postLike = await fetch(
+         "http://localhost:5000/issue/solution/add-like",
+         postOptions
+      );
+
+      let postLikeData = await postLike.json();
+
+      console.log(postLikeData);
+   }
 
    return (
       <div className="solution-card-container">
@@ -91,7 +127,12 @@ function SolutionCard({ solution }) {
                }
             />
             <CardActions disableSpacing>
-               <IconButton aria-label="add to favorites">
+               <IconButton
+                  // color={ solution.LikedBy?.UniqueUsername}
+                  className={liked ? classes.red : ""}
+                  onClick={handleSolutionLike}
+                  aria-label="Like the solution"
+               >
                   <FavoriteIcon />
                </IconButton>
                <IconButton aria-label="share">

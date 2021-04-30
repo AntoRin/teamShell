@@ -41,6 +41,14 @@ const issueSchema = new Schema(
                   type: String,
                   required: true,
                },
+               LikedBy: {
+                  type: [
+                     {
+                        _id: { type: mongoose.Types.ObjectId, required: true },
+                        UniqueUsername: { type: String, required: true },
+                     },
+                  ],
+               },
                createdAt: {
                   type: Date,
                   default: Date.now,

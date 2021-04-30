@@ -147,4 +147,33 @@ router.post("/solution/create", async (req, res) => {
    }
 });
 
+router.post("/solution/add-like", async (req, res) => {
+   let { UniqueUsername } = req.thisUser;
+   let { user_id, solution_id } = req.body;
+
+   let userRef = {
+      _id: user_id,
+      UniqueUsername,
+   };
+
+   try {
+      let db = await Project.updateOne(
+         { "Issues.Solutions._id": solution_id },
+         {
+            $push: {
+               "Issues.$.Solutions.$[solution].LikedBy": {
+                  $each: [userRef],
+                  $position: 0,
+               },
+            },
+         },
+         { arrayFilters: [{ "solution._id": solution_id }] }
+      );
+      return res.json({ status: "ok", data: "Like added" });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
+   }
+});
+
 module.exports = router;

@@ -127,14 +127,8 @@ const UserSchema = new Schema(
             Liked: {
                type: [
                   {
-                     _id: { type: mongoose.Types.ObjectId, required: true },
-                     IssueContext: {
-                        type: {
-                           _id: mongoose.Types.ObjectId,
-                           IssueTitle: String,
-                        },
-                        required: true,
-                     },
+                     type: mongoose.Types.ObjectId,
+                     ref: "Projects.Issues.Solutions",
                   },
                ],
             },

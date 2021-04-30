@@ -92,6 +92,7 @@ function IssueHome({ match, User }) {
                              <SolutionCard
                                 key={solution._id}
                                 solution={solution}
+                                User={User}
                              />
                           );
                        })
