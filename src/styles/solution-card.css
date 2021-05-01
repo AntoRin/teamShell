@@ -1,3 +1,7 @@
 .solution-card-container {
    margin: 10px;
 }
+
+.liked-by-section {
+   display: inline-flex;
+}

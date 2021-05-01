@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import SunEditor from "suneditor-react";
 import { makeStyles } from "@material-ui/core/styles";
+import { Typography } from "@material-ui/core";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -16,7 +17,6 @@ import initiateNewNotification from "../../utils/notificationService";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-card.css";
-import { Typography } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -157,10 +157,22 @@ function SolutionCard({ solution, User, issueDetails }) {
                   />
                }
             />
-            {solution.LikedBy.length > 0 &&
-               solution.LikedBy.map(like => (
-                  <span key={like._id}>{like.UniqueUsername}</span>
-               ))}
+            {solution.LikedBy.length > 0 && (
+               <div className="liked-by-section">
+                  <span>
+                     <Typography color="secondary" variant="body1">
+                        Liked by :
+                     </Typography>
+                  </span>
+                  {solution.LikedBy.map(like => (
+                     <span key={like._id}>
+                        <Typography variant="body1">
+                           {like.UniqueUsername},
+                        </Typography>
+                     </span>
+                  ))}
+               </div>
+            )}
             <CardActions disableSpacing>
                <IconButton
                   className={liked ? classes.red : ""}

@@ -185,4 +185,22 @@ router.get("/notifications/seen", async (req, res) => {
    }
 });
 
+router.get("/search", async (req, res) => {
+   let { UniqueUsername, Email } = req.thisUser;
+   let query = req.query.user;
+
+   try {
+      // let user = await User.findOne({ UniqueUsername, Email });
+      let search = await User.find({ $text: { $search: query } });
+      let searchData;
+      if (search.length > 0) {
+         searchData = search.map(result => result.UniqueUsername);
+      }
+      return res.json({ status: "ok", data: searchData });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error, data: "" });
+   }
+});
+
 module.exports = router;

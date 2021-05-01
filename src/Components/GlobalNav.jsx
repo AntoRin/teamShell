@@ -10,6 +10,8 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
    const [activeNotifications, setActiveNotifications] = useState(false);
+   const [textSearch, setTextSearch] = useState("");
+   const [searchResults, setSearchResults] = useState([]);
 
    const NotifyIcon = activeNotifications
       ? NotificationsActiveIcon
@@ -38,6 +40,27 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       return () => abortFetch.abort();
    }, [isNotificationsOpen, activeNotifications]);
 
+   useEffect(() => {
+      if (!textSearch) return;
+
+      async function getSearchResults() {
+         let query = textSearch;
+         let searchStream = await fetch(
+            `http://localhost:5000/profile/search?user=${query}`,
+            { credentials: "include" }
+         );
+         let resultData = await searchStream.json();
+
+         // console.log(resultData.data);
+
+         resultData.data
+            ? setSearchResults(resultData.data)
+            : setSearchResults([]);
+      }
+
+      getSearchResults();
+   }, [textSearch]);
+
    function openDropdown() {
       setIsDropdownOpen(prev => !prev);
    }
@@ -46,12 +69,31 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       setIsNotificationsOpen(prev => !prev);
    }
 
+   function handleSearchChange(event) {
+      setTextSearch(event.target.value);
+   }
+
+   console.log(searchResults);
+
    return (
       <nav className="global-nav-container">
          <div className="nav-wrapper">
             <div className="general-nav-section">
                <div className="nav-logo">
                   <Link to="/user/home">{`<CoLab />`}</Link>
+               </div>
+               <div className="text-search">
+                  <input
+                     type="text"
+                     value={textSearch}
+                     onChange={handleSearchChange}
+                  />
+                  <div>
+                     {searchResults.length > 0 &&
+                        searchResults.map(result => {
+                           return <div>{result}</div>;
+                        })}
+                  </div>
                </div>
             </div>
             <div className="user-section">
