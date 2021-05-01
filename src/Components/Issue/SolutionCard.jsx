@@ -12,9 +12,11 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { readonly_editor_config } from "../../config/editor_config";
+import initiateNewNotification from "../../utils/notificationService";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-card.css";
+import { Typography } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -49,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 const editorDefaultStyles =
    "background-color: #fff; color: black; font-size: 18px; border: none; outline: none; user-select: text; min-height: 100px; max-height: 300px";
 
-function SolutionCard({ solution, User }) {
+function SolutionCard({ solution, User, issueDetails }) {
    const classes = useStyles();
    const [solutionContent, setSolutionContent] = useState("");
    const [liked, setLiked] = useState(false);
@@ -67,10 +69,10 @@ function SolutionCard({ solution, User }) {
          return like.UniqueUsername === User.UniqueUsername;
       });
 
-      if (userLike) setLiked(true);
+      userLike ? setLiked(true) : setLiked(false);
    }, [solution.LikedBy, User]);
 
-   async function handleSolutionLike() {
+   async function handleSolutionInteraction() {
       let body = {
          user_id: User._id,
          solution_id: solution._id,
@@ -83,14 +85,43 @@ function SolutionCard({ solution, User }) {
          credentials: "include",
       };
 
-      let postLike = await fetch(
-         "http://localhost:5000/issue/solution/add-like",
+      let liked = solution.LikedBy.some(like => {
+         return like.UniqueUsername === User.UniqueUsername;
+      });
+
+      let endpoint = liked ? "remove-like" : "add-like";
+
+      let postInteraction = await fetch(
+         `http://localhost:5000/issue/solution/${endpoint}`,
          postOptions
       );
 
-      let postLikeData = await postLike.json();
+      let postInteractionData = await postInteraction.json();
 
-      console.log(postLikeData);
+      console.log(postInteractionData);
+
+      if (
+         postInteractionData.status === "ok" &&
+         postInteractionData.data === "Like added"
+      ) {
+         let notificationData = {
+            initiator: {
+               UniqueUsername: User.UniqueUsername,
+               ProfileImage: User.ProfileImage,
+            },
+            recipient: solution.SolutionCreator.UniqueUsername,
+            metaData: {
+               notification_type: "User",
+               info_type: "New like",
+               target_category: "Solution",
+               target_name: issueDetails.IssueTitle,
+               target_info: "Getting attention!",
+               initiator_opinion: "liked",
+            },
+         };
+
+         initiateNewNotification(notificationData);
+      }
    }
 
    return (
@@ -126,11 +157,14 @@ function SolutionCard({ solution, User }) {
                   />
                }
             />
+            {solution.LikedBy.length > 0 &&
+               solution.LikedBy.map(like => (
+                  <span key={like._id}>{like.UniqueUsername}</span>
+               ))}
             <CardActions disableSpacing>
                <IconButton
-                  // color={ solution.LikedBy?.UniqueUsername}
                   className={liked ? classes.red : ""}
-                  onClick={handleSolutionLike}
+                  onClick={handleSolutionInteraction}
                   aria-label="Like the solution"
                >
                   <FavoriteIcon />

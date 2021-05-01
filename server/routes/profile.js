@@ -65,30 +65,53 @@ router.post("/notifications", async (req, res) => {
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw "User Not Found";
 
-            let jwtPayloadName, routeBaseName;
+            let singleUserLink, notificationSnippet;
 
-            if (metaData.target_category === "Organization") {
-               jwtPayloadName = "OrganizationName";
-               routeBaseName = "organization";
-            } else if (metaData.target_category === "Project") {
-               jwtPayloadName = "ProjectName";
-               routeBaseName = "project";
+            if (
+               metaData.target_category === "Issue" ||
+               metaData.target_category === "Solution"
+            ) {
+               let issueQuery = await Project.findOne(
+                  { "Issues.IssueTitle": metaData.target_name },
+                  {
+                     Issues: {
+                        $elemMatch: { IssueTitle: metaData.target_name },
+                     },
+                     _id: 0,
+                  }
+               );
+
+               let issue = issueQuery.Issues[0];
+
+               singleUserLink = `http://localhost:3000/issue/${issue._id}`;
+               notificationSnippet = `${metaData.initiator_opinion} your solution.`;
             } else {
-               throw "Internal Error";
+               let jwtPayloadName, routeBaseName;
+
+               if (metaData.target_category === "Organization") {
+                  jwtPayloadName = "OrganizationName";
+                  routeBaseName = "organization";
+               } else if (metaData.target_category === "Project") {
+                  jwtPayloadName = "ProjectName";
+                  routeBaseName = "project";
+               } else {
+                  throw "Internal Error";
+               }
+
+               let userSecret = jwt.sign(
+                  { _id: user._id, [jwtPayloadName]: metaData.target_name },
+                  process.env.ORG_JWT_SECRET
+               );
+
+               singleUserLink = `http://localhost:5000/${routeBaseName}/add-new-user/${userSecret}`;
+               notificationSnippet = `${metaData.initiator_opinion} you to join`;
             }
-
-            let userSecret = jwt.sign(
-               { _id: user._id, [jwtPayloadName]: metaData.target_name },
-               process.env.ORG_JWT_SECRET
-            );
-
-            let invitationLink = `http://localhost:5000/${routeBaseName}/add-new-user/${userSecret}`;
 
             let invitation = {
                ...payloadBlueprint,
-               Hyperlink: invitationLink,
+               Hyperlink: singleUserLink,
                ActivityContent: {
-                  Action: `${metaData.initiator_opinion} you to join`,
+                  Action: notificationSnippet,
                   Keyword: metaData.target_name,
                },
             };

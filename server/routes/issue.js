@@ -157,7 +157,8 @@ router.post("/solution/add-like", async (req, res) => {
    };
 
    try {
-      let db = await Project.updateOne(
+      console.log("hi");
+      await Project.updateOne(
          { "Issues.Solutions._id": solution_id },
          {
             $push: {
@@ -170,6 +171,36 @@ router.post("/solution/add-like", async (req, res) => {
          { arrayFilters: [{ "solution._id": solution_id }] }
       );
       return res.json({ status: "ok", data: "Like added" });
+   } catch (error) {
+      console.log(error);
+      return res.json({ status: "error", error });
+   }
+});
+
+router.post("/solution/remove-like", async (req, res) => {
+   let { UniqueUsername } = req.thisUser;
+   let { user_id, solution_id } = req.body;
+
+   let userRef = {
+      _id: user_id,
+      UniqueUsername,
+   };
+
+   try {
+      await Project.updateOne(
+         { "Issues.Solutions._id": solution_id },
+         {
+            $pull: {
+               "Issues.$.Solutions.$[solution].LikedBy": {
+                  UniqueUsername,
+               },
+            },
+         },
+         {
+            arrayFilters: [{ "solution._id": solution_id }],
+         }
+      );
+      return res.json({ status: "ok", data: "Like removed" });
    } catch (error) {
       console.log(error);
       return res.json({ status: "error", error });

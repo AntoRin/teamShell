@@ -93,6 +93,7 @@ function IssueHome({ match, User }) {
                                 key={solution._id}
                                 solution={solution}
                                 User={User}
+                                issueDetails={issueDetails}
                              />
                           );
                        })
