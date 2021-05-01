@@ -51,8 +51,6 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
          );
          let resultData = await searchStream.json();
 
-         // console.log(resultData.data);
-
          resultData.data
             ? setSearchResults(resultData.data)
             : setSearchResults([]);
@@ -73,7 +71,10 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       setTextSearch(event.target.value);
    }
 
-   console.log(searchResults);
+   function closeSearchResults() {
+      setSearchResults([]);
+      setTextSearch("");
+   }
 
    return (
       <nav className="global-nav-container">
@@ -81,19 +82,6 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
             <div className="general-nav-section">
                <div className="nav-logo">
                   <Link to="/user/home">{`<CoLab />`}</Link>
-               </div>
-               <div className="text-search">
-                  <input
-                     type="text"
-                     value={textSearch}
-                     onChange={handleSearchChange}
-                  />
-                  <div>
-                     {searchResults.length > 0 &&
-                        searchResults.map(result => {
-                           return <div>{result}</div>;
-                        })}
-                  </div>
                </div>
             </div>
             <div className="user-section">
@@ -128,6 +116,27 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
                   </div>
                </div>
             </div>
+         </div>
+         <div className="text-search">
+            <input
+               type="text"
+               className="search-bar"
+               placeholder="In your organization..."
+               value={textSearch}
+               onChange={handleSearchChange}
+               onBlur={closeSearchResults}
+            />
+            {searchResults.length > 0 && (
+               <div className="search-results-list">
+                  {searchResults.map(result => {
+                     return (
+                        <div key={result} className="search-list-element">
+                           {result}
+                        </div>
+                     );
+                  })}
+               </div>
+            )}
          </div>
       </nav>
    );

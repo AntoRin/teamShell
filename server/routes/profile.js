@@ -190,11 +190,22 @@ router.get("/search", async (req, res) => {
    let query = req.query.user;
 
    try {
-      // let user = await User.findOne({ UniqueUsername, Email });
+      let user = await User.findOne({ UniqueUsername, Email });
+      let userOrgs = user.Organizations;
       let search = await User.find({ $text: { $search: query } });
-      let searchData;
+      let searchData = ["Not found"];
+
       if (search.length > 0) {
-         searchData = search.map(result => result.UniqueUsername);
+         searchData = search.map(resultUser => {
+            let commonOrg = userOrgs.some(org =>
+               resultUser.Organizations.some(
+                  resultUserOrg =>
+                     resultUserOrg.OrganizationName === org.OrganizationName
+               )
+            );
+
+            return commonOrg ? resultUser.UniqueUsername : "";
+         });
       }
       return res.json({ status: "ok", data: searchData });
    } catch (error) {
