@@ -94,7 +94,7 @@ function IssueEditor({ activeProject, User }) {
                initiator_opinion: "created",
             },
          };
-         initiateNewNotification(notificationData);
+         await initiateNewNotification(notificationData);
 
          // if (notificationResponse.status === "ok")
          //    console.log("New issue notification sent");

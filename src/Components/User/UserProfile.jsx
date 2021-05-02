@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
+import Typography from "@material-ui/core/Typography";
 import DetailCard from "./DetailCard";
 import "../../styles/user-profile.css";
+import { Button } from "@material-ui/core";
 
 function UserProfile({ location, match, User }) {
    const [Profile, setProfile] = useState({});
@@ -11,6 +13,8 @@ function UserProfile({ location, match, User }) {
 
    const bioElement = useRef();
    const usernameElement = useRef();
+
+   const fileInputElement = useRef();
 
    const history = useHistory();
    //-------------------------Change fetch methods--------------------------------
@@ -48,6 +52,30 @@ function UserProfile({ location, match, User }) {
    function goToUpdate() {
       let updateTab = location.pathname + "?tab=update";
       history.push(updateTab);
+   }
+
+   async function handleImageUpload(event) {
+      event.preventDefault();
+      let form = event.target;
+      let image = fileInputElement.current.files[0];
+      let imageData = new FormData(form);
+      imageData.append("profileImage", image);
+
+      let postOptions = {
+         method: "POST",
+         // headers: { "Content-Type": "multipart/form-data" },
+         body: imageData,
+         credentials: "include",
+      };
+
+      let uploadStream = await fetch(
+         "http://localhost:5000/profile/uploads/profile-image",
+         postOptions
+      );
+
+      let uploadResponse = await uploadStream.json();
+
+      console.log(uploadResponse);
    }
 
    async function handleProfileUpdate(event) {
@@ -164,6 +192,31 @@ function UserProfile({ location, match, User }) {
          } else {
             return (
                <div className="profile-edit-section">
+                  <form
+                     id="profileImageUploadForm"
+                     encType="multipart/form-data"
+                     onSubmit={handleImageUpload}
+                  >
+                     <div className="upload-image">
+                        <Typography variant="h5">
+                           Upload a new profile image
+                        </Typography>
+                        <input
+                           ref={fileInputElement}
+                           type="file"
+                           // name="profileImage"
+                           id="profileImage"
+                           required
+                        />
+                        <Button
+                           variant="outlined"
+                           type="submit"
+                           color="primary"
+                        >
+                           Upload
+                        </Button>
+                     </div>
+                  </form>
                   <form id="profileEditForm" onSubmit={handleProfileUpdate}>
                      <div className="edit-bio">
                         <label htmlFor="bioEdit">Add a bio</label> <br />
@@ -173,6 +226,7 @@ function UserProfile({ location, match, User }) {
                            id="bioEdit"
                            maxLength="300"
                            rows="7"
+                           required
                         ></textarea>
                      </div>
                      <div className="edit-name">
@@ -182,6 +236,7 @@ function UserProfile({ location, match, User }) {
                            autoComplete="off"
                            type="text"
                            id="nameEdit"
+                           required
                         />
                      </div>
                      <div className="submit-edition">

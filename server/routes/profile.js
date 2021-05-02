@@ -2,8 +2,16 @@ const { Router } = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Project = require("../models/Project");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 const router = Router();
+
+const upload = multer({
+   dest: path.join(__dirname, "../images"),
+});
+const fileParser = upload.single("profileImage");
 
 router.get("/details/:UniqueUsername", async (req, res) => {
    let requestedUser = req.params.UniqueUsername;
@@ -30,6 +38,31 @@ router.put("/edit", async (req, res) => {
    } catch (error) {
       res.status(501).json({ status: "error", error });
    }
+});
+
+router.post("/uploads/profile-image", fileParser, async (req, res) => {
+   let { UniqueUsername } = req.thisUser;
+   try {
+      let file = req.file;
+      console.log(file);
+      let tempPath = file.path;
+      let newPath = path.join(
+         __dirname,
+         `../images/${UniqueUsername}${path.extname(file.originalname)}`
+      );
+      fs.readFile(tempPath, "utf8", (error, data) => {
+         if (error) throw "Unable to convert file";
+         else {
+            fs.writeFile(newPath, data, "utf8", error => {
+               if (error) console.log(error);
+            });
+         }
+      });
+   } catch (error) {
+      return res.status(501).json({ status: "error", error });
+   }
+
+   return res.json({ status: "ok", data: "" });
 });
 
 router.get("/notifications", async (req, res) => {

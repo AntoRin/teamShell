@@ -60,7 +60,7 @@ function SolutionEditor({ issueDetails, User }) {
                },
             };
 
-            initiateNewNotification(notificationData);
+            await initiateNewNotification(notificationData);
          }
       } catch (error) {
          console.log(error);
