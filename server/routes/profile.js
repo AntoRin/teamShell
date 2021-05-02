@@ -190,18 +190,47 @@ router.get("/search", async (req, res) => {
    let query = req.query.user;
 
    try {
-      let user = await User.findOne({ UniqueUsername, Email });
-      let userOrgs = user.Organizations;
+      let aggregrationPipeline = [
+         {
+            $match: {
+               UniqueUsername: `${UniqueUsername}`,
+            },
+         },
+         {
+            $lookup: {
+               from: "Organizations",
+               localField: "Organizations.OrganizationName",
+               foreignField: "OrganizationName",
+               as: "SameOrg",
+            },
+         },
+         {
+            $lookup: {
+               from: "Users",
+               localField: "SameOrg.Members",
+               foreignField: "UniqueUsername",
+               as: "MembersOfSameOrg",
+            },
+         },
+         {
+            $project: {
+               "MembersOfSameOrg.UniqueUsername": 1,
+            },
+         },
+      ];
+
+      let sameOrgAggregation = await User.aggregate(aggregrationPipeline);
+      let { MembersOfSameOrg } = sameOrgAggregation[0];
+
       let search = await User.find({ $text: { $search: query } });
       let searchData = ["Not found"];
 
       if (search.length > 0) {
          searchData = search.map(resultUser => {
-            let commonOrg = userOrgs.some(org =>
-               resultUser.Organizations.some(
-                  resultUserOrg =>
-                     resultUserOrg.OrganizationName === org.OrganizationName
-               )
+            let commonOrg = MembersOfSameOrg.some(
+               member =>
+                  resultUser.UniqueUsername === member.UniqueUsername &&
+                  resultUser.UniqueUsername !== UniqueUsername
             );
 
             return commonOrg ? resultUser.UniqueUsername : "";

@@ -5,6 +5,7 @@ import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
 import Notifications from "./User/Notifications";
 import UserDropDown from "./User/UserDropDown";
 import "../styles/global-nav.css";
+import { ClickAwayListener } from "@material-ui/core";
 
 function GlobalNav({ ProfileImage, UniqueUsername }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -73,7 +74,6 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
 
    function closeSearchResults() {
       setSearchResults([]);
-      setTextSearch("");
    }
 
    return (
@@ -117,27 +117,28 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
                </div>
             </div>
          </div>
-         <div className="text-search">
-            <input
-               type="text"
-               className="search-bar"
-               placeholder="In your organization..."
-               value={textSearch}
-               onChange={handleSearchChange}
-               onBlur={closeSearchResults}
-            />
-            {searchResults.length > 0 && (
-               <div className="search-results-list">
-                  {searchResults.map(result => {
-                     return (
-                        <div key={result} className="search-list-element">
-                           {result}
-                        </div>
-                     );
-                  })}
-               </div>
-            )}
-         </div>
+         <ClickAwayListener onClickAway={closeSearchResults}>
+            <div className="text-search">
+               <input
+                  type="text"
+                  className="search-bar"
+                  placeholder="In your organization..."
+                  value={textSearch}
+                  onChange={handleSearchChange}
+               />
+               {searchResults.length > 0 && (
+                  <div className="search-results-list">
+                     {searchResults.map(result => {
+                        return (
+                           <div key={result} className="search-list-element">
+                              {result}
+                           </div>
+                        );
+                     })}
+                  </div>
+               )}
+            </div>
+         </ClickAwayListener>
       </nav>
    );
 }
