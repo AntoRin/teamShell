@@ -63,7 +63,6 @@ function UserProfile({ location, match, User }) {
 
       let postOptions = {
          method: "POST",
-         // headers: { "Content-Type": "multipart/form-data" },
          body: imageData,
          credentials: "include",
       };
@@ -204,7 +203,6 @@ function UserProfile({ location, match, User }) {
                         <input
                            ref={fileInputElement}
                            type="file"
-                           // name="profileImage"
                            id="profileImage"
                            required
                         />

@@ -3,15 +3,20 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Project = require("../models/Project");
 const multer = require("multer");
-const fs = require("fs");
+const fsPromises = require("fs/promises");
 const path = require("path");
 
 const router = Router();
 
 const upload = multer({
-   dest: path.join(__dirname, "../images"),
+   dest: path.join(__dirname, "../../public/assets/ProfileImages"),
+   fileFilter: (req, file, cb) => {
+      if (!file || file.mimetype.split("/")[0] !== "image")
+         cb(new Error("Error parsing file"), false);
+      else cb(null, true);
+   },
 });
-const fileParser = upload.single("profileImage");
+const imageParser = upload.single("profileImage");
 
 router.get("/details/:UniqueUsername", async (req, res) => {
    let requestedUser = req.params.UniqueUsername;
@@ -40,29 +45,28 @@ router.put("/edit", async (req, res) => {
    }
 });
 
-router.post("/uploads/profile-image", fileParser, async (req, res) => {
-   let { UniqueUsername } = req.thisUser;
+router.post("/uploads/profile-image", imageParser, async (req, res) => {
+   let { UniqueUsername, Email } = req.thisUser;
    try {
       let file = req.file;
-      console.log(file);
-      let tempPath = file.path;
+
+      let oldPath = file.path;
       let newPath = path.join(
          __dirname,
-         `../images/${UniqueUsername}${path.extname(file.originalname)}`
+         `../../public/assets/ProfileImages/${UniqueUsername}.jpg`
       );
-      fs.readFile(tempPath, "utf8", (error, data) => {
-         if (error) throw "Unable to convert file";
-         else {
-            fs.writeFile(newPath, data, "utf8", error => {
-               if (error) console.log(error);
-            });
-         }
-      });
+      await fsPromises.rename(oldPath, newPath);
+      await User.updateOne(
+         { UniqueUsername, Email },
+         { ProfileImage: `/assets/ProfileImages/${UniqueUsername}.jpg` }
+      );
+
+      console.log(file);
+
+      return res.json({ status: "ok", data: "Image Uploaded" });
    } catch (error) {
       return res.status(501).json({ status: "error", error });
    }
-
-   return res.json({ status: "ok", data: "" });
 });
 
 router.get("/notifications", async (req, res) => {
