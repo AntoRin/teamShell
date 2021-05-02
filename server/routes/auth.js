@@ -28,7 +28,13 @@ router.post("/register", async (req, res) => {
       res.json({ status: "ok" });
    } catch (error) {
       console.log(error.message);
-      res.status(401).json({ status: "error", error });
+      let statusCode = 401;
+      let userError = "There has been an error...";
+      if (error.code === 11000) {
+         userError =
+            "The Email ID (or) Unique Username you are trying to register with already exists.";
+      }
+      res.status(statusCode).json({ status: "error", error: userError });
    }
 });
 
@@ -104,7 +110,6 @@ router.get("/login/github/callback", async (req, res) => {
       let userInfo = {
          UniqueUsername: userDetails.login,
          Email: emailData[0].email,
-         ProfileImage: userDetails.avatar_url,
          Password: "GitHub Verified",
       };
 

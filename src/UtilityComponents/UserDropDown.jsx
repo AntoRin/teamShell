@@ -1,6 +1,6 @@
 import { Link, useHistory } from "react-router-dom";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import "../../styles/user-drop-down.css";
+import "../styles/user-drop-down.css";
 
 function UserDropDown({ isOpen, setIsDropdownOpen, UniqueUsername }) {
    const history = useHistory();

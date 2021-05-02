@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
-import Notifications from "./User/Notifications";
-import UserDropDown from "./User/UserDropDown";
-import "../styles/global-nav.css";
 import { ClickAwayListener } from "@material-ui/core";
+import Notifications from "./Notifications";
+import UserDropDown from "./UserDropDown";
+import "../styles/global-nav.css";
 
 function GlobalNav({ ProfileImage, UniqueUsername }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);

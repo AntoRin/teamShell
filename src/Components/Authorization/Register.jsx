@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import HomeIcon from "@material-ui/icons/Home";
+import StatusBar from "../../UtilityComponents/StatusBar";
 import "../../styles/register-login.css";
 
 function Register() {
@@ -10,6 +11,7 @@ function Register() {
       email: "",
       password: "",
    });
+   const [error, setError] = useState(null);
 
    const history = useHistory();
 
@@ -36,12 +38,16 @@ function Register() {
          body: JSON.stringify(body),
       };
 
-      let registerRequest = await fetch(
+      let registerDataStream = await fetch(
          "http://localhost:5000/auth/register",
          postOptions
       );
-      let registerResponse = await registerRequest.json();
+      let registerResponse = await registerDataStream.json();
       if (registerResponse.status === "ok") history.push("/login");
+
+      if (registerResponse.status === "error") {
+         setError(registerResponse.error);
+      }
    }
 
    return (
@@ -112,6 +118,7 @@ function Register() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
+         {error && <StatusBar error={error} setError={setError} />}
       </div>
    );
 }

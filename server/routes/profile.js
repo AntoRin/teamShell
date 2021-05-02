@@ -50,18 +50,21 @@ router.post("/uploads/profile-image", imageParser, async (req, res) => {
    try {
       let file = req.file;
 
+      if (!file) throw new Error("File not found");
+
       let oldPath = file.path;
       let newPath = path.join(
          __dirname,
          `../../public/assets/ProfileImages/${UniqueUsername}.jpg`
       );
       await fsPromises.rename(oldPath, newPath);
+      console.log("\n\n" + file.originalname + "\n\n");
       await User.updateOne(
          { UniqueUsername, Email },
          { ProfileImage: `/assets/ProfileImages/${UniqueUsername}.jpg` }
       );
 
-      console.log(file);
+      // console.log(file);
 
       return res.json({ status: "ok", data: "Image Uploaded" });
    } catch (error) {
