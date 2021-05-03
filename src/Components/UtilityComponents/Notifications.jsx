@@ -10,8 +10,8 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import { SocketInstance } from "./ProtectedRoute";
-import formatDate from "../utils/formatDate";
-import "../styles/notifications.css";
+import formatDate from "../../utils/formatDate";
+import "../../styles/notifications.css";
 
 const useStyles = makeStyles(theme => ({
    root: {

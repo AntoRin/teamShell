@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core";
-import { SocketInstance } from "../../UtilityComponents/ProtectedRoute";
+import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import SolutionEditor from "./SolutionEditor";
 import SolutionCard from "./SolutionCard";
 import IssueCard from "../User/IssueCard";
