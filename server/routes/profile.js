@@ -103,7 +103,10 @@ router.post("/notifications", async (req, res) => {
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw "User Not Found";
 
-            let singleUserLink, notificationSnippet;
+            if (user.UniqueUsername === initiator.UniqueUsername)
+               return res.end();
+
+            let userPersonalLink, notificationSnippet;
 
             if (
                metaData.target_category === "Issue" ||
@@ -121,7 +124,7 @@ router.post("/notifications", async (req, res) => {
 
                let issue = issueQuery.Issues[0];
 
-               singleUserLink = `/issue/${issue._id}`;
+               userPersonalLink = `/issue/${issue._id}`;
                notificationSnippet = `${metaData.initiator_opinion} your solution.`;
             } else {
                let jwtPayloadName, routeBaseName;
@@ -141,13 +144,13 @@ router.post("/notifications", async (req, res) => {
                   process.env.ORG_JWT_SECRET
                );
 
-               singleUserLink = `/${routeBaseName}/add/new-user/${userSecret}`;
+               userPersonalLink = `/${routeBaseName}/add/new-user/${userSecret}`;
                notificationSnippet = `${metaData.initiator_opinion} you to join`;
             }
 
             let invitation = {
                ...payloadBlueprint,
-               Hyperlink: singleUserLink,
+               Hyperlink: userPersonalLink,
                ActivityContent: {
                   Action: notificationSnippet,
                   Keyword: metaData.target_name,
@@ -178,11 +181,11 @@ router.post("/notifications", async (req, res) => {
 
             let issue = issueQuery.Issues[0];
 
-            let issueLink = `/issue/${issue._id}`;
+            let groupLink = `/issue/${issue._id}`;
 
             let notification = {
                ...payloadBlueprint,
-               Hyperlink: issueLink,
+               Hyperlink: groupLink,
                ActivityContent: {
                   Action: `${metaData.initiator_opinion} a new ${metaData.target_category}:`,
                   Keyword: metaData.target_name,

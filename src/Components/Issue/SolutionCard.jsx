@@ -102,7 +102,8 @@ function SolutionCard({ solution, User, issueDetails }) {
 
       if (
          postInteractionData.status === "ok" &&
-         postInteractionData.data === "Like added"
+         postInteractionData.data === "Like added" &&
+         solution.SolutionCreator.UniqueUsername !== User.UniqueUsername
       ) {
          let notificationData = {
             initiator: {

@@ -68,11 +68,11 @@ mongoose.connect(
          );
 
          let io = socketio(server, {
-            // cors: {
-            //    origin: "http://localhost:3000",
-            //    methods: ["GET", "POST"],
-            //    credentials: true,
-            // },
+            cors: {
+               origin: "http://localhost:3000",
+               methods: ["GET", "POST"],
+               credentials: true,
+            },
          });
 
          io.use((socket, next) => {
