@@ -9,7 +9,7 @@ const path = require("path");
 const router = Router();
 
 const upload = multer({
-   dest: path.join(__dirname, "../../public/assets/ProfileImages"),
+   dest: path.join(__dirname, "../../client/public/assets/ProfileImages"),
    fileFilter: (req, file, cb) => {
       if (!file || file.mimetype.split("/")[0] !== "image")
          cb(new Error("Error parsing file"), false);
@@ -55,7 +55,7 @@ router.post("/uploads/profile-image", imageParser, async (req, res) => {
       let oldPath = file.path;
       let newPath = path.join(
          __dirname,
-         `../../public/assets/ProfileImages/${UniqueUsername}.jpg`
+         `../../client/public/assets/ProfileImages/${UniqueUsername}.jpg`
       );
       await fsPromises.rename(oldPath, newPath);
       console.log("\n\n" + file.originalname + "\n\n");

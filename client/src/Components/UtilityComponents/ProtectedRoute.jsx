@@ -17,6 +17,7 @@ function ProtectedRoute({ component: Component, ...props }) {
       setSocket(
          io("http://localhost:5000", {
             withCredentials: true,
+            reconnectionAttempts: 5,
          })
       );
    }, []);
