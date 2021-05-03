@@ -46,6 +46,7 @@ function Register() {
       if (registerResponse.status === "ok") history.push("/login");
 
       if (registerResponse.status === "error") {
+         console.log(registerResponse.error);
          setError(registerResponse.error);
       }
    }

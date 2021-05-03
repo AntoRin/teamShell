@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import HomeIcon from "@material-ui/icons/Home";
+import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/register-login.css";
 
 function Login() {
@@ -9,6 +10,7 @@ function Login() {
       userId: "",
       password: "",
    });
+   const [error, setError] = useState(null);
 
    const history = useHistory();
 
@@ -59,8 +61,13 @@ function Login() {
          "http://localhost:5000/auth/login",
          postOptions
       );
-      if (loginRequest.type === "opaqueredirect")
+      if (loginRequest.type === "opaqueredirect") {
          window.location.href = "http://localhost:3000/user/home";
+         return;
+      }
+
+      let loginData = await loginRequest.json();
+      if (loginData.status === "error") setError(loginData.error);
    }
 
    return (
@@ -110,6 +117,7 @@ function Login() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
+         {error && <StatusBar error={error} setError={setError} />}
       </div>
    );
 }

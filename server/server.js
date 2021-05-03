@@ -14,6 +14,8 @@ const organizationRoute = require("./routes/organization");
 const projectRoute = require("./routes/project");
 const issueRoute = require("./routes/issue");
 
+const errorHandler = require("./utils/errorHandler");
+
 //Models
 const Project = require("./models/Project");
 const User = require("./models/User");
@@ -39,6 +41,9 @@ app.use("/profile", checkAuth, profileRoute);
 app.use("/organization", checkAuth, organizationRoute);
 app.use("/project", checkAuth, projectRoute);
 app.use("/issue", checkAuth, issueRoute);
+
+//Error handler
+app.use(errorHandler);
 
 const port = process.env.PORT || 5000;
 
