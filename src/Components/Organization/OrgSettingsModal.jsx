@@ -42,10 +42,7 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
          credentials: "include",
       };
 
-      let updateRequest = await fetch(
-         "http://localhost:5000/organization/edit",
-         postOptions
-      );
+      let updateRequest = await fetch("/organization/edit", postOptions);
       let updateResponse = await updateRequest.json();
       if (updateResponse.status === "ok") window.location.reload();
    }

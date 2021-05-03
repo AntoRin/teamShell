@@ -19,7 +19,7 @@ function ProjectHome({ match, User }) {
       async function getProjectDetails() {
          try {
             let orgRequest = await fetch(
-               `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
+               `/organization/details/${match.params.OrganizationName}`,
                {
                   credentials: "include",
                   signal: abortFetch.signal,
@@ -40,7 +40,7 @@ function ProjectHome({ match, User }) {
             }
 
             let projectRequest = await fetch(
-               `http://localhost:5000/project/details/${match.params.ProjectName}`,
+               `/project/details/${match.params.ProjectName}`,
                {
                   credentials: "include",
                   signal: abortFetch.signal,

@@ -52,10 +52,10 @@ function Notifications({
       let abortFetch = new AbortController();
 
       async function getNotifications() {
-         let notificationDataStream = await fetch(
-            "http://localhost:5000/profile/notifications",
-            { credentials: "include", signal: abortFetch.signal }
-         );
+         let notificationDataStream = await fetch("/profile/notifications", {
+            credentials: "include",
+            signal: abortFetch.signal,
+         });
 
          let notificationData = await notificationDataStream.json();
          if (notificationData.status === "ok") {
@@ -86,10 +86,7 @@ function Notifications({
    }, [setActiveNotifications, socket]);
 
    function performNotificationAction(event, action) {
-      let redirectUrl = new URL(action);
-      if (window.location.port !== redirectUrl.port)
-         window.location.href = redirectUrl;
-      else history.push(redirectUrl.pathname);
+      history.replace(action);
    }
 
    function closeNotifications() {

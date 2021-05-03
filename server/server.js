@@ -27,12 +27,12 @@ const checkAuth = require("./middleware/checkAuth");
 const verifySocketIntegrity = require("./middleware/verifySocketIntegrity");
 
 app.use(express.json());
-app.use(
-   cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-   })
-);
+// app.use(
+//    cors({
+//       origin: "http://localhost:3000",
+//       credentials: true,
+//    })
+// );
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../build")));
 
@@ -41,6 +41,9 @@ app.use("/profile", checkAuth, profileRoute);
 app.use("/organization", checkAuth, organizationRoute);
 app.use("/project", checkAuth, projectRoute);
 app.use("/issue", checkAuth, issueRoute);
+app.use("*", (req, res) => {
+   res.sendFile(path.join(__dirname, "../build/index.html"));
+});
 
 //Error handler
 app.use(errorHandler);
@@ -65,11 +68,11 @@ mongoose.connect(
          );
 
          let io = socketio(server, {
-            cors: {
-               origin: "http://localhost:3000",
-               methods: ["GET", "POST"],
-               credentials: true,
-            },
+            // cors: {
+            //    origin: "http://localhost:3000",
+            //    methods: ["GET", "POST"],
+            //    credentials: true,
+            // },
          });
 
          io.use((socket, next) => {

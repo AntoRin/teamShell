@@ -27,7 +27,7 @@ function UserProfile({ location, match, User }) {
             setIsLoading(false);
          } else {
             let userRequest = await fetch(
-               `http://localhost:5000/profile/details/${match.params.UniqueUsername}`,
+               `/profile/details/${match.params.UniqueUsername}`,
                { credentials: "include" }
             );
             let profile = await userRequest.json();
@@ -68,7 +68,7 @@ function UserProfile({ location, match, User }) {
       };
 
       let uploadStream = await fetch(
-         "http://localhost:5000/profile/uploads/profile-image",
+         "/profile/uploads/profile-image",
          postOptions
       );
 
@@ -89,10 +89,7 @@ function UserProfile({ location, match, User }) {
          body: JSON.stringify(body),
          credentials: "include",
       };
-      let updateRequest = await fetch(
-         "http://localhost:5000/profile/edit",
-         updateOptions
-      );
+      let updateRequest = await fetch("/profile/edit", updateOptions);
       let updateResponse = await updateRequest.json();
       if (updateResponse.status === "ok")
          window.location.href = window.location.origin + location.pathname;

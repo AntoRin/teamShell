@@ -64,8 +64,6 @@ router.post("/uploads/profile-image", imageParser, async (req, res) => {
          { ProfileImage: `/assets/ProfileImages/${UniqueUsername}.jpg` }
       );
 
-      // console.log(file);
-
       return res.json({ status: "ok", data: "Image Uploaded" });
    } catch (error) {
       return res.status(501).json({ status: "error", error });
@@ -123,7 +121,7 @@ router.post("/notifications", async (req, res) => {
 
                let issue = issueQuery.Issues[0];
 
-               singleUserLink = `http://localhost:3000/issue/${issue._id}`;
+               singleUserLink = `/issue/${issue._id}`;
                notificationSnippet = `${metaData.initiator_opinion} your solution.`;
             } else {
                let jwtPayloadName, routeBaseName;
@@ -143,7 +141,7 @@ router.post("/notifications", async (req, res) => {
                   process.env.ORG_JWT_SECRET
                );
 
-               singleUserLink = `http://localhost:5000/${routeBaseName}/add-new-user/${userSecret}`;
+               singleUserLink = `/${routeBaseName}/add/new-user/${userSecret}`;
                notificationSnippet = `${metaData.initiator_opinion} you to join`;
             }
 
@@ -180,7 +178,7 @@ router.post("/notifications", async (req, res) => {
 
             let issue = issueQuery.Issues[0];
 
-            let issueLink = `http://localhost:3000/issue/${issue._id}`;
+            let issueLink = `/issue/${issue._id}`;
 
             let notification = {
                ...payloadBlueprint,

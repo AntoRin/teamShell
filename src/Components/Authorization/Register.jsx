@@ -38,10 +38,7 @@ function Register() {
          body: JSON.stringify(body),
       };
 
-      let registerDataStream = await fetch(
-         "http://localhost:5000/auth/register",
-         postOptions
-      );
+      let registerDataStream = await fetch("/auth/register", postOptions);
       let registerResponse = await registerDataStream.json();
       if (registerResponse.status === "ok") history.push("/login");
 

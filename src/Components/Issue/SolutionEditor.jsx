@@ -35,10 +35,7 @@ function SolutionEditor({ issueDetails, User }) {
             credentials: "include",
          };
 
-         let newSolution = await fetch(
-            "http://localhost:5000/issue/solution/create",
-            postOptions
-         );
+         let newSolution = await fetch("/issue/solution/create", postOptions);
          let solutionStatus = await newSolution.json();
 
          if (solutionStatus.status === "ok") {

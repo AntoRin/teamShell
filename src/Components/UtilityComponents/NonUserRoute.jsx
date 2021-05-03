@@ -7,7 +7,7 @@ function NonUserRoute({ component: Component, ...props }) {
 
    useEffect(() => {
       async function verifyAuthentication() {
-         let verify = await fetch("http://localhost:5000/auth/verify", {
+         let verify = await fetch("/auth/verify", {
             credentials: "include",
          });
          let verification = await verify.json();

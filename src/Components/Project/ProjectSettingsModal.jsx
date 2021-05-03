@@ -35,10 +35,7 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
          credentials: "include",
       };
 
-      let update = await fetch(
-         "http://localhost:5000/project/edit",
-         postOptions
-      );
+      let update = await fetch("/project/edit", postOptions);
       let updateResponse = await update.json();
 
       if (updateResponse.status === "ok") window.location.reload();

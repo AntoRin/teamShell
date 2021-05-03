@@ -55,7 +55,7 @@ function EnvironmentPanel({ User, currentOrg }) {
             }
 
             let projectRequest = await fetch(
-               `http://localhost:5000/project/details/${activeProject}`,
+               `/project/details/${activeProject}`,
                { credentials: "include", signal: abortFetch.signal }
             );
 

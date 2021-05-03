@@ -24,13 +24,10 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       let abortFetch = new AbortController();
 
       async function changeNotificationSeenStatus() {
-         let responseStream = await fetch(
-            "http://localhost:5000/profile/notifications/seen",
-            {
-               credentials: "include",
-               signal: abortFetch.signal,
-            }
-         );
+         let responseStream = await fetch("/profile/notifications/seen", {
+            credentials: "include",
+            signal: abortFetch.signal,
+         });
 
          let responseData = await responseStream.json();
          console.log(responseData);
@@ -46,10 +43,9 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
 
       async function getSearchResults() {
          let query = textSearch;
-         let searchStream = await fetch(
-            `http://localhost:5000/profile/search?user=${query}`,
-            { credentials: "include" }
-         );
+         let searchStream = await fetch(`/profile/search?user=${query}`, {
+            credentials: "include",
+         });
          let resultData = await searchStream.json();
 
          resultData.data

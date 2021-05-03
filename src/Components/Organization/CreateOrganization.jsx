@@ -37,10 +37,7 @@ function CreateOrganization() {
          credentials: "include",
       };
 
-      let createOrgRequest = await fetch(
-         "http://localhost:5000/organization/create",
-         postOptions
-      );
+      let createOrgRequest = await fetch("/organization/create", postOptions);
       let createOrgResponse = await createOrgRequest.json();
       console.log(createOrgResponse);
       if (createOrgResponse.status === "ok")

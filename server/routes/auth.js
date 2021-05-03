@@ -48,7 +48,7 @@ router.post("/login", async (req, res, next) => {
          .cookie("token", token, {
             httpOnly: true,
          })
-         .redirect("http://localhost:3000/user/home");
+         .redirect("/user/home");
    } catch (error) {
       next(error);
    }
@@ -114,7 +114,7 @@ router.get("/login/github/callback", async (req, res) => {
       if (present) {
          return res
             .cookie("token", loginToken, { httpOnly: true })
-            .redirect("http://localhost:3000/user/home");
+            .redirect("/user/home");
       } else {
          let newUser = new User(userInfo);
          await newUser.save();
@@ -122,7 +122,7 @@ router.get("/login/github/callback", async (req, res) => {
             .cookie("token", loginToken, {
                httpOnly: true,
             })
-            .redirect("http://localhost:3000/user/home");
+            .redirect("/user/home");
       }
    } catch (error) {
       console.log(error.type);
@@ -131,9 +131,7 @@ router.get("/login/github/callback", async (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-   return res
-      .cookie("token", "", { httpOnly: true, maxAge: 1 })
-      .redirect("http://localhost:3000/");
+   return res.cookie("token", "", { httpOnly: true, maxAge: 1 }).redirect("/");
 });
 
 router.get("/verify", async (req, res) => {

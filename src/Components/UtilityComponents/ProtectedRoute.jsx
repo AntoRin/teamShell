@@ -31,7 +31,7 @@ function ProtectedRoute({ component: Component, ...props }) {
       let abortFetch = new AbortController();
       async function verifyUser() {
          try {
-            let auth = await fetch("http://localhost:5000/auth/verify", {
+            let auth = await fetch("/auth/verify", {
                credentials: "include",
                signal: abortFetch.signal,
             });

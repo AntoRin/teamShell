@@ -24,12 +24,9 @@ function Login() {
    //------------Change URL of server-----------------
 
    async function handleGithubLogin() {
-      let loginRequest = await fetch(
-         "http://localhost:5000/auth/login/github",
-         {
-            redirect: "manual",
-         }
-      );
+      let loginRequest = await fetch("/auth/login/github", {
+         redirect: "manual",
+      });
 
       if (loginRequest.type === "opaqueredirect")
          window.location.href = loginRequest.url;
@@ -57,12 +54,9 @@ function Login() {
          credentials: "include",
       };
 
-      let loginRequest = await fetch(
-         "http://localhost:5000/auth/login",
-         postOptions
-      );
+      let loginRequest = await fetch("/auth/login", postOptions);
       if (loginRequest.type === "opaqueredirect") {
-         window.location.href = "http://localhost:3000/user/home";
+         window.location.href = "/user/home";
          return;
       }
 

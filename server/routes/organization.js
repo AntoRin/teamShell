@@ -74,7 +74,7 @@ router.post("/edit", async (req, res) => {
    }
 });
 
-router.get("/add-new-user/:userSecret", async (req, res) => {
+router.get("/add/new-user/:userSecret", async (req, res) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { userSecret } = req.params;
 
@@ -105,9 +105,7 @@ router.get("/add-new-user/:userSecret", async (req, res) => {
                },
             }
          );
-         return res.redirect(
-            `http://localhost:3000/organization/${OrganizationName}`
-         );
+         return res.redirect(`/organization/${OrganizationName}`);
       } else {
          throw "Invalid User Credentials";
       }

@@ -157,7 +157,6 @@ router.post("/solution/add-like", async (req, res) => {
    };
 
    try {
-      console.log("hi");
       await Project.updateOne(
          { "Issues.Solutions._id": solution_id },
          {

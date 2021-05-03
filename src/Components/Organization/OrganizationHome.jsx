@@ -13,7 +13,7 @@ function OrganizationHome({ match, User }) {
       async function getOrgData() {
          try {
             let orgRequest = await fetch(
-               `http://localhost:5000/organization/details/${match.params.OrganizationName}`,
+               `/organization/details/${match.params.OrganizationName}`,
                {
                   credentials: "include",
                   signal: abortFetch.signal,

@@ -88,7 +88,9 @@ router.post("/edit", async (req, res) => {
    }
 });
 
-router.get("/add-new-user/:userSecret", async (req, res) => {
+router.get("/add/new-user/:userSecret", async (req, res) => {
+   console.log("here in add user");
+
    let { UniqueUsername, Email } = req.thisUser;
    let { userSecret } = req.params;
 
@@ -129,7 +131,7 @@ router.get("/add-new-user/:userSecret", async (req, res) => {
             }
          );
          return res.redirect(
-            `http://localhost:3000/project/${project.ParentOrganization}/${project.ProjectName}`
+            `/project/${project.ParentOrganization}/${project.ProjectName}`
          );
       } else {
          throw "Invalid User Credentials";

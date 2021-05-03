@@ -92,7 +92,7 @@ function SolutionCard({ solution, User, issueDetails }) {
       let endpoint = liked ? "remove-like" : "add-like";
 
       let postInteraction = await fetch(
-         `http://localhost:5000/issue/solution/${endpoint}`,
+         `/issue/solution/${endpoint}`,
          postOptions
       );
 

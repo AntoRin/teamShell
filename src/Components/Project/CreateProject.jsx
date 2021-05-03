@@ -76,10 +76,7 @@ function CreateProject({ location, User }) {
          credentials: "include",
       };
 
-      let createProject = await fetch(
-         "http://localhost:5000/project/create",
-         postOptions
-      );
+      let createProject = await fetch("/project/create", postOptions);
       let createProjectResponse = await createProject.json();
 
       if (createProjectResponse.status === "ok")

@@ -69,10 +69,7 @@ function IssueEditor({ activeProject, User }) {
          credentials: "include",
       };
 
-      let newIssueSubmit = await fetch(
-         "http://localhost:5000/issue/create",
-         postOptions
-      );
+      let newIssueSubmit = await fetch("/issue/create", postOptions);
       let newIssueResponse = await newIssueSubmit.json();
       console.log(newIssueResponse);
       if (newIssueResponse.status === "ok") {
