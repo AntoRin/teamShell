@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
-import DetailCard from "./DetailCard";
-import "../../styles/user-profile.css";
 import { Button } from "@material-ui/core";
+import DetailCard from "./DetailCard";
+import LinearLoader from "../UtilityComponents/LinearLoader";
+import "../../styles/user-profile.css";
 
 function UserProfile({ location, match, User }) {
    const [Profile, setProfile] = useState({});
@@ -17,7 +18,6 @@ function UserProfile({ location, match, User }) {
    const fileInputElement = useRef();
 
    const history = useHistory();
-   //-------------------------Change fetch methods--------------------------------
 
    useEffect(() => {
       async function getProfile() {
@@ -259,7 +259,7 @@ function UserProfile({ location, match, User }) {
    }
 
    if (isLoading) {
-      return <h1>Loading...</h1>;
+      return <LinearLoader />;
    } else {
       return (
          <div className="profile-container">

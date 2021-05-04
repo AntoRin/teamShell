@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import SettingsIcon from "@material-ui/icons/Settings";
 import ProjectSettingsModal from "./ProjectSettingsModal";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/project-home.css";
 
 function ProjectHome({ match, User }) {
@@ -77,7 +78,7 @@ function ProjectHome({ match, User }) {
    }
 
    if (isLoading) {
-      return <h1>Loading...</h1>;
+      return <LinearLoader />;
    } else {
       return isAuthorized ? (
          <div className="project-home-container">

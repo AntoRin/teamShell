@@ -5,10 +5,11 @@ import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import SolutionEditor from "./SolutionEditor";
 import SolutionCard from "./SolutionCard";
 import IssueCard from "../User/IssueCard";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/issue-home.css";
 
 const useStyles = makeStyles(theme => ({
-   "component-title": {
+   componentTitle: {
       color: "lightgreen",
       background: "#222",
       padding: "7px",
@@ -62,7 +63,7 @@ function IssueHome({ match, User }) {
    }, [match.params, socket]);
 
    if (isLoading) {
-      return <h1>Loading...</h1>;
+      return <LinearLoader />;
    } else {
       return isAuthorized ? (
          <div className="issue-home-container">
@@ -72,7 +73,7 @@ function IssueHome({ match, User }) {
                </div>
                <div className="solutions-write-section">
                   <Typography
-                     className={classes["component-title"]}
+                     className={classes.componentTitle}
                      align="center"
                      variant="h4"
                      gutterBottom

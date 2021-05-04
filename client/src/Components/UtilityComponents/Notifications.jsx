@@ -97,7 +97,10 @@ function Notifications({
    async function performNotificationAction(event, action) {
       let notificationAction = await fetch(action);
 
-      if (notificationAction.redirected) {
+      if (
+         notificationAction.redirected ||
+         notificationAction.type === "basic"
+      ) {
          let redirectUrl = new URL(notificationAction.url);
          history.replace(redirectUrl.pathname);
          return;

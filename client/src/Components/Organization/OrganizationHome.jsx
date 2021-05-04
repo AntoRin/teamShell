@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import OrgSideNav from "./OrgSideNav";
 import DetailCard from "../User/DetailCard";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/organization-home.css";
 
 function OrganizationHome({ match, User }) {
@@ -44,7 +45,7 @@ function OrganizationHome({ match, User }) {
    }, [match.params.OrganizationName]);
 
    if (isLoading) {
-      return <h1>Loading...</h1>;
+      return <LinearLoader />;
    } else {
       return isAuthorized ? (
          <div className="organization-home-container">

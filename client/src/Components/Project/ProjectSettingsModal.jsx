@@ -72,6 +72,8 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
 
       if (invitationResponse.status === "ok")
          setActionStatus({ info: "Invitation sent to user", type: "success" });
+      if (invitationResponse.status === "error")
+         setActionStatus({ info: invitationResponse.error, type: "error" });
    }
 
    function closeSettingsModal() {

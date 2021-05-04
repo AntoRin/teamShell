@@ -8,6 +8,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/environment-panel.css";
 
 const useStyles = makeStyles(theme => ({
@@ -182,7 +183,7 @@ function EnvironmentPanel({ User, currentOrg }) {
          </div>
       </div>
    ) : (
-      <h1>Loading...</h1>
+      <LinearLoader />
    );
 }
 

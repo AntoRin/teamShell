@@ -21,8 +21,6 @@ function CreateOrganization() {
       history.push("/user/home");
    }
 
-   //------------------Change post options-----------------------
-
    async function handleOrgCreation(event) {
       event.preventDefault();
       let body = {
