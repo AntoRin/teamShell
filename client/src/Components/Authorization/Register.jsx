@@ -11,7 +11,7 @@ function Register() {
       email: "",
       password: "",
    });
-   const [error, setError] = useState(null);
+   const [actionStatus, setActionStatus] = useState(null);
 
    const history = useHistory();
 
@@ -44,7 +44,7 @@ function Register() {
 
       if (registerResponse.status === "error") {
          console.log(registerResponse.error);
-         setError(registerResponse.error);
+         setActionStatus(registerResponse.error);
       }
    }
 
@@ -116,7 +116,13 @@ function Register() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
-         {error && <StatusBar error={error} setError={setError} />}
+         {actionStatus && (
+            <StatusBar
+               actionStatus={actionStatus}
+               setActionStatus={setActionStatus}
+               statusType="error"
+            />
+         )}
       </div>
    );
 }

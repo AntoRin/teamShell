@@ -52,27 +52,31 @@ function Notifications({
       let abortFetch = new AbortController();
 
       async function getNotifications() {
-         let notificationDataStream = await fetch("/profile/notifications", {
-            credentials: "include",
-            signal: abortFetch.signal,
-         });
+         try {
+            let notificationDataStream = await fetch("/profile/notifications", {
+               credentials: "include",
+               signal: abortFetch.signal,
+            });
 
-         let notificationData = await notificationDataStream.json();
-         if (notificationData.status === "ok") {
-            let { Notifications } = notificationData.data;
+            let notificationData = await notificationDataStream.json();
+            if (notificationData.status === "ok") {
+               let { Notifications } = notificationData.data;
 
-            let unreadNotification = Notifications.find(
-               notification => notification.Seen === false
-            );
+               let unreadNotification = Notifications.find(
+                  notification => notification.Seen === false
+               );
 
-            if (Notifications.length > 0) {
-               setNotifications(Notifications);
-               if (unreadNotification) {
-                  setActiveNotifications(true);
-               } else {
-                  setActiveNotifications(false);
+               if (Notifications.length > 0) {
+                  setNotifications(Notifications);
+                  if (unreadNotification) {
+                     setActiveNotifications(true);
+                  } else {
+                     setActiveNotifications(false);
+                  }
                }
             }
+         } catch (error) {
+            console.log(error);
          }
       }
 

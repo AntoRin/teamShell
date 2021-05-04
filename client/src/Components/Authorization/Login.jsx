@@ -10,7 +10,7 @@ function Login() {
       userId: "",
       password: "",
    });
-   const [error, setError] = useState(null);
+   const [actionStatus, setActionStatus] = useState(null);
 
    const history = useHistory();
 
@@ -57,7 +57,7 @@ function Login() {
       }
 
       let loginData = await loginRequest.json();
-      if (loginData.status === "error") setError(loginData.error);
+      if (loginData.status === "error") setActionStatus(loginData.error);
    }
 
    return (
@@ -73,6 +73,7 @@ function Login() {
                         placeholder="Email"
                         type="text"
                         id="userId"
+                        required
                      />
                   </div>
                   <div className="password-field">
@@ -83,6 +84,7 @@ function Login() {
                         autoComplete="off"
                         type="password"
                         id="password"
+                        required
                      />
                   </div>
                   <div className="form-submit">
@@ -107,7 +109,13 @@ function Login() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
-         {error && <StatusBar error={error} setError={setError} />}
+         {actionStatus && (
+            <StatusBar
+               actionStatus={actionStatus}
+               setActionStatus={setActionStatus}
+               statusType="error"
+            />
+         )}
       </div>
    );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext } from "react";
 import { Route, Redirect } from "react-router-dom";
 import io from "socket.io-client";
+import { RouteLoader } from "./SkeletonLoader";
 import GlobalNav from "./GlobalNav";
 
 //--------------------Remove credentials for cross-origin------------------
@@ -60,7 +61,7 @@ function ProtectedRoute({ component: Component, ...props }) {
    if (isLoading || !socket) {
       return (
          <div>
-            <h1>Loading...</h1>
+            <RouteLoader />
          </div>
       );
    } else {

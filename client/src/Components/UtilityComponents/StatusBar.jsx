@@ -16,16 +16,14 @@ function Alert(props) {
    return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-function StatusBar({ error, setError }) {
+function StatusBar({ actionStatus, setActionStatus, statusType }) {
    const classes = useStyles();
 
    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
    useEffect(() => {
-      if (error) {
-         setSnackbarOpen(true);
-      }
-   }, [error, setError]);
+      setSnackbarOpen(true);
+   }, [actionStatus, setActionStatus]);
 
    function handleSnackbarClose(event, reason) {
       if (reason === "clickaway") {
@@ -33,7 +31,7 @@ function StatusBar({ error, setError }) {
       }
 
       setSnackbarOpen(false);
-      setError(null);
+      setActionStatus(null);
    }
 
    return (
@@ -43,8 +41,8 @@ function StatusBar({ error, setError }) {
             autoHideDuration={5000}
             onClose={handleSnackbarClose}
          >
-            <Alert onClose={handleSnackbarClose} severity="error">
-               {error}
+            <Alert onClose={handleSnackbarClose} severity={statusType}>
+               {actionStatus}
             </Alert>
          </Snackbar>
       </div>
