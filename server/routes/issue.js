@@ -3,25 +3,25 @@ const User = require("../models/User");
 const Project = require("../models/Project");
 const router = Router();
 
-router.get("/details/all/:project", async (req, res) => {
+router.get("/details/all/:project", async (req, res, next) => {
    let ProjectName = req.params.project;
    try {
       let project = await Project.findOne({ ProjectName });
-      if (!project) throw "Not found";
+      if (!project) throw { name: "UnknownData" };
       let issues = project.Issues;
       return res.json({ status: "ok", Issues: issues });
    } catch (error) {
       console.log(error);
-      return res.json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/details/:IssueID", async (req, res) => {
+router.get("/details/:IssueID", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let _id = req.params.IssueID;
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw "Unauthorized";
+      if (!user) throw { name: "UnauthorizedRequest" };
 
       let { Issues } = await Project.findOne(
          { "Issues._id": _id },
@@ -31,15 +31,15 @@ router.get("/details/:IssueID", async (req, res) => {
       let projectMember = user.Projects.find(project => {
          return project._id.toString() === issue.Project_id;
       });
-      if (!projectMember) throw "Unauthorized";
+      if (!projectMember) throw { name: "UnauthorizedRequest" };
       return res.json({ status: "ok", data: issue });
    } catch (error) {
       console.log(error);
-      res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/create", async (req, res) => {
+router.post("/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let {
       IssueTitle,
@@ -58,7 +58,8 @@ router.post("/create", async (req, res) => {
    };
 
    try {
-      if (Creator.UniqueUsername !== UniqueUsername) throw "Unauthorized";
+      if (Creator.UniqueUsername !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
 
       let updatedProject = await Project.findOneAndUpdate(
          { _id: Project_id },
@@ -83,14 +84,14 @@ router.post("/create", async (req, res) => {
          }
       );
 
-      return res.json({ status: "ok" });
+      return res.json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
-      return res.json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/solution/create", async (req, res) => {
+router.post("/solution/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { Issue_id, Project_id, SolutionCreator, SolutionBody } = req.body;
 
@@ -101,7 +102,7 @@ router.post("/solution/create", async (req, res) => {
 
    try {
       if (UniqueUsername !== SolutionCreator.UniqueUsername)
-         throw "Unauthorized";
+         throw { name: "UnauthorizedRequest" };
       let updatedProject = await Project.findOneAndUpdate(
          { _id: Project_id, "Issues._id": Issue_id },
          {
@@ -143,11 +144,11 @@ router.post("/solution/create", async (req, res) => {
       return res.json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
-      res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/solution/add-like", async (req, res) => {
+router.post("/solution/add-like", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
    let { user_id, solution_id } = req.body;
 
@@ -172,11 +173,11 @@ router.post("/solution/add-like", async (req, res) => {
       return res.json({ status: "ok", data: "Like added" });
    } catch (error) {
       console.log(error);
-      return res.json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/solution/remove-like", async (req, res) => {
+router.post("/solution/remove-like", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
    let { user_id, solution_id } = req.body;
 
@@ -202,7 +203,7 @@ router.post("/solution/remove-like", async (req, res) => {
       return res.json({ status: "ok", data: "Like removed" });
    } catch (error) {
       console.log(error);
-      return res.json({ status: "error", error });
+      return next(error);
    }
 });
 

@@ -6,7 +6,7 @@ const User = require("../models/User");
 
 const router = Router();
 
-router.post("/create", async (req, res) => {
+router.post("/create", async (req, res, next) => {
    let { ProjectName, ProjectDescription, ParentOrganization } = req.body;
    let { UniqueUsername, Email } = req.thisUser;
 
@@ -19,7 +19,7 @@ router.post("/create", async (req, res) => {
          Members: [UniqueUsername],
       });
 
-      if (!ParentOrganization) throw "Unauthorized";
+      if (!ParentOrganization) throw { name: "UnauthorizedRequest" };
 
       let newProjectData = await project.save();
       await Organization.updateOne(
@@ -47,48 +47,39 @@ router.post("/create", async (req, res) => {
 
       return res.json({ status: "ok" });
    } catch (error) {
-      console.log(error);
-      return res.json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/details/:ProjectName", async (req, res) => {
+router.get("/details/:ProjectName", async (req, res, next) => {
    let ProjectName = req.params.ProjectName;
    let { UniqueUsername, Email } = req.thisUser;
 
    try {
       let project = await Project.findOne({ ProjectName });
-      if (project === null) throw "Project not found";
+      if (project === null) throw { name: "UnknownData" };
       if (project.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Project: project });
       } else {
-         throw "Unauthorized";
+         throw { name: "UnauthorizedRequest" };
       }
    } catch (error) {
-      console.log(error);
-      if (error === "Project not found")
-         return res.status(404).json({ status: "error", error });
-
-      if (error === "Unauthorized")
-         return res.status(401).json({ status: "error", error });
-
-      return res.status(501).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/edit", async (req, res) => {
+router.post("/edit", async (req, res, next) => {
    let { ProjectName, ProjectDescription } = req.body;
 
    try {
       await Project.updateOne({ ProjectName }, { ProjectDescription });
       return res.json({ status: "ok" });
    } catch (error) {
-      console.log(error);
-      return res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/add/new-user/:userSecret", async (req, res) => {
+router.get("/add/new-user/:userSecret", async (req, res, next) => {
    console.log("here in add user");
 
    let { UniqueUsername, Email } = req.thisUser;
@@ -96,7 +87,7 @@ router.get("/add/new-user/:userSecret", async (req, res) => {
 
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw "User not found";
+      if (!user) throw { name: "UnauthorizedRequest" };
       let { _id, ProjectName } = jwt.verify(
          userSecret,
          process.env.ORG_JWT_SECRET
@@ -104,14 +95,14 @@ router.get("/add/new-user/:userSecret", async (req, res) => {
       if (_id === user._id.toString()) {
          let checkIsMember = await Project.findOne({ ProjectName });
          if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw "User Already Present";
+            throw { name: "UnknownData" };
 
          let parentOrg = await Organization.findOne({
             OrganizationName: checkIsMember.ParentOrganization,
          });
 
          if (!parentOrg.Members.includes(user.UniqueUsername))
-            throw "You are not part of the Organization";
+            throw { name: "OrganizationAuthFail" };
 
          let project = await Project.findOneAndUpdate(
             { ProjectName },
@@ -134,11 +125,10 @@ router.get("/add/new-user/:userSecret", async (req, res) => {
             `/project/${project.ParentOrganization}/${project.ProjectName}`
          );
       } else {
-         throw "Invalid User Credentials";
+         throw { name: "AuthFailure" };
       }
    } catch (error) {
-      console.log(error);
-      return res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import "../../styles/user-home.css";
 
@@ -114,28 +114,6 @@ function UserHome({ User }) {
             </div>
             <div className="home-workspace">
                <h1 style={{ color: "gray" }}>No work progress to show😴</h1>
-            </div>
-            <div className="side-info">
-               <div className="aside-help-links">
-                  <Link className="stripped-down-link" to="/docs">
-                     Docs
-                  </Link>
-               </div>
-               <div className="aside-help-links">
-                  <Link className="stripped-down-link" to="/api">
-                     API
-                  </Link>
-               </div>
-               <div className="aside-help-links">
-                  <Link className="stripped-down-link" to="/help">
-                     Help
-                  </Link>
-               </div>
-               <div className="aside-help-links">
-                  <Link className="stripped-down-link" to="/explore">
-                     Explore
-                  </Link>
-               </div>
             </div>
          </div>
       </div>

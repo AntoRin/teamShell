@@ -23,6 +23,8 @@ function StatusBar({ actionStatus, setActionStatus, statusType }) {
 
    useEffect(() => {
       setSnackbarOpen(true);
+
+      return () => setActionStatus(null);
    }, [actionStatus, setActionStatus]);
 
    function handleSnackbarClose(event, reason) {
@@ -30,8 +32,8 @@ function StatusBar({ actionStatus, setActionStatus, statusType }) {
          return;
       }
 
-      setSnackbarOpen(false);
       setActionStatus(null);
+      setSnackbarOpen(false);
    }
 
    return (

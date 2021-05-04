@@ -1,12 +1,14 @@
 import { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import inititateNewNotification from "../../utils/notificationService";
+import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/settings-modal.css";
 
 function ProjectSettingsModal({ User, Project, setSettings }) {
    const [newDescription, setNewDescription] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [newUser, setNewUser] = useState("");
+   const [actionStatus, setActionStatus] = useState(null);
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
@@ -65,7 +67,8 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
 
       let invitationResponse = await inititateNewNotification(invitationData);
 
-      if (invitationResponse.status === "ok") console.log("Invitation sent");
+      if (invitationResponse.status === "ok")
+         setActionStatus("Invitation sent to user");
    }
 
    function closeSettingsModal() {
@@ -133,6 +136,13 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
             onClick={closeSettingsModal}
             className="modal-close-btn"
          />
+         {actionStatus && (
+            <StatusBar
+               actionStatus={actionStatus}
+               setActionStatus={setActionStatus}
+               type="success"
+            />
+         )}
       </div>
    );
 }

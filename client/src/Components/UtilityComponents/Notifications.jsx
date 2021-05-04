@@ -10,6 +10,7 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import { SocketInstance } from "./ProtectedRoute";
+import StatusBar from "../UtilityComponents/StatusBar";
 import formatDate from "../../utils/formatDate";
 import "../../styles/notifications.css";
 
@@ -43,6 +44,7 @@ function Notifications({
    const classes = useStyles();
 
    const [notifications, setNotifications] = useState([]);
+   const [actionStatus, setActionStatus] = useState(null);
 
    const history = useHistory();
 
@@ -89,8 +91,12 @@ function Notifications({
       };
    }, [setActiveNotifications, socket]);
 
-   function performNotificationAction(event, action) {
-      history.replace(action);
+   async function performNotificationAction(event, action) {
+      let notificationAction = await fetch(action);
+
+      let actionData = await notificationAction.json();
+
+      if (actionData.status === "error") setActionStatus(actionData.error);
    }
 
    function closeNotifications() {
@@ -193,6 +199,13 @@ function Notifications({
                })}
                <Divider variant="inset" component="li" />
             </List>
+            {actionStatus && (
+               <StatusBar
+                  actionStatus={actionStatus}
+                  setActionStatus={setActionStatus}
+                  type="error"
+               />
+            )}
          </div>
       </ClickAwayListener>
    ) : null;

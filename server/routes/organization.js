@@ -4,7 +4,7 @@ const Organization = require("../models/Organization");
 const { Router } = require("express");
 const router = Router();
 
-router.post("/create", async (req, res) => {
+router.post("/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { OrganizationName, Description } = req.body;
 
@@ -37,50 +37,46 @@ router.post("/create", async (req, res) => {
       return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);
-      res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/details/:OrganizationName", async (req, res) => {
+router.get("/details/:OrganizationName", async (req, res, next) => {
    let OrganizationName = req.params.OrganizationName;
    let { UniqueUsername, Email } = req.thisUser;
 
    try {
       let org = await Organization.findOne({ OrganizationName });
-      if (org === null) throw "Organization not found";
+      if (org === null) throw { name: "UnknownData" };
       if (org.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Organization: org });
       } else {
-         throw "Unauthorized";
+         throw { name: "UnauthorizedRequest" };
       }
    } catch (error) {
-      if (error === "Unauthorized")
-         return res.status(401).json({ status: "error", error });
-      if (error === "Organization not found")
-         return res.status(404).json({ status: "error", error });
-      return res.status(501).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/edit", async (req, res) => {
+router.post("/edit", async (req, res, next) => {
    let { Org, Description } = req.body;
 
    try {
       await Organization.updateOne({ OrganizationName: Org }, { Description });
-      return res.json({ status: "ok" });
+      return res.json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
-      return res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/add/new-user/:userSecret", async (req, res) => {
+router.get("/add/new-user/:userSecret", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { userSecret } = req.params;
 
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw "User not found";
+      if (!user) throw { name: "UnauthorizedRequest" };
       let { _id, OrganizationName } = jwt.verify(
          userSecret,
          process.env.ORG_JWT_SECRET
@@ -88,7 +84,7 @@ router.get("/add/new-user/:userSecret", async (req, res) => {
       if (_id === user._id.toString()) {
          let checkIsMember = await Organization.findOne({ OrganizationName });
          if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw "User Already Present";
+            throw { name: "UnknownData" };
          let Org = await Organization.findOneAndUpdate(
             { OrganizationName },
             { $push: { Members: user.UniqueUsername } }
@@ -107,11 +103,11 @@ router.get("/add/new-user/:userSecret", async (req, res) => {
          );
          return res.redirect(`/organization/${OrganizationName}`);
       } else {
-         throw "Invalid User Credentials";
+         throw { name: "AuthFailure" };
       }
    } catch (error) {
       console.log(error);
-      return res.status(401).json({ status: "error", error });
+      return next(error);
    }
 });
 

@@ -1,6 +1,6 @@
 .home-main {
    display: grid;
-   grid-template-columns: 3fr 10fr 1.5fr;
+   grid-template-columns: 3fr 10fr;
    gap: 20px;
    margin: 5px;
    font-family: "Roboto", sans-serif;
@@ -68,16 +68,6 @@
 
 .home-workspace {
    padding: 5px;
-}
-
-.side-info {
-   border-left: 1px solid #222;
-   padding: 5px;
-}
-
-.aside-help-links {
-   text-align: center;
-   margin: 5px;
 }
 
 .stripped-down-link {

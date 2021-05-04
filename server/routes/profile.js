@@ -18,7 +18,7 @@ const upload = multer({
 });
 const imageParser = upload.single("profileImage");
 
-router.get("/details/:UniqueUsername", async (req, res) => {
+router.get("/details/:UniqueUsername", async (req, res, next) => {
    let requestedUser = req.params.UniqueUsername;
 
    try {
@@ -27,13 +27,13 @@ router.get("/details/:UniqueUsername", async (req, res) => {
       });
       let { Password, _id, ...user } = _doc;
       if (user) return res.json({ status: "ok", user });
-      else throw "User not found";
+      else throw { name: "UnknownData" };
    } catch (error) {
-      return res.status(401).json({ status: "error", error: error.message });
+      return next(error);
    }
 });
 
-router.put("/edit", async (req, res) => {
+router.put("/edit", async (req, res, next) => {
    let { Bio, Username } = req.body;
    let { UniqueUsername, Email } = req.thisUser;
 
@@ -41,16 +41,16 @@ router.put("/edit", async (req, res) => {
       await User.updateOne({ UniqueUsername, Email }, { Bio, Username });
       res.json({ status: "ok", message: "Profile Updated" });
    } catch (error) {
-      res.status(501).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/uploads/profile-image", imageParser, async (req, res) => {
+router.post("/uploads/profile-image", imageParser, async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    try {
       let file = req.file;
 
-      if (!file) throw new Error("File not found");
+      if (!file) throw { name: "UploadFailure" };
 
       let oldPath = file.path;
       let newPath = path.join(
@@ -66,25 +66,24 @@ router.post("/uploads/profile-image", imageParser, async (req, res) => {
 
       return res.json({ status: "ok", data: "Image Uploaded" });
    } catch (error) {
-      return res.status(501).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/notifications", async (req, res) => {
+router.get("/notifications", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
 
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw "User Not Found";
+      if (!user) throw { name: "UnauthorizedRequest" };
       let { Notifications } = user;
       return res.json({ status: "ok", data: { Notifications } });
    } catch (error) {
-      console.log(error);
-      return res.json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.post("/notifications", async (req, res) => {
+router.post("/notifications", async (req, res, next) => {
    let { initiator, recipient, metaData } = req.body;
 
    let payloadBlueprint = {
@@ -101,10 +100,10 @@ router.post("/notifications", async (req, res) => {
       switch (metaData.notification_type) {
          case "User":
             let user = await User.findOne({ UniqueUsername: recipient });
-            if (!user) throw "User Not Found";
+            if (!user) throw { name: "UnauthorizedRequest" };
 
             if (user.UniqueUsername === initiator.UniqueUsername)
-               return res.end();
+               throw { name: "SilentEnd" };
 
             let userPersonalLink, notificationSnippet;
 
@@ -136,7 +135,7 @@ router.post("/notifications", async (req, res) => {
                   jwtPayloadName = "ProjectName";
                   routeBaseName = "project";
                } else {
-                  throw "Internal Error";
+                  throw { name: "ServerError" };
                }
 
                let userSecret = jwt.sign(
@@ -206,11 +205,11 @@ router.post("/notifications", async (req, res) => {
       }
    } catch (error) {
       console.log(error);
-      return res.status(404).json({ status: "error", error });
+      return next(error);
    }
 });
 
-router.get("/notifications/seen", async (req, res) => {
+router.get("/notifications/seen", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
 
    try {
@@ -222,11 +221,11 @@ router.get("/notifications/seen", async (req, res) => {
       return res.json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
-      return res.json({ status: "error", error });
+      next(error);
    }
 });
 
-router.get("/search", async (req, res) => {
+router.get("/search", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let query = req.query.user;
 
@@ -279,8 +278,7 @@ router.get("/search", async (req, res) => {
       }
       return res.json({ status: "ok", data: searchData });
    } catch (error) {
-      console.log(error);
-      return res.json({ status: "error", error, data: "" });
+      return next(error);
    }
 });
 

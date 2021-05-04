@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import CloseIcon from "@material-ui/icons/Close";
+import StatusBar from "../UtilityComponents/StatusBar";
 import inititateNewNotification from "../../utils/notificationService";
 import "../../styles/settings-modal.css";
 
@@ -8,6 +9,7 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    const [newDescription, setNewDescription] = useState("");
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
+   const [actionStatus, setActionStatus] = useState(null);
 
    const history = useHistory();
 
@@ -71,7 +73,8 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
 
       let invitationResponse = await inititateNewNotification(invitationData);
 
-      if (invitationResponse.status === "ok") console.log("Invitation sent");
+      if (invitationResponse.status === "ok")
+         setActionStatus("Invitation sent to user");
    }
 
    function createProjectRedirect() {
@@ -146,6 +149,13 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
             onClick={closeSettingsModal}
             className="modal-close-btn"
          />
+         {actionStatus && (
+            <StatusBar
+               actionStatus={actionStatus.info}
+               setActionStatus={setActionStatus}
+               statusType="success"
+            />
+         )}
       </div>
    );
 }

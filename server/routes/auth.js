@@ -35,11 +35,10 @@ router.post("/login", async (req, res, next) => {
       let present = await User.findOne({ Email });
 
       if (!present || present.Password === "GitHub Verified")
-         throw { code: "AuthFailure", message: "User not found" };
+         throw { name: "AuthFailure" };
 
       let verified = await bcrypt.compare(Password, present.Password);
-      if (!verified)
-         throw { code: "AuthFailure", message: "Invalid credentials" };
+      if (!verified) throw { name: "AuthFailure" };
       let token = jwt.sign(
          { UniqueUsername: present.UniqueUsername, Email },
          process.env.JWT_SECRET
@@ -61,7 +60,7 @@ router.get("/login/github", async (req, res) => {
    );
 });
 
-router.get("/login/github/callback", async (req, res) => {
+router.get("/login/github/callback", async (req, res, next) => {
    let code = req.query.code;
    let body = {
       client_id: process.env.GITHUB_CLIENT_ID,
@@ -126,7 +125,7 @@ router.get("/login/github/callback", async (req, res) => {
       }
    } catch (error) {
       console.log(error.type);
-      return res.json({ status: "error", error: error.message });
+      return next(error);
    }
 });
 
@@ -134,16 +133,17 @@ router.get("/logout", (req, res) => {
    return res.cookie("token", "", { httpOnly: true, maxAge: 1 }).redirect("/");
 });
 
-router.get("/verify", async (req, res) => {
+router.get("/verify", async (req, res, next) => {
    let token = req.cookies.token;
 
    try {
       let { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET);
       let present = await validateRegistration({ UniqueUsername, Email }, User);
-      if (!present) throw "Invalid Credentials";
+      if (!present) throw { name: "AuthFailure" };
       return res.json({ status: "ok", User: present });
    } catch (error) {
-      return res.json({ status: "error", error });
+      console.log(error);
+      return next(error);
    }
 });
 
