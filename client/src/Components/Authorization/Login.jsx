@@ -21,22 +21,18 @@ function Login() {
       });
    }
 
-   //------------Change URL of server-----------------
-
    async function handleGithubLogin() {
-      let loginRequest = await fetch("/auth/login/github", {
-         redirect: "manual",
+      let loginResponse = await fetch("/auth/login/github", {
+         redirect: "follow",
       });
 
-      if (loginRequest.type === "opaqueredirect")
-         window.location.href = loginRequest.url;
+      if (loginResponse.type === "opaqueredirect")
+         window.location.href = loginResponse.url;
       else {
-         let loginStatus = await loginRequest.json();
+         let loginStatus = await loginResponse.json();
          console.log(loginStatus);
       }
    }
-
-   //----------------------Change post otions----------------------------------
 
    async function handleLogin(event) {
       event.preventDefault();
@@ -102,11 +98,11 @@ function Login() {
                         <Link to="/register">Register</Link>
                      </span>
                   </div>
-                  <div onClick={handleGithubLogin} className="github-login">
-                     <GitHubIcon fontSize="large" />
-                  </div>
                </div>
             </form>
+            <div onClick={handleGithubLogin} className="github-login">
+               <GitHubIcon fontSize="large" />
+            </div>
          </div>
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
