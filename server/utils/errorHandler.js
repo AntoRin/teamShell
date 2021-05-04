@@ -1,5 +1,5 @@
 function errorHandler(error, req, res, next) {
-   console.log(error);
+   console.log(error.name);
    switch (error.name) {
       case "MongoError":
          return res
@@ -7,7 +7,7 @@ function errorHandler(error, req, res, next) {
             .json({ status: "error", error: "User already exists" });
       case "AuthFailure":
          return res
-            .status(400)
+            .status(401)
             .json({ status: "error", error: "Invalid credentials" });
       case "JsonWebTokenError":
          return res
@@ -36,6 +36,15 @@ function errorHandler(error, req, res, next) {
             status: "error",
             error: "You are not part of the Organization",
          });
+      case "OrgInvitationRebound":
+         return res.status(400).json({
+            status: "error",
+            error: "You are already a part of the organization",
+         });
+      case "ProjectInvitationRebound":
+         return res
+            .status(400)
+            .json({ status: "error", error: "You are already in the project" });
       default:
          return res
             .status(500)

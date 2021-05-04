@@ -8,7 +8,10 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
    const [newDescription, setNewDescription] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [newUser, setNewUser] = useState("");
-   const [actionStatus, setActionStatus] = useState(null);
+   const [actionStatus, setActionStatus] = useState({
+      info: null,
+      type: "success",
+   });
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
@@ -68,7 +71,7 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
       let invitationResponse = await inititateNewNotification(invitationData);
 
       if (invitationResponse.status === "ok")
-         setActionStatus("Invitation sent to user");
+         setActionStatus({ info: "Invitation sent to user", type: "success" });
    }
 
    function closeSettingsModal() {
@@ -136,11 +139,10 @@ function ProjectSettingsModal({ User, Project, setSettings }) {
             onClick={closeSettingsModal}
             className="modal-close-btn"
          />
-         {actionStatus && (
+         {actionStatus.info && (
             <StatusBar
                actionStatus={actionStatus}
                setActionStatus={setActionStatus}
-               type="success"
             />
          )}
       </div>

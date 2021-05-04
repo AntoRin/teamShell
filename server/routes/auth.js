@@ -142,7 +142,6 @@ router.get("/verify", async (req, res, next) => {
       if (!present) throw { name: "AuthFailure" };
       return res.json({ status: "ok", User: present });
    } catch (error) {
-      console.log(error);
       return next(error);
    }
 });

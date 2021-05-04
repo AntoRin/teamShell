@@ -9,7 +9,10 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    const [newDescription, setNewDescription] = useState("");
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
-   const [actionStatus, setActionStatus] = useState(null);
+   const [actionStatus, setActionStatus] = useState({
+      info: null,
+      type: "success",
+   });
 
    const history = useHistory();
 
@@ -52,8 +55,9 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    async function addUserToOrg(event) {
       event.preventDefault();
 
-      if (Organization.Members.includes(newUser))
-         return console.log("User already present");
+      if (Organization.Members.includes(newUser)) {
+         setActionStatus({ info: "User already present", type: "info" });
+      }
 
       let invitationData = {
          initiator: {
@@ -74,7 +78,7 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
       let invitationResponse = await inititateNewNotification(invitationData);
 
       if (invitationResponse.status === "ok")
-         setActionStatus("Invitation sent to user");
+         setActionStatus({ info: "Invitation sent to user", type: "success" });
    }
 
    function createProjectRedirect() {
@@ -149,11 +153,10 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
             onClick={closeSettingsModal}
             className="modal-close-btn"
          />
-         {actionStatus && (
+         {actionStatus.info && (
             <StatusBar
-               actionStatus={actionStatus.info}
+               actionStatus={actionStatus}
                setActionStatus={setActionStatus}
-               statusType="success"
             />
          )}
       </div>

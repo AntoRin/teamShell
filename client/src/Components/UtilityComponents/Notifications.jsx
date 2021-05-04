@@ -44,7 +44,10 @@ function Notifications({
    const classes = useStyles();
 
    const [notifications, setNotifications] = useState([]);
-   const [actionStatus, setActionStatus] = useState(null);
+   const [actionStatus, setActionStatus] = useState({
+      info: null,
+      type: "success",
+   });
 
    const history = useHistory();
 
@@ -94,9 +97,16 @@ function Notifications({
    async function performNotificationAction(event, action) {
       let notificationAction = await fetch(action);
 
+      if (notificationAction.redirected) {
+         let redirectUrl = new URL(notificationAction.url);
+         history.replace(redirectUrl.pathname);
+         return;
+      }
+
       let actionData = await notificationAction.json();
 
-      if (actionData.status === "error") setActionStatus(actionData.error);
+      if (actionData.status === "error")
+         setActionStatus({ info: actionData.error, type: "error" });
    }
 
    function closeNotifications() {
@@ -199,11 +209,10 @@ function Notifications({
                })}
                <Divider variant="inset" component="li" />
             </List>
-            {actionStatus && (
+            {actionStatus.info && (
                <StatusBar
                   actionStatus={actionStatus}
                   setActionStatus={setActionStatus}
-                  type="error"
                />
             )}
          </div>

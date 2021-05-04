@@ -95,7 +95,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
       if (_id === user._id.toString()) {
          let checkIsMember = await Project.findOne({ ProjectName });
          if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw { name: "UnknownData" };
+            throw { name: "ProjectInvitationRebound" };
 
          let parentOrg = await Organization.findOne({
             OrganizationName: checkIsMember.ParentOrganization,

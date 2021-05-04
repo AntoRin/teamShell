@@ -10,7 +10,10 @@ function Login() {
       userId: "",
       password: "",
    });
-   const [actionStatus, setActionStatus] = useState(null);
+   const [actionStatus, setActionStatus] = useState({
+      info: null,
+      type: "success",
+   });
 
    const history = useHistory();
 
@@ -23,7 +26,7 @@ function Login() {
 
    async function handleGithubLogin() {
       let loginResponse = await fetch("/auth/login/github", {
-         redirect: "follow",
+         redirect: "manual",
       });
 
       if (loginResponse.type === "opaqueredirect")
@@ -57,7 +60,8 @@ function Login() {
       }
 
       let loginData = await loginRequest.json();
-      if (loginData.status === "error") setActionStatus(loginData.error);
+      if (loginData.status === "error")
+         setActionStatus({ info: loginData.error, type: "error" });
    }
 
    return (
@@ -109,11 +113,10 @@ function Login() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
-         {actionStatus && (
+         {actionStatus.info && (
             <StatusBar
                actionStatus={actionStatus}
                setActionStatus={setActionStatus}
-               statusType="error"
             />
          )}
       </div>

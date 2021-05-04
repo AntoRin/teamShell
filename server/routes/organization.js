@@ -84,7 +84,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
       if (_id === user._id.toString()) {
          let checkIsMember = await Organization.findOne({ OrganizationName });
          if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw { name: "UnknownData" };
+            throw { name: "OrgInvitationRebound" };
          let Org = await Organization.findOneAndUpdate(
             { OrganizationName },
             { $push: { Members: user.UniqueUsername } }
@@ -106,7 +106,6 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
          throw { name: "AuthFailure" };
       }
    } catch (error) {
-      console.log(error);
       return next(error);
    }
 });
