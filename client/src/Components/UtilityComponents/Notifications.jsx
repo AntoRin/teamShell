@@ -135,7 +135,13 @@ function Notifications({
                         <ListItem alignItems="flex-start">
                            <ListItemAvatar>
                               <Avatar
-                                 src={notification.Initiator.ProfileImage}
+                                 src={
+                                    notification.Initiator.ProfileImage.startsWith(
+                                       "https://"
+                                    )
+                                       ? notification.Initiator.ProfileImage
+                                       : `data:image/jpeg;base64,${notification.Initiator.ProfileImage}`
+                                 }
                                  alt=""
                               />
                            </ListItemAvatar>

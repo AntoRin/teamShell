@@ -309,7 +309,11 @@ function UserProfile({ location, match, User }) {
                <div className="profile-picture-section">
                   <img
                      id="profilePictureBig"
-                     src={Profile.ProfileImage}
+                     src={
+                        Profile.ProfileImage.startsWith("https://")
+                           ? Profile.ProfileImage
+                           : `data:image/jpeg;base64,${Profile.ProfileImage}`
+                     }
                      alt=""
                   />
                   <div className="profile-picture-caption">

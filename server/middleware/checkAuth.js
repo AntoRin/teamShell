@@ -7,7 +7,7 @@ function checkAuth(req, res, next) {
       req.thisUser = thisUser;
       return next();
    } catch (error) {
-      return res.status(401).json({ status: "error", error: error.message });
+      return next(error);
    }
 }
 

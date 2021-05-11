@@ -22,7 +22,7 @@ const UserSchema = new Schema(
          required: true,
       },
       ProfileImage: {
-         type: String,
+         type: {},
          default: "No Image",
       },
       Bio: {

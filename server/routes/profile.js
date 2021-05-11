@@ -9,7 +9,7 @@ const path = require("path");
 const router = Router();
 
 const upload = multer({
-   dest: path.join(__dirname, "../../client/public/assets/ProfileImages"),
+   storage: multer.memoryStorage(),
    fileFilter: (req, file, cb) => {
       if (!file || file.mimetype.split("/")[0] !== "image")
          cb(new Error("Error parsing file"), false);
@@ -52,17 +52,9 @@ router.post("/uploads/profile-image", imageParser, async (req, res, next) => {
 
       if (!file) throw { name: "UploadFailure" };
 
-      let oldPath = file.path;
-      let newPath = path.join(
-         __dirname,
-         `../../client/public/assets/ProfileImages/${UniqueUsername}.jpg`
-      );
-      await fsPromises.rename(oldPath, newPath);
-      console.log("\n\n" + file.originalname + "\n\n");
-      await User.updateOne(
-         { UniqueUsername, Email },
-         { ProfileImage: `/assets/ProfileImages/${UniqueUsername}.jpg` }
-      );
+      let buffer = file.buffer;
+
+      await User.updateOne({ UniqueUsername, Email }, { ProfileImage: buffer });
 
       return res.json({ status: "ok", data: "Image Uploaded" });
    } catch (error) {
