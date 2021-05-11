@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import "../../styles/user-home.css";
 
 function UserHome({ User }) {
    const [activePanelOrg, setActivePanelOrg] = useState(
-      User.Organizations.length > 0
-         ? User.Organizations[0].OrganizationName
-         : ""
+      window.localStorage.getItem("home_organization_context") ||
+         (User.Organizations.length > 0
+            ? User.Organizations[0].OrganizationName
+            : "")
    );
 
    const history = useHistory();
+
+   useEffect(() => {
+      window.localStorage.setItem("home_organization_context", activePanelOrg);
+   }, [activePanelOrg]);
 
    function changePanelOrg(event) {
       setActivePanelOrg(event.target.innerHTML);

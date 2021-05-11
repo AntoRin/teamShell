@@ -27,21 +27,10 @@ function Login() {
 
    async function handleGithubLogin() {
       window.location.pathname = "/auth/login/github";
-      // let loginResponse = await fetch("/auth/login/github", {
-      //    redirect: "manual",
-      // });
-
-      // if (loginResponse.type === "opaqueredirect")
-      //    window.location.href = loginResponse.url;
-      // else {
-      //    let loginStatus = await loginResponse.json();
-      //    console.log(loginStatus);
-      // }
    }
 
    async function handleGoogleLogin() {
       window.location.pathname = "/auth/login/google";
-      // let loginResponse = await fetch("/auth/login/google");
    }
 
    async function handleLogin(event) {

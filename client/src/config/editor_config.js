@@ -2,7 +2,7 @@ export const issue_editor_config = {
    options: {
       width: "100%",
       height: "100",
-      minHeight: "300px",
+      minHeight: "250px",
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",

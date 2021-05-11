@@ -133,7 +133,13 @@ function SolutionCard({ solution, User, issueDetails }) {
                   <Avatar className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
-                        src={solution.SolutionCreator.ProfileImage}
+                        src={
+                           solution.SolutionCreator.ProfileImage.startsWith(
+                              "https://"
+                           )
+                              ? solution.SolutionCreator.ProfileImage
+                              : `data:image/jpeg;base64,${solution.SolutionCreator.ProfileImage}`
+                        }
                         alt=""
                      />
                   </Avatar>

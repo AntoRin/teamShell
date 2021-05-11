@@ -4,8 +4,6 @@ import io from "socket.io-client";
 import { ComponentLoader } from "./SkeletonLoader";
 import GlobalNav from "./GlobalNav";
 
-//--------------------Remove credentials for cross-origin------------------
-
 export const SocketInstance = createContext();
 
 function ProtectedRoute({ component: Component, ...props }) {

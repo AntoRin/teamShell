@@ -7,11 +7,10 @@
 .environment-panel-main {
    width: 100%;
    display: grid;
-   grid-template-columns: 1fr 3fr;
+   grid-template-columns: 1fr 4fr;
 }
 
 .panel-project-selection {
-   border-right: 1px solid gray;
    padding: 5px;
    margin: 5px;
    width: 100%;
@@ -22,9 +21,6 @@
    padding: 5px;
    margin: 10px;
    width: 90%;
-}
-
-.panel-project-member {
    font-family: "Roboto", sans-serif;
    cursor: pointer;
 }

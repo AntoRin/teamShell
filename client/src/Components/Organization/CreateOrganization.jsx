@@ -37,7 +37,7 @@ function CreateOrganization() {
 
       let createOrgRequest = await fetch("/organization/create", postOptions);
       let createOrgResponse = await createOrgRequest.json();
-      console.log(createOrgResponse);
+
       if (createOrgResponse.status === "ok")
          history.push(`/organization/${inputs.newCreateName}`);
    }

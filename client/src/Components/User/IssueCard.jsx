@@ -89,7 +89,11 @@ function IssueCard({ issue, showContent }) {
                   <Avatar className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
-                        src={issue.Creator.ProfileImage}
+                        src={
+                           issue.Creator.ProfileImage.startsWith("https://")
+                              ? issue.Creator.ProfileImage
+                              : `data:image/jpeg;base64,${issue.Creator.ProfileImage}`
+                        }
                         alt=""
                      />
                   </Avatar>

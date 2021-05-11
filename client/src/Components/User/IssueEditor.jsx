@@ -44,57 +44,57 @@ function IssueEditor({ activeProject, User }) {
 
       if (!Project_id) return;
 
-      let IssueDescriptionRaw = editorRef.current.editor.core.getContents();
+      try {
+         let IssueDescriptionRaw = editorRef.current.editor.core.getContents();
 
-      let IssueDescription = editorRef.current.editor.util.HTMLEncoder(
-         IssueDescriptionRaw
-      );
+         let IssueDescription =
+            editorRef.current.editor.util.HTMLEncoder(IssueDescriptionRaw);
 
-      let body = {
-         IssueTitle: issueTitle,
-         IssueDescription,
-         ProjectContext: activeProject,
-         Project_id,
-         Creator: {
-            UniqueUsername: User.UniqueUsername,
-            User_id: User._id,
-            ProfileImage: User.ProfileImage,
-         },
-      };
-
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-
-      let newIssueSubmit = await fetch("/issue/create", postOptions);
-      let newIssueResponse = await newIssueSubmit.json();
-      console.log(newIssueResponse);
-      if (newIssueResponse.status === "ok") {
-         setIssueTitle("");
-         editorRef.current.editor.core.setContents("");
-
-         let notificationData = {
-            initiator: {
+         let body = {
+            IssueTitle: issueTitle,
+            IssueDescription,
+            ProjectContext: activeProject,
+            Project_id,
+            Creator: {
                UniqueUsername: User.UniqueUsername,
+               User_id: User._id,
                ProfileImage: User.ProfileImage,
             },
-            recipient: activeProject,
-            metaData: {
-               notification_type: "Group",
-               info_type: "New Issue",
-               target_category: "Issue",
-               target_name: issueTitle,
-               target_info: "You can propose a solution to this issue now",
-               initiator_opinion: "created",
-            },
          };
-         await initiateNewNotification(notificationData);
 
-         // if (notificationResponse.status === "ok")
-         //    console.log("New issue notification sent");
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            credentials: "include",
+         };
+
+         let newIssueSubmit = await fetch("/issue/create", postOptions);
+         let newIssueResponse = await newIssueSubmit.json();
+         console.log(newIssueResponse);
+         if (newIssueResponse.status === "ok") {
+            setIssueTitle("");
+            editorRef.current.editor.core.setContents("");
+
+            let notificationData = {
+               initiator: {
+                  UniqueUsername: User.UniqueUsername,
+                  ProfileImage: User.ProfileImage,
+               },
+               recipient: activeProject,
+               metaData: {
+                  notification_type: "Group",
+                  info_type: "New Issue",
+                  target_category: "Issue",
+                  target_name: issueTitle,
+                  target_info: "You can propose a solution to this issue now",
+                  initiator_opinion: "created",
+               },
+            };
+            await initiateNewNotification(notificationData);
+         }
+      } catch (error) {
+         console.log(error);
       }
    }
 
