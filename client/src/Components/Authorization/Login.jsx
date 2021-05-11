@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
 import GitHubIcon from "@material-ui/icons/GitHub";
+import GTranslateIcon from "@material-ui/icons/GTranslate";
 import HomeIcon from "@material-ui/icons/Home";
 import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/register-login.css";
@@ -25,16 +26,22 @@ function Login() {
    }
 
    async function handleGithubLogin() {
-      let loginResponse = await fetch("/auth/login/github", {
-         redirect: "manual",
-      });
+      window.location.pathname = "/auth/login/github";
+      // let loginResponse = await fetch("/auth/login/github", {
+      //    redirect: "manual",
+      // });
 
-      if (loginResponse.type === "opaqueredirect")
-         window.location.href = loginResponse.url;
-      else {
-         let loginStatus = await loginResponse.json();
-         console.log(loginStatus);
-      }
+      // if (loginResponse.type === "opaqueredirect")
+      //    window.location.href = loginResponse.url;
+      // else {
+      //    let loginStatus = await loginResponse.json();
+      //    console.log(loginStatus);
+      // }
+   }
+
+   async function handleGoogleLogin() {
+      window.location.pathname = "/auth/login/google";
+      // let loginResponse = await fetch("/auth/login/google");
    }
 
    async function handleLogin(event) {
@@ -106,8 +113,9 @@ function Login() {
                   </div>
                </div>
             </form>
-            <div onClick={handleGithubLogin} className="github-login">
-               <GitHubIcon fontSize="large" />
+            <div className="github-login">
+               <GitHubIcon onClick={handleGithubLogin} fontSize="large" />
+               <GTranslateIcon onClick={handleGoogleLogin} fontSize="large" />
             </div>
          </div>
          <div onClick={() => history.push("/")} className="home-redirect">
