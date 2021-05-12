@@ -1,6 +1,6 @@
+const mongoose = require("mongoose");
 const { model } = require("mongoose");
 const { Schema } = require("mongoose");
-const issueSchema = require("./issueSchema");
 
 const ProjectSchema = new Schema(
    {
@@ -17,8 +17,8 @@ const ProjectSchema = new Schema(
          type: String,
          required: true,
       },
-      Issues: {
-         type: [issueSchema],
+      IssuesRef: {
+         type: [mongoose.Types._ObjectId],
       },
       Creator: {
          type: String,

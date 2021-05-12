@@ -45,7 +45,7 @@ router.post("/create", async (req, res, next) => {
          }
       );
 
-      return res.json({ status: "ok" });
+      return res.json({ status: "ok", data: "" });
    } catch (error) {
       return next(error);
    }
@@ -53,17 +53,51 @@ router.post("/create", async (req, res, next) => {
 
 router.get("/details/:ProjectName", async (req, res, next) => {
    let ProjectName = req.params.ProjectName;
-   let { UniqueUsername, Email } = req.thisUser;
+   let { UniqueUsername } = req.thisUser;
 
    try {
-      let project = await Project.findOne({ ProjectName });
-      if (project === null) throw { name: "UnknownData" };
+      let aggregationPipeline = [
+         {
+            $match: {
+               ProjectName,
+            },
+         },
+         {
+            $lookup: {
+               from: "Issues",
+               let: {
+                  ids: "$IssuesRef",
+               },
+               pipeline: [
+                  {
+                     $sort: {
+                        createdAt: -1,
+                     },
+                  },
+                  {
+                     $match: {
+                        $expr: {
+                           _id: "$$ids",
+                        },
+                     },
+                  },
+               ],
+               as: "Issues",
+            },
+         },
+      ];
+
+      let aggregationResult = await Project.aggregate(aggregationPipeline);
+
+      let project = aggregationResult[0];
+
       if (project.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Project: project });
       } else {
          throw { name: "UnauthorizedRequest" };
       }
    } catch (error) {
+      console.log(error);
       return next(error);
    }
 });

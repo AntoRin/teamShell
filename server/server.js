@@ -17,8 +17,9 @@ const issueRoute = require("./routes/issue");
 const errorHandler = require("./utils/errorHandler");
 
 //Models
-const Project = require("./models/Project");
 const User = require("./models/User");
+const Project = require("./models/Project");
+const Issue = require("./models/Issue");
 
 const app = express();
 
@@ -88,17 +89,23 @@ mongoose.connect(
 
          io.on("connection", socket => {
             console.log("Connected: ", socket.id);
-            let ProjectStatus = Project.watch();
             let UserStatus = User.watch();
+            let ProjectStatus = Project.watch();
+            let IssueStatus = Issue.watch();
+
+            UserStatus.on("change", () => {
+               io.to(socket.id).emit("user-data-change");
+            });
 
             ProjectStatus.on("change", diff => {
                if (diff.operationType === "update") {
+                  console.log(diff.updateDescription.updatedFields);
                   io.to(socket.id).emit("project-data-change");
                }
             });
 
-            UserStatus.on("change", () => {
-               io.to(socket.id).emit("user-data-change");
+            IssueStatus.on("change", () => {
+               io.to(socket.id).emit("issue-data-change");
             });
          });
       }

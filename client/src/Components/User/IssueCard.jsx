@@ -16,7 +16,10 @@ import { red } from "@material-ui/core/colors";
 import ShareIcon from "@material-ui/icons/Share";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
 import { readonly_editor_config } from "../../config/editor_config";
+import StatusBar from "../UtilityComponents/StatusBar";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
 
@@ -62,10 +65,15 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function IssueCard({ issue, showContent }) {
+function IssueCard({ User, issue, showContent }) {
    const classes = useStyles();
    const [expanded, setExpanded] = useState(showContent);
    const [description, setDescription] = useState("");
+   const [anchorEl, setAnchorEl] = useState(null);
+   const [actionStatus, setActionStatus] = useState({
+      type: "success",
+      info: null,
+   });
 
    const editorRef = useRef();
 
@@ -79,6 +87,42 @@ function IssueCard({ issue, showContent }) {
 
    function handleExpandClick() {
       setExpanded(prev => !prev);
+   }
+
+   function handleMoreIconClick(event) {
+      setAnchorEl(event.currentTarget);
+   }
+
+   function handleMoreOptionsClose() {
+      setAnchorEl(null);
+   }
+
+   async function deleteIssue() {
+      if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
+
+      let deleteOptions = {
+         method: "DELETE",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+            Issue_id: issue._id,
+            Project_id: issue.Project_id,
+         }),
+         credentials: "include",
+      };
+
+      let deleteResponseStream = await fetch("/issue/delete", deleteOptions);
+      let deleteData = await deleteResponseStream.json();
+
+      if (deleteData.status === "ok")
+         setActionStatus({
+            type: "success",
+            info: "Issue successfully deleted",
+         });
+      else
+         setActionStatus({
+            type: "error",
+            info: "There was an error deleting the issue ",
+         });
    }
 
    return (
@@ -99,9 +143,28 @@ function IssueCard({ issue, showContent }) {
                   </Avatar>
                }
                action={
-                  <IconButton aria-label="settings">
-                     <MoreVertIcon />
-                  </IconButton>
+                  <div>
+                     <IconButton
+                        onClick={handleMoreIconClick}
+                        aria-label="settings"
+                     >
+                        <MoreVertIcon />
+                     </IconButton>
+                     <Menu
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={Boolean(anchorEl)}
+                        onClose={handleMoreOptionsClose}
+                     >
+                        <MenuItem onClick={handleMoreOptionsClose}>
+                           Close Issue
+                        </MenuItem>
+                        <MenuItem onClick={deleteIssue}>Delete</MenuItem>
+                        <MenuItem onClick={handleMoreOptionsClose}>
+                           Bookmark
+                        </MenuItem>
+                     </Menu>
+                  </div>
                }
                title={issue.Creator.UniqueUsername}
                subheader={formatDate(issue.createdAt)}
@@ -141,6 +204,12 @@ function IssueCard({ issue, showContent }) {
                </CardContent>
             </Collapse>
          </Card>
+         {actionStatus.info && (
+            <StatusBar
+               actionStatus={actionStatus}
+               setActionStatus={setActionStatus}
+            />
+         )}
       </div>
    );
 }

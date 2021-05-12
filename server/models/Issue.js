@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const { model } = mongoose;
 
 const issueSchema = new Schema(
    {
@@ -9,6 +10,10 @@ const issueSchema = new Schema(
       },
       IssueDescription: {
          type: String,
+         required: true,
+      },
+      Active: {
+         type: Boolean,
          required: true,
       },
       ProjectContext: {
@@ -72,4 +77,6 @@ const issueSchema = new Schema(
    { timestamps: true }
 );
 
-module.exports = issueSchema;
+const Issue = mongoose.model("Issues", issueSchema, "Issues");
+
+module.exports = Issue;

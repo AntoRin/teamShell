@@ -1,5 +1,5 @@
 function errorHandler(error, req, res, next) {
-   console.log(error.name);
+   console.log(error);
    switch (error.name) {
       case "MongoError":
          return res
@@ -14,7 +14,10 @@ function errorHandler(error, req, res, next) {
             .status(401)
             .json({ status: "error", error: "You need to be logged in" });
       case "UnknownData":
-         return res.status(400).json({ status: "error", error: "Bad request" });
+         return res.status(400).json({
+            status: "error",
+            error: "Bad request, relevant data not found",
+         });
       case "UnauthorizedRequest":
          return res.status(401).json({
             status: "error",
@@ -45,6 +48,10 @@ function errorHandler(error, req, res, next) {
          return res
             .status(400)
             .json({ status: "error", error: "You are already in the project" });
+      case "ValidationError":
+         return res
+            .status(400)
+            .json({ status: "error", error: "Validation Error" });
       default:
          return res
             .status(500)

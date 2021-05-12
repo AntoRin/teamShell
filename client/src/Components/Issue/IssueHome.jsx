@@ -54,11 +54,11 @@ function IssueHome({ match, User }) {
 
       getIssueDetails();
 
-      socket.on("project-data-change", () => getIssueDetails());
+      socket.on("issue-data-change", () => getIssueDetails());
 
       return () => {
          abortFetch.abort();
-         socket.off("project-data-change");
+         socket.off("issue-data-change");
       };
    }, [match.params, socket]);
 

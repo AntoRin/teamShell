@@ -1,10 +1,11 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-const Project = require("../models/Project");
 const multer = require("multer");
 const fsPromises = require("fs/promises");
 const path = require("path");
+const User = require("../models/User");
+const Project = require("../models/Project");
+const Issue = require("../models/Issue");
 
 const router = Router();
 
@@ -103,17 +104,9 @@ router.post("/notifications", async (req, res, next) => {
                metaData.target_category === "Issue" ||
                metaData.target_category === "Solution"
             ) {
-               let issueQuery = await Project.findOne(
-                  { "Issues.IssueTitle": metaData.target_name },
-                  {
-                     Issues: {
-                        $elemMatch: { IssueTitle: metaData.target_name },
-                     },
-                     _id: 0,
-                  }
-               );
-
-               let issue = issueQuery.Issues[0];
+               let issue = await Issue.findOne({
+                  IssueName: metaData.target_name,
+               });
 
                userPersonalLink = `/issue/${issue._id}`;
                notificationSnippet = `${metaData.initiator_opinion} your solution.`;
@@ -160,17 +153,10 @@ router.post("/notifications", async (req, res, next) => {
                }
             );
             return res.json({ status: "ok", data: "Notification sent" });
-            break;
          case "Group":
-            let issueQuery = await Project.findOne(
-               { "Issues.IssueTitle": metaData.target_name },
-               {
-                  Issues: { $elemMatch: { IssueTitle: metaData.target_name } },
-                  _id: 0,
-               }
-            );
-
-            let issue = issueQuery.Issues[0];
+            let issue = await Issue.findOne({
+               IssueTitle: metaData.target_name,
+            });
 
             let groupLink = `/issue/${issue._id}`;
 
@@ -194,6 +180,7 @@ router.post("/notifications", async (req, res, next) => {
                   },
                }
             );
+            return res.json({ status: "ok", data: "Notification sent" });
       }
    } catch (error) {
       console.log(error);

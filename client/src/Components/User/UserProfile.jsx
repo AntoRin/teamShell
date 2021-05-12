@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import { Button } from "@material-ui/core";
+import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import DetailCard from "./DetailCard";
+import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/user-profile.css";
 
@@ -11,33 +13,66 @@ function UserProfile({ location, match, User }) {
    const [owner, setOwner] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
    const [query, setQuery] = useState("");
+   const [actionStatus, setActionStatus] = useState({
+      type: "success",
+      info: null,
+   });
 
    const bioElement = useRef();
    const usernameElement = useRef();
-
    const fileInputElement = useRef();
+
+   const socket = useContext(SocketInstance);
 
    const history = useHistory();
 
    useEffect(() => {
-      async function getProfile() {
-         if (match.params.UniqueUsername === User.UniqueUsername) {
-            setProfile(User);
-            setOwner(true);
-            setIsLoading(false);
-         } else {
-            let userRequest = await fetch(
-               `/profile/details/${match.params.UniqueUsername}`,
-               { credentials: "include" }
-            );
-            let profile = await userRequest.json();
-            setProfile(profile.user);
-            setOwner(false);
-            setIsLoading(false);
+      const abortFetch = new AbortController();
+
+      async function getProfile(update = false) {
+         try {
+            if (match.params.UniqueUsername === User.UniqueUsername) {
+               if (!update) {
+                  setProfile(User);
+                  setOwner(true);
+                  setIsLoading(false);
+               } else {
+                  let userDataStream = await fetch(
+                     `/profile/details/${match.params.UniqueUsername}`,
+                     { credentials: "include", signal: abortFetch.signal }
+                  );
+
+                  if (abortFetch.signal.aborted) return;
+
+                  let profile = await userDataStream.json();
+                  setProfile(profile.user);
+               }
+            } else {
+               let userDataStream = await fetch(
+                  `/profile/details/${match.params.UniqueUsername}`,
+                  { credentials: "include", signal: abortFetch.signal }
+               );
+
+               if (abortFetch.signal.aborted) return;
+
+               let profile = await userDataStream.json();
+               setProfile(profile.user);
+               setOwner(false);
+               setIsLoading(false);
+            }
+         } catch (error) {
+            console.log(error);
          }
       }
       getProfile();
-   }, [User, match.params.UniqueUsername]);
+
+      socket.on("user-data-change", () => getProfile(true));
+
+      return () => {
+         abortFetch.abort();
+         socket.off("user-data-change");
+      };
+   }, [User, match.params.UniqueUsername, socket]);
 
    useEffect(() => {
       let queryString = location.search;
@@ -74,7 +109,9 @@ function UserProfile({ location, match, User }) {
 
       let uploadResponse = await uploadStream.json();
 
-      console.log(uploadResponse);
+      uploadResponse.status === "ok"
+         ? setActionStatus({ type: "success", info: "Profile Image updated" })
+         : setActionStatus({ type: "error", info: "Error uploading image" });
    }
 
    async function handleProfileUpdate(event) {
@@ -329,6 +366,12 @@ function UserProfile({ location, match, User }) {
                </div>
                <div className="profile-details-section">{tabComponent()}</div>
             </div>
+            {actionStatus.info && (
+               <StatusBar
+                  actionStatus={actionStatus}
+                  setActionStatus={setActionStatus}
+               />
+            )}
          </div>
       );
    }

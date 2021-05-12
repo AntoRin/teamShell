@@ -1,15 +1,31 @@
 const { Router } = require("express");
 const User = require("../models/User");
 const Project = require("../models/Project");
+const Issue = require("../models/Issue");
 const router = Router();
 
 router.get("/details/all/:project", async (req, res, next) => {
    let ProjectName = req.params.project;
    try {
-      let project = await Project.findOne({ ProjectName });
-      if (!project) throw { name: "UnknownData" };
-      let issues = project.Issues;
-      return res.json({ status: "ok", Issues: issues });
+      let aggregationPipeline = [
+         {
+            $match: {
+               ProjectName,
+            },
+         },
+         {
+            $lookup: {
+               from: "Issues",
+               localField: "IssuesRef",
+               foreignField: "_id",
+               as: "AllIssues",
+            },
+         },
+      ];
+
+      let { AllIssues } = await Project.aggregate(aggregationPipeline);
+
+      return res.json({ status: "ok", Issues: AllIssues });
    } catch (error) {
       console.log(error);
       return next(error);
@@ -23,11 +39,8 @@ router.get("/details/:IssueID", async (req, res, next) => {
       let user = await User.findOne({ UniqueUsername, Email });
       if (!user) throw { name: "UnauthorizedRequest" };
 
-      let { Issues } = await Project.findOne(
-         { "Issues._id": _id },
-         { Issues: { $elemMatch: { _id: _id } }, _id: 0 }
-      );
-      let issue = Issues[0];
+      let issue = await Issue.findOne({ _id });
+
       let projectMember = user.Projects.find(project => {
          return project._id.toString() === issue.Project_id;
       });
@@ -41,13 +54,8 @@ router.get("/details/:IssueID", async (req, res, next) => {
 
 router.post("/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
-   let {
-      IssueTitle,
-      IssueDescription,
-      ProjectContext,
-      Project_id,
-      Creator,
-   } = req.body;
+   let { IssueTitle, IssueDescription, ProjectContext, Project_id, Creator } =
+      req.body;
 
    let issue = {
       IssueTitle,
@@ -55,19 +63,23 @@ router.post("/create", async (req, res, next) => {
       ProjectContext,
       Creator,
       Project_id,
+      Active: true,
    };
 
    try {
       if (Creator.UniqueUsername !== UniqueUsername)
          throw { name: "UnauthorizedRequest" };
 
-      let updatedProject = await Project.findOneAndUpdate(
-         { _id: Project_id },
-         { $push: { Issues: { $each: [issue], $position: 0 } } },
-         { returnOriginal: false }
-      );
+      let newIssue = new Issue(issue);
 
-      let newIssueId = updatedProject.Issues[0]._id;
+      await newIssue.save();
+
+      let newIssueId = newIssue._id;
+
+      await Project.updateOne(
+         { _id: Project_id },
+         { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
+      );
 
       let userIssueContext = {
          _id: newIssueId,
@@ -91,6 +103,26 @@ router.post("/create", async (req, res, next) => {
    }
 });
 
+router.delete("/delete", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { Issue_id, Project_id } = req.body;
+
+   try {
+      let issue = await Issue.findOne({ _id: Issue_id });
+      if (issue.Creator.UniqueUsername !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+      await Issue.deleteOne({ _id: Issue_id });
+      let deleteStatus = await Project.updateOne(
+         { _id: Project_id },
+         { $pull: { IssuesRef: Issue_id } }
+      );
+      return res.json({ status: "ok", data: "Issue deleted" });
+   } catch (error) {
+      console.log(error);
+      next(error);
+   }
+});
+
 router.post("/solution/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { Issue_id, Project_id, SolutionCreator, SolutionBody } = req.body;
@@ -103,22 +135,15 @@ router.post("/solution/create", async (req, res, next) => {
    try {
       if (UniqueUsername !== SolutionCreator.UniqueUsername)
          throw { name: "UnauthorizedRequest" };
-      let updatedProject = await Project.findOneAndUpdate(
-         { _id: Project_id, "Issues._id": Issue_id },
-         {
-            $push: {
-               "Issues.$.Solutions": { $each: [newSolution], $position: 0 },
-            },
-         },
+
+      let updatedIssue = await Issue.findOneAndUpdate(
+         { _id: Issue_id },
+         { $push: { Solutions: { $each: [newSolution], $position: 0 } } },
          {
             returnOriginal: false,
-            projection: {
-               Issues: { $elemMatch: { _id: Issue_id } },
-               _id: 0,
-            },
          }
       );
-      let updatedIssue = updatedProject.Issues[0];
+
       let newSolutionID = updatedIssue.Solutions[0]._id;
 
       let UserSolutionContext = {
@@ -158,17 +183,13 @@ router.post("/solution/add-like", async (req, res, next) => {
    };
 
    try {
-      await Project.updateOne(
-         { "Issues.Solutions._id": solution_id },
+      await Issue.updateOne(
+         { "Solutions._id": solution_id },
          {
             $push: {
-               "Issues.$.Solutions.$[solution].LikedBy": {
-                  $each: [userRef],
-                  $position: 0,
-               },
+               "Solutions.$.LikedBy": { $each: [userRef], $position: 0 },
             },
-         },
-         { arrayFilters: [{ "solution._id": solution_id }] }
+         }
       );
       return res.json({ status: "ok", data: "Like added" });
    } catch (error) {
@@ -187,18 +208,9 @@ router.post("/solution/remove-like", async (req, res, next) => {
    };
 
    try {
-      await Project.updateOne(
-         { "Issues.Solutions._id": solution_id },
-         {
-            $pull: {
-               "Issues.$.Solutions.$[solution].LikedBy": {
-                  UniqueUsername,
-               },
-            },
-         },
-         {
-            arrayFilters: [{ "solution._id": solution_id }],
-         }
+      await Issue.updateOne(
+         { "Solutions._id": solution_id },
+         { $pull: { "Solutions.$.LikedBy": { UniqueUsername } } }
       );
       return res.json({ status: "ok", data: "Like removed" });
    } catch (error) {

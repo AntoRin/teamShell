@@ -174,6 +174,7 @@ function EnvironmentPanel({ User, currentOrg }) {
                      projectDetails.Issues.map(issue => (
                         <IssueCard
                            key={issue._id}
+                           User={User}
                            issue={issue}
                            showContent={false}
                         />
