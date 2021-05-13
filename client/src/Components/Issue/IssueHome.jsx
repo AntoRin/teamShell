@@ -5,6 +5,7 @@ import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import SolutionEditor from "./SolutionEditor";
 import SolutionCard from "./SolutionCard";
 import IssueCard from "../User/IssueCard";
+import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/issue-home.css";
 
@@ -23,6 +24,10 @@ function IssueHome({ match, User }) {
    const [issueDetails, setIssueDetails] = useState("");
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+   const [actionStatus, setActionStatus] = useState({
+      type: "success",
+      info: null,
+   });
 
    const socket = useContext(SocketInstance);
 
@@ -69,23 +74,40 @@ function IssueHome({ match, User }) {
          <div className="issue-home-container">
             <div className="issue-home-contents-wrapper">
                <div className="issue-statement-description-main">
-                  <IssueCard issue={issueDetails} showContent={true} />
+                  <IssueCard
+                     User={User}
+                     issue={issueDetails}
+                     showContent={true}
+                     setActionStatus={setActionStatus}
+                     redirectOnDelete={true}
+                  />
                </div>
-               <div className="solutions-write-section">
+               {issueDetails.Active ? (
+                  <div className="solutions-write-section">
+                     <Typography
+                        className={classes.componentTitle}
+                        align="center"
+                        variant="h4"
+                        gutterBottom
+                     >
+                        Write your solution here
+                     </Typography>
+                     <SolutionEditor
+                        issueDetails={issueDetails}
+                        User={User}
+                        socket={socket}
+                     />
+                  </div>
+               ) : (
                   <Typography
                      className={classes.componentTitle}
                      align="center"
                      variant="h4"
                      gutterBottom
                   >
-                     Write your solution here
+                     Issue closed
                   </Typography>
-                  <SolutionEditor
-                     issueDetails={issueDetails}
-                     User={User}
-                     socket={socket}
-                  />
-               </div>
+               )}
                <div className="solutions-read-section">
                   {issueDetails.Solutions.length > 0
                      ? issueDetails.Solutions.map(solution => {
@@ -101,6 +123,12 @@ function IssueHome({ match, User }) {
                      : null}
                </div>
             </div>
+            {actionStatus.info && (
+               <StatusBar
+                  actionStatus={actionStatus}
+                  setActionStatus={setActionStatus}
+               />
+            )}
          </div>
       ) : (
          <h1>Something went wrong</h1>

@@ -98,7 +98,6 @@ const UserSchema = new Schema(
                type: [
                   {
                      IssueTitle: { type: String, required: true },
-                     ProjectContext: { type: String, required: true },
                   },
                ],
                default: [],
@@ -107,7 +106,6 @@ const UserSchema = new Schema(
                type: [
                   {
                      IssueTitle: { type: String, required: true },
-                     ProjectContext: { type: String, required: true },
                   },
                ],
                default: [],

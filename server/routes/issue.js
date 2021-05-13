@@ -57,7 +57,6 @@ router.post("/create", async (req, res, next) => {
       let userIssueContext = {
          _id: newIssueId,
          IssueTitle,
-         ProjectContext,
       };
 
       await User.updateOne(
@@ -72,6 +71,60 @@ router.post("/create", async (req, res, next) => {
       return res.json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
+      return next(error);
+   }
+});
+
+router.put("/bookmark", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { User_id, User_UniqueUsername, Issue_id, IssueTitle } = req.body;
+
+   let issue = {
+      _id: Issue_id,
+      IssueTitle,
+   };
+
+   try {
+      if (User_UniqueUsername !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+      await User.updateOne(
+         { _id: User_id, UniqueUsername },
+         { $push: { "Issues.Bookmarked": { $each: [issue], $position: 0 } } }
+      );
+      return res.json({ status: "ok", data: "Issue bookmarked" });
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.put("/bookmark/remove", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { User_id, User_UniqueUsername, Issue_id } = req.body;
+
+   try {
+      if (User_UniqueUsername !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+      await User.updateOne(
+         { _id: User_id, UniqueUsername },
+         { $pull: { "Issues.Bookmarked": { _id: Issue_id } } }
+      );
+      return res.json({ status: "ok", data: "Bookmark removed" });
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.put("/close", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { Issue_id } = req.body;
+
+   try {
+      let issue = await Issue.findOne({ _id: Issue_id });
+      if (issue.Creator.UniqueUsername !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+      await Issue.updateOne({ _id: Issue_id }, { $set: { Active: false } });
+      return res.json({ status: "ok", data: "Issue closed" });
+   } catch (error) {
       return next(error);
    }
 });

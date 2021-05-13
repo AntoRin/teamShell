@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 import SunEditor from "suneditor-react";
 import { makeStyles } from "@material-ui/core/styles";
@@ -64,13 +65,21 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function IssueCard({ User, issue, showContent, setActionStatus }) {
+function IssueCard({
+   User,
+   issue,
+   showContent,
+   setActionStatus,
+   redirectOnDelete = false,
+}) {
    const classes = useStyles();
    const [expanded, setExpanded] = useState(showContent);
    const [description, setDescription] = useState("");
    const [anchorEl, setAnchorEl] = useState(null);
 
    const editorRef = useRef();
+
+   const history = useHistory();
 
    useEffect(() => {
       if (editorRef.current) {
@@ -92,6 +101,33 @@ function IssueCard({ User, issue, showContent, setActionStatus }) {
       setAnchorEl(null);
    }
 
+   async function closeIssue() {
+      if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
+
+      let putOptions = {
+         method: "PUT",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+            Issue_id: issue._id,
+         }),
+      };
+
+      let updateStream = await fetch("/issue/close", putOptions);
+
+      let updateData = await updateStream.json();
+
+      if (updateData.status === "ok") {
+         setActionStatus({
+            type: "info",
+            info: "Issue closed",
+         });
+      } else
+         setActionStatus({
+            type: "error",
+            info: "There was an error closing the issue",
+         });
+   }
+
    async function deleteIssue() {
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
@@ -108,15 +144,48 @@ function IssueCard({ User, issue, showContent, setActionStatus }) {
       let deleteResponseStream = await fetch("/issue/delete", deleteOptions);
       let deleteData = await deleteResponseStream.json();
 
-      if (deleteData.status === "ok")
+      if (deleteData.status === "ok") {
+         if (redirectOnDelete === true) {
+            history.push("/user/environment");
+            return;
+         }
          setActionStatus({
             type: "success",
             info: "Issue successfully deleted",
          });
-      else
+      } else
          setActionStatus({
             type: "error",
-            info: "There was an error deleting the issue ",
+            info: "There was an error deleting the issue",
+         });
+   }
+
+   async function bookmarkIssue() {
+      let body = {
+         User_id: User._id,
+         User_UniqueUsername: User.UniqueUsername,
+         Issue_id: issue._id,
+         IssueTitle: issue.IssueTitle,
+      };
+
+      let putOptions = {
+         method: "PUT",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+      };
+
+      let bookmarkDataStream = await fetch("/issue/bookmark", putOptions);
+      let bookmarkData = await bookmarkDataStream.json();
+
+      if (bookmarkData.status === "ok") {
+         setActionStatus({
+            type: "info",
+            info: "Issue bookmarked",
+         });
+      } else
+         setActionStatus({
+            type: "error",
+            info: "There was an error saving the issue",
          });
    }
 
@@ -151,13 +220,9 @@ function IssueCard({ User, issue, showContent, setActionStatus }) {
                         open={Boolean(anchorEl)}
                         onClose={handleMoreOptionsClose}
                      >
-                        <MenuItem onClick={handleMoreOptionsClose}>
-                           Close Issue
-                        </MenuItem>
+                        <MenuItem onClick={closeIssue}>Close Issue</MenuItem>
                         <MenuItem onClick={deleteIssue}>Delete</MenuItem>
-                        <MenuItem onClick={handleMoreOptionsClose}>
-                           Bookmark
-                        </MenuItem>
+                        <MenuItem onClick={bookmarkIssue}>Bookmark</MenuItem>
                      </Menu>
                   </div>
                }

@@ -27,7 +27,7 @@ const app = express();
 const checkAuth = require("./middleware/checkAuth");
 const verifySocketIntegrity = require("./middleware/verifySocketIntegrity");
 
-app.use(express.json());
+app.use(express.json({ limit: 500000 }));
 app.use(
    cors({
       origin: "http://localhost:3000",
