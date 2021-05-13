@@ -79,8 +79,10 @@ router.put("/bookmark", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
    let { User_id, User_UniqueUsername, Issue_id, IssueTitle } = req.body;
 
+   let Issue_id_object = mongoose.mongo.ObjectId(Issue_id);
+
    let issue = {
-      _id: Issue_id,
+      _id: Issue_id_object,
       IssueTitle,
    };
 
@@ -101,12 +103,14 @@ router.put("/bookmark/remove", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
    let { User_id, User_UniqueUsername, Issue_id } = req.body;
 
+   let Issue_id_object = mongoose.mongo.ObjectId(Issue_id);
+
    try {
       if (User_UniqueUsername !== UniqueUsername)
          throw { name: "UnauthorizedRequest" };
       await User.updateOne(
          { _id: User_id, UniqueUsername },
-         { $pull: { "Issues.Bookmarked": { _id: Issue_id } } }
+         { $pull: { "Issues.Bookmarked": { _id: Issue_id_object } } }
       );
       return res.json({ status: "ok", data: "Bookmark removed" });
    } catch (error) {

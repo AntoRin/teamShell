@@ -76,6 +76,7 @@ function IssueCard({
    const [expanded, setExpanded] = useState(showContent);
    const [description, setDescription] = useState("");
    const [anchorEl, setAnchorEl] = useState(null);
+   const [userBookmarked, setUserBookmarked] = useState(false);
 
    const editorRef = useRef();
 
@@ -88,6 +89,13 @@ function IssueCard({
          );
       }
    }, [expanded, issue.IssueDescription]);
+
+   useEffect(() => {
+      let bookmarked = User.Issues.Bookmarked.find(
+         bookmark => bookmark._id === issue._id
+      );
+      bookmarked ? setUserBookmarked(true) : setUserBookmarked(false);
+   }, [User.Issues.Bookmarked, issue._id]);
 
    function handleExpandClick() {
       setExpanded(prev => !prev);
@@ -161,6 +169,7 @@ function IssueCard({
    }
 
    async function bookmarkIssue() {
+      if (userBookmarked) return;
       let body = {
          User_id: User._id,
          User_UniqueUsername: User.UniqueUsername,
@@ -182,10 +191,44 @@ function IssueCard({
             type: "info",
             info: "Issue bookmarked",
          });
+         setUserBookmarked(true);
       } else
          setActionStatus({
             type: "error",
             info: "There was an error saving the issue",
+         });
+   }
+
+   async function removeBookmark() {
+      if (!userBookmarked) return;
+      let body = {
+         User_id: User._id,
+         User_UniqueUsername: User.UniqueUsername,
+         Issue_id: issue._id,
+      };
+
+      let putOptions = {
+         method: "PUT",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(body),
+      };
+
+      let bookmarkDataStream = await fetch(
+         "/issue/bookmark/remove",
+         putOptions
+      );
+      let bookmarkData = await bookmarkDataStream.json();
+
+      if (bookmarkData.status === "ok") {
+         setActionStatus({
+            type: "info",
+            info: "Bookmark removed",
+         });
+         setUserBookmarked(false);
+      } else
+         setActionStatus({
+            type: "error",
+            info: "There was an error removing the bookmark",
          });
    }
 
@@ -222,7 +265,13 @@ function IssueCard({
                      >
                         <MenuItem onClick={closeIssue}>Close Issue</MenuItem>
                         <MenuItem onClick={deleteIssue}>Delete</MenuItem>
-                        <MenuItem onClick={bookmarkIssue}>Bookmark</MenuItem>
+                        {userBookmarked ? (
+                           <MenuItem onClick={removeBookmark}>
+                              Remove Bookmark
+                           </MenuItem>
+                        ) : (
+                           <MenuItem onClick={bookmarkIssue}>Bookmark</MenuItem>
+                        )}
                      </Menu>
                   </div>
                }

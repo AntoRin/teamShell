@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import { Button } from "@material-ui/core";
+import { ButtonGroup } from "@material-ui/core";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import DetailCard from "./DetailCard";
 import StatusBar from "../UtilityComponents/StatusBar";
@@ -13,6 +14,7 @@ function UserProfile({ location, match, User }) {
    const [owner, setOwner] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
    const [query, setQuery] = useState("");
+   const [issueTabType, setIssueTabType] = useState("created");
    const [actionStatus, setActionStatus] = useState({
       type: "success",
       info: null,
@@ -87,6 +89,10 @@ function UserProfile({ location, match, User }) {
    function goToUpdate() {
       let updateTab = location.pathname + "?tab=update";
       history.push(updateTab);
+   }
+
+   function handleIssuesTabFilter(event) {
+      setIssueTabType(event.target.innerText.toLowerCase());
    }
 
    async function handleImageUpload(event) {
@@ -213,17 +219,50 @@ function UserProfile({ location, match, User }) {
       } else if (query === "issues") {
          return (
             <>
-               <div className="issues-tab-list">
-                  {Profile.Issues.Created.map((issue, index) => {
-                     return (
-                        <DetailCard
-                           key={index}
-                           header={issue.IssueTitle}
-                           detail=""
-                        />
-                     );
-                  })}
+               <div className="issues-tab-select">
+                  <ButtonGroup>
+                     <Button
+                        onClick={handleIssuesTabFilter}
+                        variant="outlined"
+                        color="secondary"
+                     >
+                        Created
+                     </Button>
+                     <Button
+                        onClick={handleIssuesTabFilter}
+                        variant="outlined"
+                        color="secondary"
+                     >
+                        Bookmarked
+                     </Button>
+                  </ButtonGroup>
                </div>
+               {issueTabType === "created" && (
+                  <div className="issues-tab-list">
+                     {Profile.Issues.Created.map((issue, index) => {
+                        return (
+                           <DetailCard
+                              key={index}
+                              header={issue.IssueTitle}
+                              detail=""
+                           />
+                        );
+                     })}
+                  </div>
+               )}
+               {issueTabType === "bookmarked" && (
+                  <div className="issues-tab-list">
+                     {Profile.Issues.Bookmarked.map((issue, index) => {
+                        return (
+                           <DetailCard
+                              key={index}
+                              header={issue.IssueTitle}
+                              detail=""
+                           />
+                        );
+                     })}
+                  </div>
+               )}
             </>
          );
       } else if (query === "update") {
