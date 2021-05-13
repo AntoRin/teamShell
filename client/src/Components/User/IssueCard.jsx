@@ -19,7 +19,6 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import { readonly_editor_config } from "../../config/editor_config";
-import StatusBar from "../UtilityComponents/StatusBar";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
 
@@ -65,15 +64,11 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function IssueCard({ User, issue, showContent }) {
+function IssueCard({ User, issue, showContent, setActionStatus }) {
    const classes = useStyles();
    const [expanded, setExpanded] = useState(showContent);
    const [description, setDescription] = useState("");
    const [anchorEl, setAnchorEl] = useState(null);
-   const [actionStatus, setActionStatus] = useState({
-      type: "success",
-      info: null,
-   });
 
    const editorRef = useRef();
 
@@ -204,12 +199,6 @@ function IssueCard({ User, issue, showContent }) {
                </CardContent>
             </Collapse>
          </Card>
-         {actionStatus.info && (
-            <StatusBar
-               actionStatus={actionStatus}
-               setActionStatus={setActionStatus}
-            />
-         )}
       </div>
    );
 }

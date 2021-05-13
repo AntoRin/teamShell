@@ -16,6 +16,9 @@ const upload = multer({
          cb(new Error("Error parsing file"), false);
       else cb(null, true);
    },
+   limits: {
+      fileSize: 500000,
+   },
 });
 const imageParser = upload.single("profileImage");
 
@@ -105,7 +108,7 @@ router.post("/notifications", async (req, res, next) => {
                metaData.target_category === "Solution"
             ) {
                let issue = await Issue.findOne({
-                  IssueName: metaData.target_name,
+                  IssueTitle: metaData.target_name,
                });
 
                userPersonalLink = `/issue/${issue._id}`;

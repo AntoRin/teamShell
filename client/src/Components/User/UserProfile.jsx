@@ -111,7 +111,7 @@ function UserProfile({ location, match, User }) {
 
       uploadResponse.status === "ok"
          ? setActionStatus({ type: "success", info: "Profile Image updated" })
-         : setActionStatus({ type: "error", info: "Error uploading image" });
+         : setActionStatus({ type: "error", info: uploadResponse.error });
    }
 
    async function handleProfileUpdate(event) {
@@ -128,8 +128,15 @@ function UserProfile({ location, match, User }) {
       };
       let updateRequest = await fetch("/profile/edit", updateOptions);
       let updateResponse = await updateRequest.json();
-      if (updateResponse.status === "ok")
-         window.location.href = window.location.origin + location.pathname;
+      updateResponse.status === "ok"
+         ? setActionStatus({
+              type: "success",
+              info: "Profile successfully updated",
+           })
+         : setActionStatus({
+              type: "error",
+              info: "There was an error updating your profile",
+           });
    }
 
    function handleCancelUpdate() {

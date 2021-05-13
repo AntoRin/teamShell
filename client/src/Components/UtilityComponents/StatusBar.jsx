@@ -40,7 +40,7 @@ function StatusBar({ actionStatus, setActionStatus }) {
       <div className={classes.root}>
          <Snackbar
             open={snackbarOpen}
-            autoHideDuration={5000}
+            autoHideDuration={3000}
             onClose={handleSnackbarClose}
          >
             <Alert onClose={handleSnackbarClose} severity={actionStatus.type}>

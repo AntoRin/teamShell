@@ -8,6 +8,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
+import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/environment-panel.css";
 
@@ -33,6 +34,10 @@ function EnvironmentPanel({ User, currentOrg }) {
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+   const [actionStatus, setActionStatus] = useState({
+      type: "success",
+      info: null,
+   });
 
    const socket = useContext(SocketInstance);
 
@@ -177,11 +182,18 @@ function EnvironmentPanel({ User, currentOrg }) {
                            User={User}
                            issue={issue}
                            showContent={false}
+                           setActionStatus={setActionStatus}
                         />
                      ))}
                </div>
             </div>
          </div>
+         {actionStatus.info && (
+            <StatusBar
+               actionStatus={actionStatus}
+               setActionStatus={setActionStatus}
+            />
+         )}
       </div>
    ) : (
       <LinearLoader />

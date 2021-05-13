@@ -5,14 +5,23 @@ function errorHandler(error, req, res, next) {
          return res
             .status(400)
             .json({ status: "error", error: "User already exists" });
-      case "AuthFailure":
-         return res
-            .status(401)
-            .json({ status: "error", error: "Invalid credentials" });
+      case "MulterError":
+         return error.code === "LIMIT_FILE_SIZE"
+            ? res.status(413).json({
+                 status: "error",
+                 error: "File size too large; try uploading an image with size less than 0.5MB",
+              })
+            : res
+                 .status(500)
+                 .json({ status: "error", error: "Error uploading file" });
       case "JsonWebTokenError":
          return res
             .status(401)
             .json({ status: "error", error: "You need to be logged in" });
+      case "AuthFailure":
+         return res
+            .status(401)
+            .json({ status: "error", error: "Invalid credentials" });
       case "UnknownData":
          return res.status(400).json({
             status: "error",
