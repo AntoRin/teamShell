@@ -1,5 +1,5 @@
 function errorHandler(error, req, res, next) {
-   console.log(error);
+   console.log(error.name);
    switch (error.name) {
       case "MongoError":
          return res

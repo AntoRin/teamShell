@@ -99,7 +99,6 @@ mongoose.connect(
 
             ProjectStatus.on("change", diff => {
                if (diff.operationType === "update") {
-                  console.log(diff.updateDescription.updatedFields);
                   io.to(socket.id).emit("project-data-change");
                }
             });

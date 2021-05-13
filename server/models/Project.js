@@ -29,7 +29,7 @@ const ProjectSchema = new Schema(
          default: [],
       },
    },
-   { timestamps: true }
+   { timestamps: true, strictQuery: "throw" }
 );
 
 const Project = model("Project", ProjectSchema, "Projects");

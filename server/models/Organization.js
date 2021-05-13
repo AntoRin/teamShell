@@ -26,7 +26,7 @@ const OrganizationSchema = new Schema(
          default: [],
       },
    },
-   { timestamps: true }
+   { timestamps: true, strictQuery: "throw" }
 );
 
 const Organization = mongoose.model(

@@ -1,36 +1,9 @@
 const { Router } = require("express");
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const Project = require("../models/Project");
 const Issue = require("../models/Issue");
 const router = Router();
-
-router.get("/details/all/:project", async (req, res, next) => {
-   let ProjectName = req.params.project;
-   try {
-      let aggregationPipeline = [
-         {
-            $match: {
-               ProjectName,
-            },
-         },
-         {
-            $lookup: {
-               from: "Issues",
-               localField: "IssuesRef",
-               foreignField: "_id",
-               as: "AllIssues",
-            },
-         },
-      ];
-
-      let { AllIssues } = await Project.aggregate(aggregationPipeline);
-
-      return res.json({ status: "ok", Issues: AllIssues });
-   } catch (error) {
-      console.log(error);
-      return next(error);
-   }
-});
 
 router.get("/details/:IssueID", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
@@ -106,15 +79,24 @@ router.post("/create", async (req, res, next) => {
 router.delete("/delete", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
    let { Issue_id, Project_id } = req.body;
+   let issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
 
    try {
       let issue = await Issue.findOne({ _id: Issue_id });
       if (issue.Creator.UniqueUsername !== UniqueUsername)
          throw { name: "UnauthorizedRequest" };
-      await Issue.deleteOne({ _id: Issue_id });
-      let deleteStatus = await Project.updateOne(
+      await Issue.deleteOne({ _id: issue_id_object });
+      await Project.updateOne(
          { _id: Project_id },
-         { $pull: { IssuesRef: Issue_id } }
+         { $pull: { IssuesRef: issue_id_object } }
+      );
+      await User.updateOne(
+         { UniqueUsername },
+         {
+            $pull: {
+               "Issues.Created": { _id: issue_id_object },
+            },
+         }
       );
       return res.json({ status: "ok", data: "Issue deleted" });
    } catch (error) {
@@ -158,7 +140,7 @@ router.post("/solution/create", async (req, res, next) => {
          { UniqueUsername, Email },
          {
             $push: {
-               "Solutions.Created": {
+               Solutions: {
                   $each: [UserSolutionContext],
                   $position: 0,
                },

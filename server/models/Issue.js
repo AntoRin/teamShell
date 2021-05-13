@@ -74,7 +74,7 @@ const issueSchema = new Schema(
          default: [],
       },
    },
-   { timestamps: true }
+   { timestamps: true, strictQuery: "throw" }
 );
 
 const Issue = mongoose.model("Issues", issueSchema, "Issues");

@@ -70,15 +70,15 @@ router.get("/details/:ProjectName", async (req, res, next) => {
                },
                pipeline: [
                   {
-                     $sort: {
-                        createdAt: -1,
+                     $match: {
+                        $expr: {
+                           $in: ["$_id", "$$ids"],
+                        },
                      },
                   },
                   {
-                     $match: {
-                        $expr: {
-                           _id: "$$ids",
-                        },
+                     $sort: {
+                        createdAt: -1,
                      },
                   },
                ],

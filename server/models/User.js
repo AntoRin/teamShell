@@ -103,43 +103,38 @@ const UserSchema = new Schema(
                ],
                default: [],
             },
+            Bookmarked: {
+               type: [
+                  {
+                     IssueTitle: { type: String, required: true },
+                     ProjectContext: { type: String, required: true },
+                  },
+               ],
+               default: [],
+            },
          },
          default: {
             Created: [],
+            Bookmarked: [],
          },
       },
       Solutions: {
-         type: {
-            Created: {
-               type: [
-                  {
-                     _id: { type: mongoose.Types.ObjectId, required: true },
-                     IssueContext: {
-                        type: {
-                           _id: mongoose.Types.ObjectId,
-                           IssueTitle: String,
-                        },
-                        required: true,
-                     },
+         type: [
+            {
+               _id: { type: mongoose.Types.ObjectId, required: true },
+               IssueContext: {
+                  type: {
+                     _id: mongoose.Types.ObjectId,
+                     IssueTitle: String,
                   },
-               ],
+                  required: true,
+               },
             },
-            Liked: {
-               type: [
-                  {
-                     type: mongoose.Types.ObjectId,
-                     ref: "Projects.Issues.Solutions",
-                  },
-               ],
-            },
-         },
-         default: {
-            Created: [],
-            Following: [],
-         },
+         ],
+         default: [],
       },
    },
-   { timestamps: true }
+   { timestamps: true, strictQuery: "throw" }
 );
 
 const User = mongoose.model("User", UserSchema, "Users");
