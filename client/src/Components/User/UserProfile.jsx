@@ -217,7 +217,7 @@ function UserProfile({ location, match, User }) {
             </>
          );
       } else if (query === "issues") {
-         return (
+         return owner ? (
             <>
                <div className="issues-tab-select">
                   <ButtonGroup>
@@ -264,6 +264,10 @@ function UserProfile({ location, match, User }) {
                   </div>
                )}
             </>
+         ) : (
+            <Typography color="secondary" variant="h4">
+               Issues are private
+            </Typography>
          );
       } else if (query === "update") {
          if (!owner) {
@@ -408,6 +412,11 @@ function UserProfile({ location, match, User }) {
                            Edit Profile
                         </button>
                      </div>
+                  )}
+                  {!owner && (
+                     <Button variant="outlined" color="primary">
+                        Message
+                     </Button>
                   )}
                </div>
                <div className="profile-details-section">{tabComponent()}</div>

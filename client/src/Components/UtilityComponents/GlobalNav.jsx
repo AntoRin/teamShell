@@ -24,15 +24,19 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       let abortFetch = new AbortController();
 
       async function changeNotificationSeenStatus() {
-         let responseStream = await fetch("/profile/notifications/seen", {
-            credentials: "include",
-            signal: abortFetch.signal,
-         });
+         try {
+            let responseStream = await fetch("/profile/notifications/seen", {
+               credentials: "include",
+               signal: abortFetch.signal,
+            });
 
-         let responseData = await responseStream.json();
-         console.log(responseData);
+            let responseData = await responseStream.json();
+            console.log(responseData);
+         } catch (error) {
+            console.log(error);
+            return;
+         }
       }
-
       changeNotificationSeenStatus();
 
       return () => abortFetch.abort();
@@ -131,7 +135,9 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
                      {searchResults.map(result => {
                         return (
                            <div key={result} className="search-list-element">
-                              {result}
+                              <Link to={`/user/profile/${result}`}>
+                                 {result}
+                              </Link>
                            </div>
                         );
                      })}

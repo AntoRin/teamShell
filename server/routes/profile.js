@@ -23,13 +23,26 @@ const upload = multer({
 const imageParser = upload.single("profileImage");
 
 router.get("/details/:UniqueUsername", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
    let requestedUser = req.params.UniqueUsername;
 
    try {
-      let { _doc } = await User.findOne({
-         UniqueUsername: requestedUser,
-      });
-      let { Password, _id, ...user } = _doc;
+      let { _doc } = await User.findOne(
+         {
+            UniqueUsername: requestedUser,
+         },
+         { Password: 0, updatedAt: 0, Notifications: 0 }
+      );
+
+      let user;
+
+      if (UniqueUsername === requestedUser) {
+         user = _doc;
+      } else {
+         let { Issues, Solutions, ...restrictedAccessData } = _doc;
+         user = restrictedAccessData;
+      }
+
       if (user) return res.json({ status: "ok", user });
       else throw { name: "UnknownData" };
    } catch (error) {
