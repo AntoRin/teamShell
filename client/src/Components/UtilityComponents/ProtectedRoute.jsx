@@ -2,7 +2,7 @@ import React, { useState, useEffect, createContext } from "react";
 import { Route, Redirect } from "react-router-dom";
 import io from "socket.io-client";
 import { ComponentLoader } from "./SkeletonLoader";
-import GlobalNav from "./GlobalNav";
+import GlobalWrapper from "./GlobalWrapper";
 
 export const SocketInstance = createContext();
 
@@ -70,15 +70,12 @@ function ProtectedRoute({ component: Component, ...props }) {
                render={componentProps => {
                   return (
                      <>
-                        <GlobalNav
+                        <GlobalWrapper
                            UniqueUsername={User.UniqueUsername}
                            ProfileImage={User.ProfileImage}
-                        />
-                        <Component
-                           {...componentProps}
-                           GlobalNav={GlobalNav}
-                           User={User}
-                        />
+                        >
+                           <Component {...componentProps} User={User} />
+                        </GlobalWrapper>
                      </>
                   );
                }}

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 function verifySocketIntegrity(socket, next) {
    try {
       let thisUser = jwt.verify(socket.authToken, process.env.JWT_SECRET);
-      console.log("user verified");
+
       return next();
    } catch (error) {
       let err = new Error(error.message);

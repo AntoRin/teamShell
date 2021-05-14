@@ -1,11 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const redis = require("redis");
 const socketio = require("socket.io");
 const path = require("path");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const cookie = require("cookie");
 require("dotenv").config();
+
+//Redis
+const redisClient = redis.createClient({
+   password: process.env.REDIS_PASSWORD,
+});
 
 //Routes
 const authRoute = require("./routes/auth");
@@ -60,12 +66,13 @@ mongoose.connect(
       useCreateIndex: true,
       useFindAndModify: false,
    },
-   (err, connection) => {
+   err => {
       if (err) return console.log(err);
       else {
-         console.log("Database connection established");
+         console.log("[server] Database connection established");
+
          let server = app.listen(port, () =>
-            console.log(`Listening on port ${port}`)
+            console.log(`[server] Listening on port ${port}`)
          );
 
          let io = socketio(server, {
