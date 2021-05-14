@@ -136,6 +136,33 @@ function IssueCard({
          });
    }
 
+   async function reopenIssue() {
+      if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
+
+      let putOptions = {
+         method: "PUT",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+            Issue_id: issue._id,
+         }),
+      };
+
+      let updateStream = await fetch("/issue/reopen", putOptions);
+
+      let updateData = await updateStream.json();
+
+      if (updateData.status === "ok") {
+         setActionStatus({
+            type: "info",
+            info: "Issue reopened",
+         });
+      } else
+         setActionStatus({
+            type: "error",
+            info: "There was an error reopening the issue",
+         });
+   }
+
    async function deleteIssue() {
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
@@ -263,14 +290,28 @@ function IssueCard({
                         open={Boolean(anchorEl)}
                         onClose={handleMoreOptionsClose}
                      >
-                        <MenuItem onClick={closeIssue}>Close Issue</MenuItem>
-                        <MenuItem onClick={deleteIssue}>Delete</MenuItem>
+                        {User.UniqueUsername ===
+                        issue.Creator.UniqueUsername ? (
+                           issue.Active ? (
+                              <MenuItem onClick={closeIssue}>
+                                 Close Issue
+                              </MenuItem>
+                           ) : (
+                              <MenuItem onClick={reopenIssue}>
+                                 Reopen Issue
+                              </MenuItem>
+                           )
+                        ) : null}
                         {userBookmarked ? (
                            <MenuItem onClick={removeBookmark}>
                               Remove Bookmark
                            </MenuItem>
                         ) : (
                            <MenuItem onClick={bookmarkIssue}>Bookmark</MenuItem>
+                        )}
+                        {User.UniqueUsername ===
+                           issue.Creator.UniqueUsername && (
+                           <MenuItem onClick={deleteIssue}>Delete</MenuItem>
                         )}
                      </Menu>
                   </div>

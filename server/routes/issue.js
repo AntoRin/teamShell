@@ -89,6 +89,15 @@ router.put("/bookmark", async (req, res, next) => {
    try {
       if (User_UniqueUsername !== UniqueUsername)
          throw { name: "UnauthorizedRequest" };
+      let user = await User.findOne({ UniqueUsername, _id: User_id });
+      if (!user) throw { name: "UnauthorizedRequest" };
+
+      let bookmarked = user.Issues.Bookmarked.find(
+         bookmark => bookmark._id.toString() === Issue_id_object.toString()
+      );
+
+      if (bookmarked) throw { name: "SilentEnd" };
+
       await User.updateOne(
          { _id: User_id, UniqueUsername },
          { $push: { "Issues.Bookmarked": { $each: [issue], $position: 0 } } }
@@ -108,6 +117,14 @@ router.put("/bookmark/remove", async (req, res, next) => {
    try {
       if (User_UniqueUsername !== UniqueUsername)
          throw { name: "UnauthorizedRequest" };
+      let user = await User.findOne({ UniqueUsername, _id: User_id });
+      if (!user) throw { name: "UnauthorizedRequest" };
+
+      let bookmarked = user.Issues.Bookmarked.find(
+         bookmark => bookmark._id.toString() === Issue_id_object.toString()
+      );
+
+      if (!bookmarked) throw { name: "SilentEnd" };
       await User.updateOne(
          { _id: User_id, UniqueUsername },
          { $pull: { "Issues.Bookmarked": { _id: Issue_id_object } } }
@@ -126,7 +143,24 @@ router.put("/close", async (req, res, next) => {
       let issue = await Issue.findOne({ _id: Issue_id });
       if (issue.Creator.UniqueUsername !== UniqueUsername)
          throw { name: "UnauthorizedRequest" };
+      if (!issue.Active) throw { name: "SilentEnd" };
       await Issue.updateOne({ _id: Issue_id }, { $set: { Active: false } });
+      return res.json({ status: "ok", data: "Issue closed" });
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.put("/reopen", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { Issue_id } = req.body;
+
+   try {
+      let issue = await Issue.findOne({ _id: Issue_id });
+      if (issue.Creator.UniqueUsername !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+      if (issue.Active) throw { name: "SilentEnd" };
+      await Issue.updateOne({ _id: Issue_id }, { $set: { Active: true } });
       return res.json({ status: "ok", data: "Issue closed" });
    } catch (error) {
       return next(error);
