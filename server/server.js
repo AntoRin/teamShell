@@ -136,6 +136,9 @@ mongoose.connect(
             //Chat
             socket.on("message", async data => {
                let { from, to, content } = data;
+
+               if (from !== socket.userName) return;
+
                let sender = await redisGetAsync(from);
                let recipient = await redisGetAsync(to);
 
@@ -164,9 +167,14 @@ mongoose.connect(
                );
 
                if (recipient) {
-                  io.to(sender).to(recipient).emit("new-message", newChat);
+                  io.to(sender)
+                     .to(recipient)
+                     .emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
                } else {
-                  io.to(sender).emit("new-message", newChat);
+                  io.to(sender).emit(
+                     `new-message-${sorter[0]}${sorter[1]}`,
+                     newChat
+                  );
                }
             });
          });

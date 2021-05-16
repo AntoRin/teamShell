@@ -316,7 +316,11 @@ function IssueCard({
                      </Menu>
                   </div>
                }
-               title={issue.Creator.UniqueUsername}
+               title={
+                  <Link to={`/user/profile/${issue.Creator.UniqueUsername}`}>
+                     {issue.Creator.UniqueUsername}
+                  </Link>
+               }
                subheader={formatDate(issue.createdAt)}
             />
             <CardMedia className={classes.media}>

@@ -3,6 +3,7 @@ import { Button, makeStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import MinimizeIcon from "@material-ui/icons/Minimize";
 import SendIcon from "@material-ui/icons/Send";
+import CropSquareIcon from "@material-ui/icons/CropSquare";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import "../../styles/chatbox.css";
 
@@ -17,6 +18,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
 
    const [allChat, setAllChat] = useState([]);
    const [message, setMessage] = useState("");
+   const [minimized, setMinimized] = useState(false);
 
    const socket = useContext(SocketInstance);
 
@@ -29,6 +31,8 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
             recipient: null,
          });
       }
+
+      return () => setChatSettings({ open: false, recipient: null });
    }, [chatSettings, setChatSettings]);
 
    useEffect(() => {
@@ -58,22 +62,29 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
    }, [chatSettings.recipient, User.UniqueUsername]);
 
    useEffect(() => {
-      socket.on("new-message", messageData => {
+      let sorter = [User.UniqueUsername, chatSettings.recipient];
+      sorter.sort();
+      socket.on(`new-message-${sorter[0]}${sorter[1]}`, messageData => {
          setAllChat(prev => [...prev, messageData.Messages[0]]);
       });
 
       return () => socket.off("message");
-   }, [socket]);
+   }, [socket, User.UniqueUsername, chatSettings.recipient]);
 
    useEffect(() => {
-      chatRef.current.scrollTop += chatRef.current.scrollHeight;
-   }, [allChat]);
+      if (chatRef.current)
+         chatRef.current.scrollTop += chatRef.current.scrollHeight;
+   }, [allChat, minimized]);
 
    function closeChat() {
       setChatSettings({
          open: false,
          recipient: null,
       });
+   }
+
+   function toggleWindowMinimize() {
+      setMinimized(prev => !prev);
    }
 
    function handleInputChange(event) {
@@ -94,10 +105,13 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
       setMessage("");
    }
 
-   return (
+   return !minimized ? (
       <div className="chatbox-container">
          <div className="chatbox-controls">
-            <MinimizeIcon className={classes.toolIcon} />
+            <MinimizeIcon
+               className={classes.toolIcon}
+               onClick={toggleWindowMinimize}
+            />
             <CloseIcon className={classes.toolIcon} onClick={closeChat} />
          </div>
          <div ref={chatRef} className="chat-messages-display">
@@ -115,7 +129,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                         <div
                            className={
                               data.from === User.UniqueUsername
-                                 ? "right-flex message-content-wrapper"
+                                 ? "right-flex message-content-wrapper message-special"
                                  : "left-flex message-content-wrapper"
                            }
                         >
@@ -142,6 +156,15 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                </form>
             </div>
          </div>
+      </div>
+   ) : (
+      <div className="chatbox-min-controls">
+         <CropSquareIcon
+            fontSize="small"
+            className={classes.toolIcon}
+            onClick={toggleWindowMinimize}
+         />
+         <CloseIcon className={classes.toolIcon} onClick={closeChat} />
       </div>
    );
 }
