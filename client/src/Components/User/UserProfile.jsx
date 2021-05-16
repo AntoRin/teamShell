@@ -9,7 +9,7 @@ import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/user-profile.css";
 
-function UserProfile({ location, match, User }) {
+function UserProfile({ location, match, User, setChatSettings }) {
    const [Profile, setProfile] = useState({});
    const [owner, setOwner] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
@@ -143,6 +143,13 @@ function UserProfile({ location, match, User }) {
               type: "error",
               info: "There was an error updating your profile",
            });
+   }
+
+   function initiateChat() {
+      setChatSettings({
+         open: true,
+         recipient: Profile.UniqueUsername,
+      });
    }
 
    function handleCancelUpdate() {
@@ -414,7 +421,11 @@ function UserProfile({ location, match, User }) {
                      </div>
                   )}
                   {!owner && (
-                     <Button variant="outlined" color="primary">
+                     <Button
+                        onClick={initiateChat}
+                        variant="outlined"
+                        color="primary"
+                     >
                         Message
                      </Button>
                   )}

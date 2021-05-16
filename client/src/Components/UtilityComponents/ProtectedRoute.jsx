@@ -12,6 +12,10 @@ function ProtectedRoute({ component: Component, ...props }) {
    const [authenticated, setAuthenticated] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
    const [socket, setSocket] = useState("");
+   const [chatSettings, setChatSettings] = useState({
+      open: false,
+      recipient: null,
+   });
 
    useEffect(() => {
       setSocket(
@@ -78,9 +82,16 @@ function ProtectedRoute({ component: Component, ...props }) {
                         <Component
                            {...componentProps}
                            GlobalNav={GlobalNav}
+                           setChatSettings={setChatSettings}
                            User={User}
                         />
-                        <ChatBox />
+                        {chatSettings.open && (
+                           <ChatBox
+                              User={User}
+                              chatSettings={chatSettings}
+                              setChatSettings={setChatSettings}
+                           />
+                        )}
                      </>
                   );
                }}

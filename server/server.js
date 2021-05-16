@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const redis = require("redis");
 const socketio = require("socket.io");
 const path = require("path");
 const cors = require("cors");
@@ -9,9 +8,12 @@ const cookie = require("cookie");
 require("dotenv").config();
 
 //Redis
-const redisClient = redis.createClient({
-   password: process.env.REDIS_PASSWORD,
-});
+const {
+   redisClient,
+   redisGetAsync,
+   redisSetAsync,
+   redisDelAsync,
+} = require("./redisConfig");
 
 //Routes
 const authRoute = require("./routes/auth");
@@ -19,6 +21,7 @@ const profileRoute = require("./routes/profile");
 const organizationRoute = require("./routes/organization");
 const projectRoute = require("./routes/project");
 const issueRoute = require("./routes/issue");
+const chatRoute = require("./routes/chat");
 
 const errorHandler = require("./utils/errorHandler");
 
@@ -26,6 +29,7 @@ const errorHandler = require("./utils/errorHandler");
 const User = require("./models/User");
 const Project = require("./models/Project");
 const Issue = require("./models/Issue");
+const Chat = require("./models/Chat");
 
 const app = express();
 
@@ -48,6 +52,7 @@ app.use("/profile", checkAuth, profileRoute);
 app.use("/organization", checkAuth, organizationRoute);
 app.use("/project", checkAuth, projectRoute);
 app.use("/issue", checkAuth, issueRoute);
+app.use("/chat", checkAuth, chatRoute);
 app.use("*", (req, res) => {
    res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
@@ -84,7 +89,15 @@ mongoose.connect(
          });
 
          io.use((socket, next) => {
-            socket.on("disconnect", () => console.log("Disconnected"));
+            socket.on("disconnect", async () => {
+               console.log("Disconnected");
+               try {
+                  await redisDelAsync(socket.userName);
+               } catch (error) {
+                  console.log(error);
+               }
+            });
+
             let unParsedCookies = socket.handshake.headers.cookie;
             let allCookies = cookie.parse(unParsedCookies);
             let token = allCookies.token;
@@ -94,8 +107,14 @@ mongoose.connect(
 
          io.use(verifySocketIntegrity);
 
-         io.on("connection", socket => {
-            console.log("Connected: ", socket.id);
+         io.on("connection", async socket => {
+            console.log("Connected: " + socket.id);
+            try {
+               await redisSetAsync(socket.userName, socket.id);
+            } catch (error) {
+               console.log(error);
+            }
+
             let UserStatus = User.watch();
             let ProjectStatus = Project.watch();
             let IssueStatus = Issue.watch();
@@ -112,6 +131,38 @@ mongoose.connect(
 
             IssueStatus.on("change", () => {
                io.to(socket.id).emit("issue-data-change");
+            });
+
+            //Chat
+            socket.on("message", async data => {
+               let { from, to, content } = data;
+               let sender = await redisGetAsync(from);
+               let recipient = await redisGetAsync(to);
+
+               let sorter = [from, to];
+               sorter.sort();
+
+               let messageData = {
+                  Messages: {
+                     from,
+                     to,
+                     content,
+                  },
+               };
+
+               let newChat = await Chat.findOneAndUpdate(
+                  { ChatID: sorter[0] + sorter[1] },
+                  {
+                     $push: {
+                        Messages: { $each: [messageData], $position: 0 },
+                     },
+                  },
+                  { returnOriginal: false }
+               );
+
+               if (recipient) {
+                  io.to(sender).to(recipient).emit("new-message", newChat);
+               }
             });
          });
       }
