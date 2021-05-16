@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Button, makeStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import MinimizeIcon from "@material-ui/icons/Minimize";
@@ -15,11 +15,12 @@ const useStyles = makeStyles({
 function ChatBox({ User, chatSettings, setChatSettings }) {
    const classes = useStyles();
 
-   const [recipientData, setRecipientData] = useState(null);
    const [allChat, setAllChat] = useState([]);
    const [message, setMessage] = useState("");
 
    const socket = useContext(SocketInstance);
+
+   const chatRef = useRef();
 
    useEffect(() => {
       if (!chatSettings.recipient) {
@@ -31,37 +32,12 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
    }, [chatSettings, setChatSettings]);
 
    useEffect(() => {
-      const abortFetch = new AbortController();
-
-      async function getRecipientData() {
-         try {
-            let dataStream = await fetch(
-               `/profile/details/${chatSettings.recipient}`,
-               {
-                  signal: abortFetch.signal,
-               }
-            );
-            let data = await dataStream.json();
-            return data
-               ? setRecipientData(data)
-               : setChatSettings({ open: false, recipient: null });
-         } catch (error) {
-            console.log(error);
-            return;
-         }
-      }
-      getRecipientData();
-
-      return () => abortFetch.abort();
-   }, [chatSettings, setChatSettings]);
-
-   useEffect(() => {
       let abortFetch = new AbortController();
 
       async function getChat() {
-         if (!recipientData) return;
+         if (!chatSettings.recipient) return;
          let User1 = User.UniqueUsername;
-         let User2 = recipientData.user.UniqueUsername;
+         let User2 = chatSettings.recipient;
 
          try {
             let responseStream = await fetch(
@@ -69,8 +45,9 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                { signal: abortFetch.signal }
             );
             let responseData = await responseStream.json();
-            let chat = responseData.data;
-            setAllChat(chat);
+            let chat = responseData.data.Messages;
+            let chatLatest = chat.reverse();
+            setAllChat(chatLatest);
          } catch (error) {
             console.log(error);
          }
@@ -78,16 +55,19 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
       getChat();
 
       return () => abortFetch.abort();
-   }, [recipientData, User.UniqueUsername]);
+   }, [chatSettings.recipient, User.UniqueUsername]);
 
    useEffect(() => {
       socket.on("new-message", messageData => {
-         console.log(messageData.content);
-         setAllChat(prev => [...prev, messageData]);
+         setAllChat(prev => [...prev, messageData.Messages[0]]);
       });
 
       return () => socket.off("message");
    }, [socket]);
+
+   useEffect(() => {
+      chatRef.current.scrollTop += chatRef.current.scrollHeight;
+   }, [allChat]);
 
    function closeChat() {
       setChatSettings({
@@ -103,13 +83,15 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
    function handleNewMessage(event) {
       event.preventDefault();
 
-      let eventData = {
+      let messageData = {
          from: User.UniqueUsername,
-         to: recipientData.user.UniqueUsername,
+         to: chatSettings.recipient,
          content: message,
       };
 
-      socket.emit("message", eventData);
+      socket.emit("message", messageData);
+
+      setMessage("");
    }
 
    return (
@@ -118,23 +100,27 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
             <MinimizeIcon className={classes.toolIcon} />
             <CloseIcon className={classes.toolIcon} onClick={closeChat} />
          </div>
-         <div className="chat-messages-display">
+         <div ref={chatRef} className="chat-messages-display">
             {allChat.length > 0 &&
                allChat.map((data, index) => {
                   return (
                      <div
+                        key={data._id || index}
                         className={
-                           data.Messages.from === User.UniqueUsername
-                              ? "right-flex"
-                              : "left-flex"
+                           data.from === User.UniqueUsername
+                              ? "right-flex message-block"
+                              : "left-flex message-block"
                         }
-                        key={data.Messages._id || index}
                      >
-                        <div style={{ color: "black" }}>
-                           {data.Messages.from}
-                        </div>
-                        <div style={{ color: "black" }}>
-                           {data.Messages.content}
+                        <div
+                           className={
+                              data.from === User.UniqueUsername
+                                 ? "right-flex message-content-wrapper"
+                                 : "left-flex message-content-wrapper"
+                           }
+                        >
+                           <div className="message-author">{data.from}</div>
+                           <div className="message-content">{data.content}</div>
                         </div>
                      </div>
                   );
@@ -148,6 +134,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                      value={message}
                      type="text"
                      id="chatInput"
+                     autoComplete="off"
                   />
                   <Button type="submit">
                      <SendIcon color="secondary" />

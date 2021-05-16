@@ -154,14 +154,19 @@ mongoose.connect(
                   { ChatID: sorter[0] + sorter[1] },
                   {
                      $push: {
-                        Messages: { $each: [messageData], $position: 0 },
+                        Messages: {
+                           $each: [messageData.Messages],
+                           $position: 0,
+                        },
                      },
                   },
-                  { returnOriginal: false }
+                  { returnOriginal: false, upsert: true }
                );
 
                if (recipient) {
                   io.to(sender).to(recipient).emit("new-message", newChat);
+               } else {
+                  io.to(sender).emit("new-message", newChat);
                }
             });
          });

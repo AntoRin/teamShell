@@ -4,7 +4,8 @@
    right: 10px;
    width: 400px;
    height: 50%;
-   background-color: azure;
+   background-color: lightskyblue;
+   font-family: "Quicksand", sans-serif;
 }
 
 .chatbox-controls {
@@ -12,6 +13,11 @@
    justify-content: flex-end;
    width: 100%;
    background-color: #333;
+}
+
+.chat-messages-display {
+   height: 70%;
+   overflow-y: scroll;
 }
 
 .chat-message-editor {
@@ -36,4 +42,41 @@
    height: 100%;
    font-size: 1.1rem;
    margin: 0 10px;
+}
+
+.message-block {
+   color: black;
+   margin: 5px;
+   align-items: center;
+}
+
+.message-content-wrapper {
+   width: 40%;
+   word-break: break-all;
+   background-color: lightseagreen;
+   border: 1px solid lightgreen;
+   padding: 5px;
+   flex-direction: column;
+}
+
+.message-author {
+   font-weight: 700;
+   font-size: 1rem;
+}
+
+.message-content {
+   color: black;
+   font-size: 1.1rem;
+}
+
+.right-flex {
+   display: flex;
+   justify-content: flex-end;
+   align-items: flex-end;
+}
+
+.left-flex {
+   display: flex;
+   justify-content: flex-start;
+   align-items: flex-start;
 }
