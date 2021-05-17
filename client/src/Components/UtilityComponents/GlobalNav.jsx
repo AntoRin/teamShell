@@ -2,15 +2,18 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
+import MmsIcon from "@material-ui/icons/Mms";
 import { ClickAwayListener } from "@material-ui/core";
 import Notifications from "./Notifications";
+import ChatHistory from "./ChatHistory";
 import UserDropDown from "./UserDropDown";
 import "../../styles/global-nav.css";
 
-function GlobalNav({ ProfileImage, UniqueUsername }) {
+function GlobalNav({ ProfileImage, UniqueUsername, setChatSettings }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
    const [activeNotifications, setActiveNotifications] = useState(false);
+   const [chatHistoryState, setChatHistoryState] = useState(false);
    const [textSearch, setTextSearch] = useState("");
    const [searchResults, setSearchResults] = useState([]);
 
@@ -68,6 +71,10 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
       setIsNotificationsOpen(prev => !prev);
    }
 
+   function toggleMessageHistory() {
+      setChatHistoryState(prev => !prev);
+   }
+
    function handleSearchChange(event) {
       setTextSearch(event.target.value);
    }
@@ -90,13 +97,26 @@ function GlobalNav({ ProfileImage, UniqueUsername }) {
                </div>
                <div className="notifications-section">
                   <NotifyIcon
-                     className="notification-icon"
+                     className="nav-icon"
                      onClick={toggleNotifications}
                   />
                   <Notifications
                      setActiveNotifications={setActiveNotifications}
                      isNotificationsOpen={isNotificationsOpen}
                      setIsNotificationsOpen={setIsNotificationsOpen}
+                  />
+               </div>
+               <div className="message-section">
+                  <MmsIcon
+                     fontSize="large"
+                     className="nav-icon"
+                     onClick={toggleMessageHistory}
+                  />
+                  <ChatHistory
+                     UniqueUsername={UniqueUsername}
+                     chatHistoryState={chatHistoryState}
+                     setChatHistoryState={setChatHistoryState}
+                     setChatSettings={setChatSettings}
                   />
                </div>
                <div className="profile-section">

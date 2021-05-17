@@ -9,6 +9,10 @@ const chatSchema = new Schema(
          required: true,
          Unique: true,
       },
+      Users: {
+         type: Array,
+         requried: true,
+      },
       Messages: {
          type: [
             {

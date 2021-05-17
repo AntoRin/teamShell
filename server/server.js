@@ -139,6 +139,12 @@ mongoose.connect(
 
                if (from !== socket.userName) return;
 
+               let recipientIdentity = await User.findOne({
+                  UniqueUsername: to,
+               });
+
+               if (!recipientIdentity) return;
+
                let sender = await redisGetAsync(from);
                let recipient = await redisGetAsync(to);
 
@@ -146,19 +152,20 @@ mongoose.connect(
                sorter.sort();
 
                let messageData = {
-                  Messages: {
-                     from,
-                     to,
-                     content,
-                  },
+                  from,
+                  to,
+                  content,
                };
 
                let newChat = await Chat.findOneAndUpdate(
-                  { ChatID: sorter[0] + sorter[1] },
+                  {
+                     ChatID: sorter[0] + sorter[1],
+                     Users: [sorter[0], sorter[1]],
+                  },
                   {
                      $push: {
                         Messages: {
-                           $each: [messageData.Messages],
+                           $each: [messageData],
                            $position: 0,
                         },
                      },

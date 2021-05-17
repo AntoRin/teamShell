@@ -107,12 +107,17 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
 
    return !minimized ? (
       <div className="chatbox-container">
-         <div className="chatbox-controls">
-            <MinimizeIcon
-               className={classes.toolIcon}
-               onClick={toggleWindowMinimize}
-            />
-            <CloseIcon className={classes.toolIcon} onClick={closeChat} />
+         <div className="chatbox-header">
+            <div className="chatbox-recipient-banner">
+               <h4>{chatSettings.recipient}</h4>
+            </div>
+            <div className="chatbox-controls">
+               <MinimizeIcon
+                  className={classes.toolIcon}
+                  onClick={toggleWindowMinimize}
+               />
+               <CloseIcon className={classes.toolIcon} onClick={closeChat} />
+            </div>
          </div>
          <div ref={chatRef} className="chat-messages-display">
             {allChat.length > 0 &&

@@ -87,14 +87,12 @@
    position: relative;
 }
 
-.notification-icon {
+.nav-icon {
    cursor: pointer;
+   margin: 0 5px;
 }
 
 .profile-section {
-   /* display: flex;
-   justify-content: space-between;
-   align-items: center; */
    position: relative;
    margin: 0px 15px;
 }

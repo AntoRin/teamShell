@@ -78,6 +78,7 @@ function ProtectedRoute({ component: Component, ...props }) {
                         <GlobalNav
                            UniqueUsername={User.UniqueUsername}
                            ProfileImage={User.ProfileImage}
+                           setChatSettings={setChatSettings}
                         />
                         <Component
                            {...componentProps}
