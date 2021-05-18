@@ -30,15 +30,6 @@
    color: crimson;
 }
 
-.settings-modal-textfield {
-   width: 100%;
-   font-size: 1.2rem;
-   font-family: "Source Sans Pro";
-   background-color: transparent;
-   resize: none;
-   color: white;
-}
-
 .advanced-creator-settings {
    display: flex;
    justify-content: center;
@@ -65,7 +56,7 @@
    cursor: pointer;
 }
 
-#addUserToOrgForm input,
+/* #addUserToOrgForm input,
 #addUserToProjectForm input {
    font-size: 1.2rem;
    background-color: transparent;
@@ -73,4 +64,34 @@
    border: 2px solid cyan;
    color: white;
    width: 300px;
+} */
+
+.basic-settings-wrapper {
+   width: 100%;
+}
+
+.description-update-block {
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
+}
+
+.settings-modal-textfield {
+   width: 50%;
+   font-size: 1.2rem;
+   font-family: "Source Sans Pro";
+   background-color: transparent;
+   resize: none;
+   color: black;
+   border: none;
+   outline: none;
+   border: 2px solid lightblue;
+}
+
+#addUserToOrgForm {
+   width: 100%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
 }

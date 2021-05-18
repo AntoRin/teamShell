@@ -2,7 +2,7 @@ import { useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
 import inititateNewNotification from "../../utils/notificationService";
 import StatusBar from "../UtilityComponents/StatusBar";
-import "../../styles/settings-modal.css";
+// import "../../styles/settings-modal.css";
 
 function ProjectSettingsModal({ User, Project, setSettings }) {
    const [newDescription, setNewDescription] = useState("");
