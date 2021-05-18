@@ -31,8 +31,6 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
             recipient: null,
          });
       }
-
-      return () => setChatSettings({ open: false, recipient: null });
    }, [chatSettings, setChatSettings]);
 
    useEffect(() => {
@@ -68,7 +66,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
          setAllChat(prev => [...prev, messageData.Messages[0]]);
       });
 
-      return () => socket.off("message");
+      return () => socket.off(`new-message-${sorter[0]}${sorter[1]}`);
    }, [socket, User.UniqueUsername, chatSettings.recipient]);
 
    useEffect(() => {
