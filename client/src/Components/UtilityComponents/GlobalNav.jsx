@@ -88,7 +88,7 @@ function GlobalNav({ ProfileImage, UniqueUsername, setChatSettings }) {
          <div className="nav-wrapper">
             <div className="general-nav-section">
                <div className="nav-logo">
-                  <Link to="/user/home">{`<CoLab />`}</Link>
+                  <Link to="/user/home">teamShell</Link>
                </div>
             </div>
             <div className="user-section">

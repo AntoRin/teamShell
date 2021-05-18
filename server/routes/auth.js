@@ -134,6 +134,7 @@ router.get("/login/github/callback", async (req, res, next) => {
    }
 });
 
+//Google login
 router.get("/login/google", async (req, res, next) => {
    const scopes = [
       "https://www.googleapis.com/auth/userinfo.email",

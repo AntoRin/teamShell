@@ -56,6 +56,8 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
       }
       getChat();
 
+      setMinimized(false);
+
       return () => abortFetch.abort();
    }, [chatSettings.recipient, User.UniqueUsername]);
 
