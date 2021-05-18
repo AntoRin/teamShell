@@ -33,7 +33,6 @@ function StatusBar({ actionStatus, setActionStatus }) {
       }
 
       setActionStatus({ info: null, type: "success" });
-      setSnackbarOpen(false);
    }
 
    return (

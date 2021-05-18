@@ -10,7 +10,7 @@ function ProjectHome({ match, User }) {
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [parentOrg, setParentOrg] = useState({});
    const [Project, setProject] = useState({});
-   const [settings, setSettings] = useState(false);
+   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
    const history = useHistory();
 
@@ -74,7 +74,7 @@ function ProjectHome({ match, User }) {
    }, [match, history]);
 
    function openSettingsModal() {
-      setSettings(true);
+      setIsSettingsOpen(true);
    }
 
    if (isLoading) {
@@ -124,11 +124,11 @@ function ProjectHome({ match, User }) {
                >
                   <SettingsIcon fontSize="large" />
                </div>
-               {settings && (
+               {isSettingsOpen && (
                   <ProjectSettingsModal
                      User={User}
                      Project={Project}
-                     setSettings={setSettings}
+                     setIsSettingsOpen={setIsSettingsOpen}
                   />
                )}
             </div>
