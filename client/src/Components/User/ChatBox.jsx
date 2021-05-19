@@ -3,8 +3,8 @@ import { Button, makeStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import MinimizeIcon from "@material-ui/icons/Minimize";
 import SendIcon from "@material-ui/icons/Send";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
+import CenteredLoader from "../UtilityComponents/CenteredLoader";
 import "../../styles/chatbox.css";
 
 const useStyles = makeStyles({
@@ -134,9 +134,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
          </div>
          <div ref={chatRef} className="chat-messages-display">
             {isLoading ? (
-               <div className={classes.chatLoader}>
-                  <CircularProgress color="primary" />
-               </div>
+               <CenteredLoader color="primary" />
             ) : (
                allChat.length > 0 &&
                allChat.map((data, index) => {

@@ -11,6 +11,7 @@ import IssueCard from "./IssueCard";
 import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/environment-panel.css";
+import CenteredLoader from "../UtilityComponents/CenteredLoader";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -174,7 +175,7 @@ function EnvironmentPanel({ User, currentOrg }) {
                   <h1>Create a project to get started</h1>
                )}
                <div className="all-issues-division">
-                  {projectDetails.Issues &&
+                  {projectDetails.Issues ? (
                      projectDetails.Issues.length > 0 &&
                      projectDetails.Issues.map(issue => (
                         <IssueCard
@@ -184,7 +185,10 @@ function EnvironmentPanel({ User, currentOrg }) {
                            showContent={false}
                            setActionStatus={setActionStatus}
                         />
-                     ))}
+                     ))
+                  ) : (
+                     <CenteredLoader color="primary" backdrop={true} />
+                  )}
                </div>
             </div>
          </div>

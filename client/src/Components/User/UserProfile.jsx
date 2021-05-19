@@ -38,9 +38,10 @@ function UserProfile({ location, match, User, setChatSettings }) {
                if (!update) {
                   setProfile(User);
                   setOwner(true);
-                  setIsLoading(false);
                   setIsValid(true);
+                  setIsLoading(false);
                } else {
+                  setIsLoading(true);
                   let userDataStream = await fetch(
                      `/profile/details/${match.params.UniqueUsername}`,
                      { credentials: "include", signal: abortFetch.signal }
@@ -52,11 +53,13 @@ function UserProfile({ location, match, User, setChatSettings }) {
                   if (profile.status === "ok") {
                      setProfile(profile.user);
                      setIsValid(true);
+                     setIsLoading(false);
                   } else {
                      setIsValid(false);
                   }
                }
             } else {
+               setIsLoading(true);
                let userDataStream = await fetch(
                   `/profile/details/${match.params.UniqueUsername}`,
                   { credentials: "include", signal: abortFetch.signal }
@@ -69,11 +72,11 @@ function UserProfile({ location, match, User, setChatSettings }) {
                if (profile.status === "ok") {
                   setProfile(profile.user);
                   setOwner(false);
-                  setIsLoading(false);
                   setIsValid(true);
-               } else {
                   setIsLoading(false);
+               } else {
                   setIsValid(false);
+                  setIsLoading(false);
                }
             }
          } catch (error) {

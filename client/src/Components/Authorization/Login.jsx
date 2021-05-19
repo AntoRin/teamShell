@@ -4,6 +4,7 @@ import GitHubIcon from "@material-ui/icons/GitHub";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import HomeIcon from "@material-ui/icons/Home";
 import StatusBar from "../UtilityComponents/StatusBar";
+import CenteredLoader from "../UtilityComponents/CenteredLoader";
 import "../../styles/register-login.css";
 
 function Login() {
@@ -15,6 +16,7 @@ function Login() {
       info: null,
       type: "success",
    });
+   const [isLoading, setIsLoading] = useState(false);
 
    const history = useHistory();
 
@@ -36,6 +38,8 @@ function Login() {
    async function handleLogin(event) {
       event.preventDefault();
 
+      setIsLoading(true);
+
       let body = {
          Email: inputs.userId,
          Password: inputs.password,
@@ -51,6 +55,7 @@ function Login() {
 
       let loginRequest = await fetch("/auth/login", postOptions);
       if (loginRequest.type === "opaqueredirect") {
+         setIsLoading(false);
          window.location.href = "/user/home";
          return;
       }
@@ -58,10 +63,12 @@ function Login() {
       let loginData = await loginRequest.json();
       if (loginData.status === "error")
          setActionStatus({ info: loginData.error, type: "error" });
+      setIsLoading(false);
    }
 
    return (
       <div className="form-container">
+         {isLoading && <CenteredLoader color="primary" backdrop={true} />}
          <div className="form-card">
             <form onSubmit={handleLogin} id="userDetailsForm">
                <div className="form-elements">

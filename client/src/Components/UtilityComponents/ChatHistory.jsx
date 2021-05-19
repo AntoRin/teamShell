@@ -5,6 +5,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import UserSearchBar from "./UserSearchBar";
+import CenteredLoader from "./CenteredLoader";
 import "../../styles/chat-history.css";
 
 const useStyles = makeStyles({
@@ -24,8 +25,6 @@ function ChatHistory({
    const [chatHistory, setChatHistory] = useState(null);
 
    useEffect(() => {
-      // if (!chatHistoryState) return;
-
       let abortFetch = new AbortController();
 
       async function getChatHistory() {
@@ -73,7 +72,7 @@ function ChatHistory({
                   closeMessageHistory={closeMessageHistory}
                />
             </ListItem>
-            {chatHistory &&
+            {chatHistory ? (
                chatHistory.length > 0 &&
                chatHistory.map(chat => {
                   let thisChatHistory = chat.Users.find(
@@ -89,7 +88,10 @@ function ChatHistory({
                         <ListItemText primary={thisChatHistory} />
                      </ListItem>
                   );
-               })}
+               })
+            ) : (
+               <CenteredLoader color="primary" backdrop={false} />
+            )}
          </List>
       </SwipeableDrawer>
    );
