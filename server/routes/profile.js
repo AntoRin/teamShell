@@ -27,13 +27,16 @@ router.get("/details/:UniqueUsername", async (req, res, next) => {
    let requestedUser = req.params.UniqueUsername;
 
    try {
-      let { _doc } = await User.findOne(
+      let queryResult = await User.findOne(
          {
             UniqueUsername: requestedUser,
          },
          { Password: 0, updatedAt: 0, Notifications: 0 }
       );
 
+      if (!queryResult) throw { name: "UserNotFound" };
+
+      let { _doc } = queryResult;
       let user;
 
       if (UniqueUsername === requestedUser) {

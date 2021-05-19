@@ -1,0 +1,50 @@
+.text-search {
+   z-index: 50;
+   font-size: 1.2rem;
+   font-family: "Roboto", sans-serif;
+   position: relative;
+   left: 50%;
+   transform: translateX(-50%);
+}
+
+.search-bar {
+   width: 300px;
+   font-size: 1.3rem;
+   border: none;
+   outline: none;
+   background-color: #333;
+   color: white;
+   padding: 5px;
+}
+
+.search-bar:focus {
+   border: 1px solid seagreen;
+}
+
+.search-results-list {
+   position: absolute;
+   background-color: black;
+   border: 1px solid gray;
+   min-height: 100px;
+   width: 310px;
+   margin: 5px 0px;
+}
+
+.search-list-element {
+   background-color: #444;
+   margin: 5px;
+   padding: 5px;
+   text-align: center;
+   display: flex;
+   justify-content: space-between;
+}
+
+.search-list-element a {
+   text-decoration: none;
+   color: white;
+   cursor: pointer;
+}
+
+.message-icon {
+   cursor: pointer;
+}

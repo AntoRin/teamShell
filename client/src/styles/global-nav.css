@@ -30,44 +30,6 @@
    font-family: "Quicksand", sans-serif;
 }
 
-.text-search {
-   position: absolute;
-   left: 50%;
-   top: 50%;
-   transform: translate(-50%, -50%);
-}
-
-.search-bar {
-   width: 300px;
-   font-size: 1.3rem;
-   border: none;
-   outline: none;
-   background-color: rgb(49, 4, 71);
-   color: white;
-   padding: 5px;
-}
-
-.search-bar:focus {
-   border: 1px solid burlywood;
-}
-
-.search-results-list {
-   position: absolute;
-   background-color: black;
-   border: 1px solid gray;
-   min-height: 100px;
-   min-width: 100%;
-   margin: 5px 0px;
-}
-
-.search-list-element {
-   background-color: #111;
-   margin: 5px;
-   text-align: center;
-   color: white;
-   cursor: pointer;
-}
-
 .nav-wrapper {
    display: flex;
    justify-content: space-between;

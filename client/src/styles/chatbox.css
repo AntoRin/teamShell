@@ -6,7 +6,7 @@
    height: 50%;
    background-color: lightskyblue;
    font-family: "Quicksand", sans-serif;
-   z-index: 15;
+   z-index: 20;
 }
 
 .chatbox-header {
@@ -36,6 +36,7 @@
    align-items: center;
    background-color: #333;
    z-index: 15;
+   cursor: pointer;
 }
 
 .chat-messages-display {

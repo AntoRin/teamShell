@@ -13,6 +13,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
    const [Profile, setProfile] = useState({});
    const [owner, setOwner] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+   const [isValid, setIsValid] = useState(false);
    const [query, setQuery] = useState("");
    const [issueTabType, setIssueTabType] = useState("created");
    const [actionStatus, setActionStatus] = useState({
@@ -38,6 +39,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
                   setProfile(User);
                   setOwner(true);
                   setIsLoading(false);
+                  setIsValid(true);
                } else {
                   let userDataStream = await fetch(
                      `/profile/details/${match.params.UniqueUsername}`,
@@ -47,7 +49,12 @@ function UserProfile({ location, match, User, setChatSettings }) {
                   if (abortFetch.signal.aborted) return;
 
                   let profile = await userDataStream.json();
-                  setProfile(profile.user);
+                  if (profile.status === "ok") {
+                     setProfile(profile.user);
+                     setIsValid(true);
+                  } else {
+                     setIsValid(false);
+                  }
                }
             } else {
                let userDataStream = await fetch(
@@ -58,9 +65,16 @@ function UserProfile({ location, match, User, setChatSettings }) {
                if (abortFetch.signal.aborted) return;
 
                let profile = await userDataStream.json();
-               setProfile(profile.user);
-               setOwner(false);
-               setIsLoading(false);
+
+               if (profile.status === "ok") {
+                  setProfile(profile.user);
+                  setOwner(false);
+                  setIsLoading(false);
+                  setIsValid(true);
+               } else {
+                  setIsLoading(false);
+                  setIsValid(false);
+               }
             }
          } catch (error) {
             console.log(error);
@@ -355,7 +369,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
    if (isLoading) {
       return <LinearLoader />;
    } else {
-      return (
+      return isValid ? (
          <div className="profile-container">
             <div className="profile-tabs">
                <div className="user-tab tab-link">
@@ -439,6 +453,8 @@ function UserProfile({ location, match, User, setChatSettings }) {
                />
             )}
          </div>
+      ) : (
+         <h1>There was an error</h1>
       );
    }
 }

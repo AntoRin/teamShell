@@ -3,13 +3,21 @@ import { Button, makeStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import MinimizeIcon from "@material-ui/icons/Minimize";
 import SendIcon from "@material-ui/icons/Send";
-import CropSquareIcon from "@material-ui/icons/CropSquare";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import "../../styles/chatbox.css";
 
 const useStyles = makeStyles({
    toolIcon: {
       cursor: "pointer",
+   },
+   chatLoader: {
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "column",
    },
 });
 
@@ -19,6 +27,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
    const [allChat, setAllChat] = useState([]);
    const [message, setMessage] = useState("");
    const [minimized, setMinimized] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
 
    const socket = useContext(SocketInstance);
 
@@ -38,6 +47,9 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
 
       async function getChat() {
          if (!chatSettings.recipient) return;
+
+         setIsLoading(true);
+
          let User1 = User.UniqueUsername;
          let User2 = chatSettings.recipient;
 
@@ -50,6 +62,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
             let chat = responseData.data.Messages;
             let chatLatest = chat.reverse();
             setAllChat(chatLatest);
+            setIsLoading(false);
          } catch (error) {
             console.log(error);
          }
@@ -74,7 +87,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
    useEffect(() => {
       if (chatRef.current)
          chatRef.current.scrollTop += chatRef.current.scrollHeight;
-   }, [allChat, minimized]);
+   }, [allChat, minimized, isLoading]);
 
    function closeChat() {
       setChatSettings({
@@ -120,7 +133,12 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
             </div>
          </div>
          <div ref={chatRef} className="chat-messages-display">
-            {allChat.length > 0 &&
+            {isLoading ? (
+               <div className={classes.chatLoader}>
+                  <CircularProgress color="primary" />
+               </div>
+            ) : (
+               allChat.length > 0 &&
                allChat.map((data, index) => {
                   return (
                      <div
@@ -143,7 +161,8 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                         </div>
                      </div>
                   );
-               })}
+               })
+            )}
          </div>
          <div className="chat-message-editor">
             <div className="chat-message-input">
@@ -156,19 +175,14 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                      autoComplete="off"
                   />
                   <Button type="submit">
-                     <SendIcon color="secondary" />
+                     <SendIcon color="primary" />
                   </Button>
                </form>
             </div>
          </div>
       </div>
    ) : (
-      <div className="chatbox-min-controls">
-         <CropSquareIcon
-            fontSize="small"
-            className={classes.toolIcon}
-            onClick={toggleWindowMinimize}
-         />
+      <div className="chatbox-min-controls" onClick={toggleWindowMinimize}>
          <CloseIcon className={classes.toolIcon} onClick={closeChat} />
       </div>
    );

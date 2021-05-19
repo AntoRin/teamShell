@@ -32,6 +32,10 @@ function errorHandler(error, req, res, next) {
             status: "error",
             error: "Bad request, relevant data not found",
          });
+      case "UserNotFound":
+         return res
+            .status(400)
+            .json({ status: "error", error: "User not found" });
       case "UnauthorizedRequest":
          return res.status(401).json({
             status: "error",
