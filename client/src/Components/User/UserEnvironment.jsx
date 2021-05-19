@@ -1,63 +1,44 @@
 import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import AppBar from "@material-ui/core/AppBar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import Tooltip from "@material-ui/core/Tooltip";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
+import Drawer from "@material-ui/core/Drawer";
+import Button from "@material-ui/core/Button";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
 import EnvironmentPanel from "./EnvironmentPanel";
 
-function createTabProps(index) {
-   return {
-      id: `scrollable-auto-tab-${index}`,
-      "aria-controls": `scrollable-auto-tabpanel-${index}`,
-   };
-}
-
 const useStyles = makeStyles(theme => ({
-   root: {
-      flexGrow: 1,
-      width: "100%",
-      backgroundColor: "#111",
-   },
-   appBar: {
-      backgroundColor: "rgb(15, 20, 40)",
-   },
-   tab: {
-      color: "cyan",
-      fontWeight: 700,
-      textTransform: "none",
-      fontSize: "1.2rem",
-   },
-   localSettingsIcon: {
+   configureEnvironmentToggle: {
       cursor: "pointer",
-      margin: "10px",
+      display: "flex",
+      justifyContent: "flex-end",
+      margin: "0 10px",
+   },
+   ".MuiList-subheader": {
+      fontSize: "0.9rem",
+      fontFamily: `"Roboto", sans-serif`,
+      fontWeight: "600",
+   },
+   activeOrg: {
+      backgroundColor: "#dfdfe5",
    },
 }));
 
 function UserEnvironment({ User }) {
    const classes = useStyles();
+
    const [currentOrg, setCurrentOrg] = useState(
       window.localStorage.getItem("environment_organization_context") ||
          (User.Organizations.length > 0
             ? User.Organizations[0].OrganizationName
             : "")
    );
-   const [value, setValue] = useState(
-      currentOrg
-         ? () => {
-              let initialTabIndex = 0;
-              User.Organizations.forEach((org, index) => {
-                 if (org.OrganizationName === currentOrg) {
-                    initialTabIndex = index;
-                    return;
-                 }
-              });
-              return initialTabIndex;
-           }
-         : 0
-   );
-   const [displayOrgNav, setDisplayOrgNav] = useState(false);
+
+   const [configurationDrawer, setConfigurationDrawer] = useState(false);
 
    useEffect(() => {
       window.localStorage.setItem(
@@ -66,61 +47,80 @@ function UserEnvironment({ User }) {
       );
    }, [currentOrg]);
 
-   function handleTabChange(event, newValue) {
-      setValue(newValue);
+   function toggleConfigurationDrawer(open) {
+      return event => {
+         if (
+            event.type === "keydown" &&
+            (event.key === "Tab" || event.key === "Shift")
+         ) {
+            return;
+         }
+
+         setConfigurationDrawer(open);
+      };
+   }
+
+   function handleOrgChange(event) {
+      console.log(event.target.textContent);
       setCurrentOrg(event.target.textContent);
    }
 
-   function changeOrgNavState() {
-      setDisplayOrgNav(prev => !prev);
-   }
-
    return (
-      <div className="user-environment-container">
-         <Tooltip title="Change current organization" placement="right" arrow>
-            <AccountTreeIcon
-               className={classes.localSettingsIcon}
-               fontSize="large"
-               onClick={changeOrgNavState}
-            />
-         </Tooltip>
-         {displayOrgNav && (
-            <div className={classes.root}>
-               <AppBar
-                  className={classes.appBar}
-                  position="static"
-                  color="secondary"
+      <div>
+         <>
+            <div className={classes.configureEnvironmentToggle}>
+               <Tooltip
+                  title="Configure work environment"
+                  placement="left"
+                  arrow
                >
-                  <Tabs
-                     value={value}
-                     onChange={handleTabChange}
-                     indicatorColor="primary"
-                     textColor="secondary"
-                     variant="scrollable"
-                     scrollButtons="auto"
-                     aria-label="scrollable tab"
+                  <Button
+                     variant="text"
+                     color="inherit"
+                     onClick={toggleConfigurationDrawer(true)}
                   >
-                     {User.Organizations.length > 0 ? (
-                        User.Organizations.map(org => {
-                           return (
-                              <Tab
-                                 className={classes.tab}
-                                 key={org._id}
-                                 label={org.OrganizationName}
-                                 {...createTabProps(org._id)}
-                              />
-                           );
-                        })
-                     ) : (
-                        <Tab
-                           className={classes.tab}
-                           label="You are not part of any organization"
-                        />
-                     )}
-                  </Tabs>
-               </AppBar>
+                     <SettingsSharpIcon />
+                  </Button>
+               </Tooltip>
             </div>
-         )}
+            <Drawer
+               anchor="bottom"
+               open={configurationDrawer}
+               onClose={toggleConfigurationDrawer(false)}
+            >
+               <List
+                  className={classes[".MuiList-subheader"]}
+                  subheader="Choose an organization to work with"
+               >
+                  {User.Organizations.length > 0 ? (
+                     User.Organizations.map(org => {
+                        return (
+                           <ListItem
+                              key={org._id}
+                              button
+                              className={
+                                 org.OrganizationName === currentOrg
+                                    ? classes.activeOrg
+                                    : ""
+                              }
+                              onClick={handleOrgChange}
+                              divider
+                           >
+                              <ListItemIcon>
+                                 <AccountTreeIcon />
+                              </ListItemIcon>
+                              <ListItemText primary={org.OrganizationName} />
+                           </ListItem>
+                        );
+                     })
+                  ) : (
+                     <ListItem>
+                        <ListItemText primary="You are not part of any organization" />
+                     </ListItem>
+                  )}
+               </List>
+            </Drawer>
+         </>
          <EnvironmentPanel User={User} currentOrg={currentOrg} />
       </div>
    );

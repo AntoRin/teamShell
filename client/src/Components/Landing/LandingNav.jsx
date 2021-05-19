@@ -8,7 +8,7 @@ function LandingNav() {
       <div className="nav-landing-container">
          <div className="nav-landing">
             <div className="nav-left">
-               <Link to="/">LOGO</Link>
+               <Link to="/">teamShell</Link>
             </div>
             <div className="nav-right">
                <ul>

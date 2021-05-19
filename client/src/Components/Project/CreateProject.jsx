@@ -116,6 +116,7 @@ function CreateProject({ location, User }) {
                   required
                   id="newCreateName"
                   className="input-create-form"
+                  pattern="^[a-zA-Z0-9_-]*$"
                />
                <br />
                <br />

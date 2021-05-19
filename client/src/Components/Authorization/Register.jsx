@@ -66,6 +66,7 @@ function Register() {
                         autoComplete="off"
                         type="text"
                         id="uniqueUsername"
+                        pattern="^[a-zA-Z0-9_-]*$"
                      />
                   </div>
                   <div className="name-field">

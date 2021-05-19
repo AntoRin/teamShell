@@ -12,13 +12,16 @@
 
 .nav-left {
    margin: 10px;
-   font-size: 1.1rem;
-   font-family: "Roboto", sans-serif;
+   padding-left: 5px;
+   font-family: "Quicksand", sans-serif;
+   border-left: 2px solid purple;
 }
 
 .nav-left a {
    text-decoration: none;
    color: white;
+   font-weight: 700;
+   font-size: 1.3rem;
 }
 
 .nav-right {
