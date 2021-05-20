@@ -1,13 +1,37 @@
 import { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import OrgTabPanel from "./OrgTabPanel";
 import OrgSideNav from "./OrgSideNav";
 import DetailCard from "../User/DetailCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/organization-home.css";
 
+const useStyles = makeStyles(theme => ({
+   root: {
+      flexGrow: 1,
+      backgroundColor: "rgb(18, 18, 23)",
+      display: "flex",
+      minHeight: "80vh",
+      overflowY: "scroll",
+   },
+   tabs: {
+      borderRight: `1px solid ${theme.palette.divider}`,
+      backgroundColor: "#111",
+   },
+   tab: {
+      margin: "15px",
+   },
+}));
+
 function OrganizationHome({ match, User }) {
+   const classes = useStyles();
+
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [Organization, setOrganization] = useState({});
    const [isLoading, setIsLoading] = useState(true);
+   const [tabName, setTabName] = useState("General Details");
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -44,42 +68,39 @@ function OrganizationHome({ match, User }) {
       return () => abortFetch.abort();
    }, [match.params.OrganizationName]);
 
+   function handleTabChange(event) {
+      setTabName(event.target.textContent);
+   }
+
    if (isLoading) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
          <div className="organization-home-container">
-            <div className="org-main-wrapper">
-               <OrgSideNav
-                  User={User}
-                  match={match}
-                  Organization={Organization}
-               />
-               <div className="org-page-body">
-                  <div className="org-general-details-card">
-                     <header className="org-details-header">
-                        <h1>{Organization.OrganizationName}</h1>
-                     </header>
-                     <div className="org-details-content">
-                        <DetailCard
-                           header="Description"
-                           detail={Organization.Description}
-                        />
-                        <DetailCard
-                           header="Created By"
-                           detail={Organization.Creator}
-                        />
-                        <DetailCard
-                           header="No. of Projects"
-                           detail={Organization.Projects.length}
-                        />
-                        <DetailCard
-                           header="No. of Members"
-                           detail={Organization.Members.length}
-                        />
-                     </div>
-                  </div>
-               </div>
+            <div className={classes.root}>
+               <Tabs
+                  orientation="vertical"
+                  value={tabName}
+                  onChange={handleTabChange}
+                  className={classes.tabs}
+               >
+                  <Tab
+                     className={classes.tab}
+                     label="General Details"
+                     value="General Details"
+                  />
+                  <Tab
+                     className={classes.tab}
+                     label="Projects"
+                     value="Projects"
+                  />
+                  <Tab
+                     className={classes.tab}
+                     label="Members"
+                     value="Members"
+                  />
+               </Tabs>
+               <OrgTabPanel tabName={tabName} Organization={Organization} />
             </div>
          </div>
       ) : (

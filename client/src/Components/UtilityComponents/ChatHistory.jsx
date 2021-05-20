@@ -9,6 +9,11 @@ import CenteredLoader from "./CenteredLoader";
 import "../../styles/chat-history.css";
 
 const useStyles = makeStyles({
+   rightDrawer: {
+      "& .MuiDrawer-paperAnchorRight": {
+         background: "#999",
+      },
+   },
    drawerList: {
       minWidth: "350px",
    },
@@ -64,6 +69,7 @@ function ChatHistory({
          open={chatHistoryState}
          onClose={closeMessageHistory}
          onOpen={openMessagneHistory}
+         className={classes.rightDrawer}
       >
          <List className={classes.drawerList}>
             <ListItem divider>

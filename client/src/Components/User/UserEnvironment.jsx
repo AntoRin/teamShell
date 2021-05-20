@@ -12,19 +12,23 @@ import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
 import EnvironmentPanel from "./EnvironmentPanel";
 
 const useStyles = makeStyles(theme => ({
-   configureEnvironmentToggle: {
+   configurationToggle: {
       cursor: "pointer",
       display: "flex",
       justifyContent: "flex-end",
       margin: "0 10px",
    },
-   ".MuiList-subheader": {
-      fontSize: "0.9rem",
-      fontFamily: `"Roboto", sans-serif`,
-      fontWeight: "600",
+   bottomDrawer: {
+      "& .MuiDrawer-paperAnchorBottom": {
+         background: "#E2DFD2",
+      },
    },
-   activeOrg: {
-      backgroundColor: "#dfdfe5",
+   drawerList: {
+      "&.MuiList-subheader": {
+         fontSize: "1.2rem",
+         fontFamily: `"Roboto", sans-serif`,
+         fontWeight: "600",
+      },
    },
 }));
 
@@ -68,7 +72,7 @@ function UserEnvironment({ User }) {
    return (
       <div>
          <>
-            <div className={classes.configureEnvironmentToggle}>
+            <div className={classes.configurationToggle}>
                <Tooltip
                   title="Configure work environment"
                   placement="left"
@@ -87,9 +91,10 @@ function UserEnvironment({ User }) {
                anchor="bottom"
                open={configurationDrawer}
                onClose={toggleConfigurationDrawer(false)}
+               className={classes.bottomDrawer}
             >
                <List
-                  className={classes[".MuiList-subheader"]}
+                  className={classes.drawerList}
                   subheader="Choose an organization to work with"
                >
                   {User.Organizations.length > 0 ? (
@@ -98,11 +103,7 @@ function UserEnvironment({ User }) {
                            <ListItem
                               key={org._id}
                               button
-                              className={
-                                 org.OrganizationName === currentOrg
-                                    ? classes.activeOrg
-                                    : ""
-                              }
+                              selected={org.OrganizationName === currentOrg}
                               onClick={handleOrgChange}
                               divider
                            >
