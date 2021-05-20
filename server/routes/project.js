@@ -102,6 +102,36 @@ router.get("/details/:ProjectName", async (req, res, next) => {
    }
 });
 
+router.get("/snippet/:ProjectName", async (req, res, next) => {
+   let ProjectName = req.params.ProjectName;
+
+   try {
+      let projectDetails = await Project.findOne(
+         { ProjectName },
+         {
+            _id: 0,
+            ProjectName: 0,
+            ParentOrganization: 0,
+            createdAt: 0,
+            updatedAt: 0,
+         }
+      );
+
+      if (!projectDetails) throw { name: UnknownData };
+
+      let projectSnippet = {
+         "About Project": projectDetails.ProjectDescription,
+         "No. of Issues": projectDetails.IssuesRef.length,
+         "No. of Members": projectDetails.Members.length,
+         "Created by": projectDetails.Creator,
+      };
+
+      return res.json({ status: "ok", data: projectSnippet });
+   } catch (error) {
+      return next(error);
+   }
+});
+
 router.post("/edit", async (req, res, next) => {
    let { ProjectName, ProjectDescription } = req.body;
 

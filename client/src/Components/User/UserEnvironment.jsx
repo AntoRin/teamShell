@@ -65,7 +65,6 @@ function UserEnvironment({ User }) {
    }
 
    function handleOrgChange(event) {
-      console.log(event.target.textContent);
       setCurrentOrg(event.target.textContent);
    }
 

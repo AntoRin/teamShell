@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
@@ -15,6 +16,7 @@ import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import formatDate from "../../utils/formatDate";
 import EventIcon from "@material-ui/icons/Event";
 import { Divider } from "@material-ui/core";
+import ProjectInfoCard from "./ProjectInfoCard";
 
 const useStyles = makeStyles({
    panel: {
@@ -31,7 +33,7 @@ const useStyles = makeStyles({
    },
    divider: {
       "&.MuiDivider-root": {
-         background: "#33006F",
+         background: "rgb(51, 0, 111, 0.5)",
       },
    },
 });
@@ -164,7 +166,13 @@ function OrgTabPanel({ tabName, Organization }) {
       case "Projects":
          return (
             <Container>
-               <h1>{tabName}</h1>
+               {Organization.Projects.map(project => (
+                  <ProjectInfoCard
+                     key={project}
+                     project={project}
+                     organization={Organization.OrganizationName}
+                  />
+               ))}
             </Container>
          );
       case "Members":

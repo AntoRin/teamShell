@@ -4,7 +4,6 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import OrgTabPanel from "./OrgTabPanel";
 import OrgSideNav from "./OrgSideNav";
-import DetailCard from "../User/DetailCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/organization-home.css";
 
