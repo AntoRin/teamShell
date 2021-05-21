@@ -8,9 +8,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 import PersonIcon from "@material-ui/icons/Person";
 
 const useStyles = makeStyles({
-   memberListElement: {
-      //   background: "#333",
-   },
    divider: {
       "&.MuiDivider-root": {
          background: "rgb(51, 0, 111, 0.5)",
@@ -38,13 +35,9 @@ function OrgMembersInfo({ Organization }) {
          {Organization.Members.map(member => {
             return (
                <React.Fragment key={member}>
-                  <ListItem
-                     className={classes.memberListElement}
-                     button={true}
-                     onClick={() => goToProfile(member)}
-                  >
+                  <ListItem button={true} onClick={() => goToProfile(member)}>
                      <ListItemAvatar>
-                        <PersonIcon fontSize="large" />
+                        <PersonIcon fontSize="large" color="primary" />
                      </ListItemAvatar>
                      <ListItemText
                         primary={member}

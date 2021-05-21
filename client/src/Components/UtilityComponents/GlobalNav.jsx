@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
@@ -8,11 +8,18 @@ import ChatHistory from "./ChatHistory";
 import UserDropDown from "./UserDropDown";
 import "../../styles/global-nav.css";
 
-function GlobalNav({ ProfileImage, UniqueUsername, setChatSettings }) {
+function GlobalNav({
+   ProfileImage,
+   UniqueUsername,
+   setChatSettings,
+   setNavHeight,
+}) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
    const [activeNotifications, setActiveNotifications] = useState(false);
    const [chatHistoryState, setChatHistoryState] = useState(false);
+
+   const navRef = useRef();
 
    const NotifyIcon = activeNotifications
       ? NotificationsActiveIcon
@@ -42,6 +49,16 @@ function GlobalNav({ ProfileImage, UniqueUsername, setChatSettings }) {
       return () => abortFetch.abort();
    }, [isNotificationsOpen, activeNotifications]);
 
+   useEffect(() => {
+      setNavHeight(
+         Math.max(
+            navRef.current.offsetHeight,
+            navRef.current.clientHeight,
+            navRef.current.scrollHeight
+         )
+      );
+   }, [setNavHeight]);
+
    function openDropdown() {
       setIsDropdownOpen(prev => !prev);
    }
@@ -55,7 +72,7 @@ function GlobalNav({ ProfileImage, UniqueUsername, setChatSettings }) {
    }
 
    return (
-      <nav className="global-nav-container">
+      <nav ref={navRef} className="global-nav-container">
          <div className="nav-wrapper">
             <div className="general-nav-section">
                <div className="nav-logo">

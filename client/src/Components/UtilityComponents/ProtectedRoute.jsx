@@ -16,6 +16,7 @@ function ProtectedRoute({ component: Component, ...props }) {
       open: false,
       recipient: null,
    });
+   const [navHeight, setNavHeight] = useState(90);
 
    useEffect(() => {
       setSocket(
@@ -75,12 +76,13 @@ function ProtectedRoute({ component: Component, ...props }) {
                            UniqueUsername={User.UniqueUsername}
                            ProfileImage={User.ProfileImage}
                            setChatSettings={setChatSettings}
+                           setNavHeight={setNavHeight}
                         />
                         <Component
                            {...componentProps}
-                           GlobalNav={GlobalNav}
                            setChatSettings={setChatSettings}
                            User={User}
+                           navHeight={navHeight}
                         />
                         {chatSettings.open && (
                            <ChatBox

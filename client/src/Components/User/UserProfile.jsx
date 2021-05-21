@@ -56,6 +56,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
                      setIsLoading(false);
                   } else {
                      setIsValid(false);
+                     setIsLoading(false);
                   }
                }
             } else {

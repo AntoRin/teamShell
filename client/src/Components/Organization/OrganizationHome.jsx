@@ -2,19 +2,21 @@ import { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import IconButton from "@material-ui/core/IconButton";
+import SettingsIcon from "@material-ui/icons/Settings";
 import OrgTabPanel from "./OrgTabPanel";
-import OrgSideNav from "./OrgSideNav";
+import OrgSettingsModal from "./OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/organization-home.css";
 
 const useStyles = makeStyles(theme => ({
-   root: {
+   root: props => ({
       flexGrow: 1,
       backgroundColor: "rgb(18, 18, 23)",
       display: "flex",
-      minHeight: "80vh",
+      minHeight: `calc(100vh - ${props.navHeight}px)`,
       overflowY: "scroll",
-   },
+   }),
    tabs: {
       borderRight: `1px solid ${theme.palette.divider}`,
       backgroundColor: "#111",
@@ -22,15 +24,21 @@ const useStyles = makeStyles(theme => ({
    tab: {
       margin: "15px",
    },
+   settings: {
+      position: "fixed",
+      bottom: "5px",
+      left: "5px",
+   },
 }));
 
-function OrganizationHome({ match, User }) {
-   const classes = useStyles();
+function OrganizationHome({ match, User, navHeight }) {
+   const classes = useStyles({ navHeight });
 
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [Organization, setOrganization] = useState({});
    const [isLoading, setIsLoading] = useState(true);
    const [tabName, setTabName] = useState("General Details");
+   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -71,6 +79,10 @@ function OrganizationHome({ match, User }) {
       setTabName(event.target.textContent);
    }
 
+   function openSettingsModal() {
+      setIsSettingsOpen(prev => !prev);
+   }
+
    if (isLoading) {
       return <LinearLoader />;
    } else {
@@ -102,6 +114,22 @@ function OrganizationHome({ match, User }) {
                </Tabs>
                <OrgTabPanel tabName={tabName} Organization={Organization} />
             </div>
+            {Organization.Creator === User.UniqueUsername && (
+               <IconButton
+                  className={classes.settings}
+                  onClick={openSettingsModal}
+               >
+                  <SettingsIcon color="primary" />
+               </IconButton>
+            )}
+            {isSettingsOpen && (
+               <OrgSettingsModal
+                  User={User}
+                  match={match}
+                  Organization={Organization}
+                  setIsSettingsOpen={setIsSettingsOpen}
+               />
+            )}
          </div>
       ) : (
          <h1>There was an error</h1>

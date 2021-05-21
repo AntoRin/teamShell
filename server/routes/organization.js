@@ -59,9 +59,16 @@ router.get("/details/:OrganizationName", async (req, res, next) => {
 });
 
 router.post("/edit", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
    let { Org, Description } = req.body;
 
    try {
+      let organization = await Organization.findOne({ OrganizationName: Org });
+
+      if (!organization) throw { name: "UnknownData" };
+      if (organization.Creator !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+
       await Organization.updateOne({ OrganizationName: Org }, { Description });
       return res.json({ status: "ok", data: "" });
    } catch (error) {

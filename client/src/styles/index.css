@@ -8,7 +8,7 @@ html {
    padding: 0;
    box-sizing: border-box;
    min-height: 100vh;
-   background: black;
+   background: rgb(18, 18, 23);
    color: white;
    overflow-x: hidden;
 }
@@ -18,7 +18,7 @@ body {
    padding: 0;
    box-sizing: border-box;
    min-height: 100vh;
-   background: black;
+   background: rgb(18, 18, 23);
    color: white;
    overflow-x: hidden;
 }

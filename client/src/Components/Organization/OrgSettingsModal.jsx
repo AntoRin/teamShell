@@ -53,6 +53,8 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    async function updateOrgSettings(event) {
       event.preventDefault();
 
+      if (!Organization.Creator !== User.UniqueUsername) return;
+
       let body = {
          Org: Organization.OrganizationName,
          Description: newDescription,
@@ -72,6 +74,8 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
 
    async function addUserToOrg(event) {
       event.preventDefault();
+
+      if (!Organization.Creator !== User.UniqueUsername) return;
 
       if (Organization.Members.includes(newUser)) {
          setActionStatus({ info: "User already present", type: "info" });
