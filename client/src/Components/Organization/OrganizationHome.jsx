@@ -79,6 +79,7 @@ function OrganizationHome({ match, User }) {
             <div className={classes.root}>
                <Tabs
                   orientation="vertical"
+                  indicatorColor="primary"
                   value={tabName}
                   onChange={handleTabChange}
                   className={classes.tabs}

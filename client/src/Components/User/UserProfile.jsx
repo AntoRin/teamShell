@@ -59,7 +59,6 @@ function UserProfile({ location, match, User, setChatSettings }) {
                   }
                }
             } else {
-               setIsLoading(true);
                let userDataStream = await fetch(
                   `/profile/details/${match.params.UniqueUsername}`,
                   { credentials: "include", signal: abortFetch.signal }
