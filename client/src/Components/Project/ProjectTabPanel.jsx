@@ -1,6 +1,7 @@
 import { Container } from "@material-ui/core";
 import ProjectGeneralDetails from "./ProjectGeneralDetails";
 import IssuesInfoCard from "./IssuesInfoCard";
+import ProjectMembersInfo from "./ProjectMembersInfo";
 
 function ProjectTabPanel({ tabName, Project }) {
    switch (tabName) {
@@ -12,6 +13,12 @@ function ProjectTabPanel({ tabName, Project }) {
                {Project.Issues.map(issue => (
                   <IssuesInfoCard key={issue._id} Issue={issue} />
                ))}
+            </Container>
+         );
+      case "Members":
+         return (
+            <Container>
+               <ProjectMembersInfo Project={Project} />
             </Container>
          );
       default:
