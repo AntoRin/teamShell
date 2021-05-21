@@ -6,8 +6,11 @@
 
 .environment-panel-main {
    width: 100%;
-   display: grid;
-   grid-template-columns: 1fr 4fr;
+   /* display: grid;
+   grid-template-columns: 1fr 4fr; */
+   display: flex;
+   justify-content: center;
+   width: 100%;
 }
 
 .panel-project-selection {
@@ -26,7 +29,7 @@
 }
 
 .panel-project-active {
-   border: 1px solid cyan;
+   border: 2px solid rgb(108, 98, 190);
 }
 
 .environment-workspace {
@@ -36,6 +39,7 @@
    font-family: "Quicksand", sans-serif;
    max-width: 100%;
    overflow-x: hidden;
+   width: 70%;
 }
 
 #multilineEditor {

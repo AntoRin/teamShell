@@ -8,7 +8,6 @@ import IconButton from "@material-ui/core/IconButton";
 import ProjectTabPanel from "./ProjectTabPanel";
 import ProjectSettingsModal from "./ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
-import "../../styles/project-home.css";
 
 const useStyles = makeStyles(theme => ({
    root: props => ({

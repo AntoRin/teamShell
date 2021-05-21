@@ -4,10 +4,10 @@
    margin-bottom: 15px;
    font-size: 1.2rem;
    font-family: "Poppins", sans-serif;
-   border-bottom: 2px solid #333;
-   background-color: #111;
+   border-bottom: 2px solid #111;
+   background-color: #222;
    position: relative;
-   box-shadow: 2px 2px 5px black;
+   box-shadow: 2px 2px 5x #111;
 }
 
 .general-nav-section {
@@ -18,8 +18,8 @@
 }
 
 .nav-logo {
-   border-left: 2px solid rgb(51, 0, 111);
-   padding-left: 5px;
+   border-left: 3px solid rgb(108, 98, 190);
+   padding-left: 10px;
 }
 
 .nav-logo a {
@@ -54,7 +54,7 @@
    text-decoration: none;
    color: white;
    margin: 0px 10px;
-   border-bottom: 2px solid cyan;
+   border-bottom: 2px solid rgb(51, 0, 111);
    cursor: pointer;
    font-weight: 700;
 }

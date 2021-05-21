@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
    configurationToggle: {
       cursor: "pointer",
       display: "flex",
-      justifyContent: "flex-end",
+      justifyContent: "flex-start",
       margin: "0 10px",
    },
    bottomDrawer: {
@@ -36,7 +36,8 @@ function UserEnvironment({ User }) {
    const classes = useStyles();
 
    const [currentOrg, setCurrentOrg] = useState(
-      window.localStorage.getItem("environment_organization_context") ||
+      () =>
+         window.localStorage.getItem("environment_organization_context") ||
          (User.Organizations.length > 0
             ? User.Organizations[0].OrganizationName
             : "")
@@ -82,7 +83,7 @@ function UserEnvironment({ User }) {
                      color="inherit"
                      onClick={toggleConfigurationDrawer(true)}
                   >
-                     <SettingsSharpIcon />
+                     <SettingsSharpIcon fontSize="large" color="primary" />
                   </Button>
                </Tooltip>
             </div>

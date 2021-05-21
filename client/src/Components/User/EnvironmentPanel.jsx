@@ -5,13 +5,20 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Dialog from "@material-ui/core/Dialog";
+import AssignmentIcon from "@material-ui/icons/Assignment";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/environment-panel.css";
-// import CenteredLoader from "../UtilityComponents/CenteredLoader";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -27,11 +34,34 @@ const useStyles = makeStyles(theme => ({
    arrowIcon: {
       color: "white",
    },
+   projectSettingsBtn: {
+      position: "fixed",
+      top: "25%",
+      left: "10px",
+   },
 }));
 
 function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
-   const [activeProject, setActiveProject] = useState("");
+
+   const [activeProject, setActiveProject] = useState(() => {
+      let preference = window.localStorage.getItem(
+         "environment_project_context"
+      );
+      if (preference) {
+         let savedProject = User.Projects.find(
+            project => project.ProjectName === preference
+         );
+         if (savedProject.ParentOrganization === currentOrg)
+            return savedProject.ProjectName;
+      }
+
+      let currentProject = User.Projects.find(
+         project => project.ParentOrganization === currentOrg
+      );
+      if (currentProject) return currentProject.ProjectName;
+      else return "";
+   });
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
@@ -39,16 +69,13 @@ function EnvironmentPanel({ User, currentOrg }) {
       type: "success",
       info: null,
    });
+   const [projectSelectOpen, setProjectSelectOpen] = useState(false);
 
    const socket = useContext(SocketInstance);
 
    useEffect(() => {
-      let currentProject = User.Projects.find(
-         project => project.ParentOrganization === currentOrg
-      );
-      if (currentProject) setActiveProject(currentProject.ProjectName);
-      else setActiveProject("");
-   }, [currentOrg, User.Projects]);
+      window.localStorage.setItem("environment_project_context", activeProject);
+   }, [activeProject]);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -93,8 +120,17 @@ function EnvironmentPanel({ User, currentOrg }) {
       setAccordionExpanded(false);
    }, [currentOrg]);
 
+   function handleProjectSelectOpen() {
+      setProjectSelectOpen(true);
+   }
+
+   function handleProjectSelectClose() {
+      setProjectSelectOpen(false);
+   }
+
    function changeActiveProject(event) {
       setActiveProject(event.target.textContent);
+      setProjectSelectOpen(false);
    }
 
    function changeAccordionState() {
@@ -102,47 +138,52 @@ function EnvironmentPanel({ User, currentOrg }) {
    }
 
    function currentProjects() {
-      if (User.Projects.length < 1)
-         return (
-            <div className="panel-project-member">
-               <h3>No projects yet</h3>
-            </div>
-         );
-
       let thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === currentOrg
       );
 
       if (!thisOrgProjects)
-         return (
-            <div className="panel-project-member">
-               <h3>You have no projects in this organization</h3>
-            </div>
-         );
+         return <ListItem>You have no projects in this organization</ListItem>;
 
       let projectTitles = User.Projects.map(project => {
          return (
             project.ParentOrganization === currentOrg && (
-               <div
+               <ListItem
                   key={project._id}
                   onClick={changeActiveProject}
-                  className={`panel-project-member ${
-                     activeProject === project.ProjectName
-                        ? "panel-project-active"
-                        : ""
-                  }`}
+                  button={true}
+                  selected={activeProject === project.ProjectName}
                >
-                  <h3>{project.ProjectName}</h3>
-               </div>
+                  <ListItemText
+                     primary={project.ProjectName}
+                     primaryTypographyProps={{
+                        variant: "h6",
+                        gutterBottom: true,
+                     }}
+                  />
+               </ListItem>
             )
          );
       });
       return projectTitles;
    }
+
    return !isLoading ? (
       <div className="environment-panel-container">
          <div className="environment-panel-main">
-            <div className="panel-project-selection">{currentProjects()}</div>
+            <IconButton
+               className={classes.projectSettingsBtn}
+               color="primary"
+               onClick={handleProjectSelectOpen}
+            >
+               <AssignmentIcon fontSize="large" />
+            </IconButton>
+            <Dialog onClose={handleProjectSelectClose} open={projectSelectOpen}>
+               <DialogTitle id="simple-dialog-title">
+                  Select a project to work on
+               </DialogTitle>
+               <List>{currentProjects()}</List>
+            </Dialog>
             <div className="environment-workspace">
                {activeProject ? (
                   <div className="new-issue-division">
@@ -156,8 +197,6 @@ function EnvironmentPanel({ User, currentOrg }) {
                            expandIcon={
                               <ExpandMoreIcon className={classes.arrowIcon} />
                            }
-                           aria-controls="panel1a-content"
-                           id="panel1a-header"
                         >
                            <Typography className={classes.heading}>
                               Create a new issue

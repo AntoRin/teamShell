@@ -7,7 +7,6 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import OrgTabPanel from "./OrgTabPanel";
 import OrgSettingsModal from "./OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
-import "../../styles/organization-home.css";
 
 const useStyles = makeStyles(theme => ({
    root: props => ({
