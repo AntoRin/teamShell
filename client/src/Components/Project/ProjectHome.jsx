@@ -1,16 +1,48 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { makeStyles } from "@material-ui/core";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
 import SettingsIcon from "@material-ui/icons/Settings";
+import IconButton from "@material-ui/core/IconButton";
+import ProjectTabPanel from "./ProjectTabPanel";
 import ProjectSettingsModal from "./ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/project-home.css";
 
-function ProjectHome({ match, User }) {
+const useStyles = makeStyles(theme => ({
+   root: props => ({
+      flexGrow: 1,
+      backgroundColor: "rgb(18, 18, 23)",
+      display: "flex",
+      minHeight: `calc(100vh - ${props.navHeight}px)`,
+      overflowY: "scroll",
+      overflowX: "hidden",
+      fontFamily: `"Roboto", sans-serif`,
+   }),
+   tabs: {
+      borderRight: `1px solid ${theme.palette.divider}`,
+      backgroundColor: "#111",
+   },
+   tab: {
+      margin: "15px",
+   },
+   settings: {
+      position: "fixed",
+      bottom: "5px",
+      left: "5px",
+   },
+}));
+
+function ProjectHome({ match, User, navHeight }) {
+   const classes = useStyles({ navHeight });
+
    const [isLoading, setIsLoading] = useState(true);
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [parentOrg, setParentOrg] = useState({});
    const [Project, setProject] = useState({});
    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+   const [tabName, setTabName] = useState("General Details");
 
    const history = useHistory();
 
@@ -73,6 +105,10 @@ function ProjectHome({ match, User }) {
       return () => abortFetch.abort();
    }, [match, history]);
 
+   function handleTabChange(event) {
+      setTabName(event.target.textContent);
+   }
+
    function openSettingsModal() {
       setIsSettingsOpen(true);
    }
@@ -81,57 +117,38 @@ function ProjectHome({ match, User }) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <div className="project-home-container">
-            <div className="project-home-main-wrapper">
-               <header className="project-home-header">
-                  {parentOrg.OrganizationName}/{Project.ProjectName}
-               </header>
-               <div className="project-home-content">
-                  <div className="project-members-section">
-                     <h2 className="project-home-inner-title">Members</h2>
-                     {Project.Members.map((member, index) => {
-                        return <div key={index}>{member}</div>;
-                     })}
-                  </div>
-                  <div className="project-details-section">
-                     <div className="project-general-details">
-                        <div>
-                           <h2 className="project-home-inner-title">Creator</h2>
-                        </div>
-                        <div>{Project.Creator}</div>
-                        <div>
-                           <h2 className="project-home-inner-title">
-                              Description
-                           </h2>
-                           <div>{Project.ProjectDescription}</div>
-                        </div>
-                     </div>
-                     <div className="project-issue-details">
-                        <h2 className="project-home-inner-title">Issues</h2>
-                        {Project.Issues.length > 0
-                           ? Project.Issues.map((issue, index) => {
-                                return (
-                                   <div key={index}>{issue.IssueTitle}</div>
-                                );
-                             })
-                           : "No issues yet"}
-                     </div>
-                  </div>
-               </div>
-               <div
+         <div className={classes.root}>
+            <Tabs
+               orientation="vertical"
+               indicatorColor="primary"
+               value={tabName}
+               onChange={handleTabChange}
+               className={classes.tabs}
+            >
+               <Tab
+                  className={classes.tab}
+                  label="General Details"
+                  value="General Details"
+               />
+               <Tab className={classes.tab} label="Issues" value="Issues" />
+               <Tab className={classes.tab} label="Members" value="Members" />
+            </Tabs>
+            <ProjectTabPanel tabName={tabName} Project={Project} />
+            {Project.Creator === User.UniqueUsername && (
+               <IconButton
+                  className={classes.settings}
                   onClick={openSettingsModal}
-                  className="project-settings-icon"
                >
-                  <SettingsIcon fontSize="large" />
-               </div>
-               {isSettingsOpen && (
-                  <ProjectSettingsModal
-                     User={User}
-                     Project={Project}
-                     setIsSettingsOpen={setIsSettingsOpen}
-                  />
-               )}
-            </div>
+                  <SettingsIcon color="primary" />
+               </IconButton>
+            )}
+            {isSettingsOpen && (
+               <ProjectSettingsModal
+                  User={User}
+                  Project={Project}
+                  setIsSettingsOpen={setIsSettingsOpen}
+               />
+            )}
          </div>
       ) : (
          <h1>There was an error</h1>

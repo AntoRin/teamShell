@@ -14,13 +14,59 @@ router.get("/details/:IssueID", async (req, res, next) => {
 
       let issue = await Issue.findOne({ _id });
 
+      if (!issue) throw { name: "UnknownData" };
+
       let projectMember = user.Projects.find(project => {
          return project._id.toString() === issue.Project_id;
       });
+
       if (!projectMember) throw { name: "UnauthorizedRequest" };
+
       return res.json({ status: "ok", data: issue });
    } catch (error) {
       console.log(error);
+      return next(error);
+   }
+});
+
+router.get("/snippet/:IssueID", async (req, res, next) => {
+   let { UniqueUsername, Email } = req.thisUser;
+   let _id = req.params.IssueID;
+
+   try {
+      let user = await User.findOne({ UniqueUsername, Email });
+
+      if (!user) throw { name: "UnauthorizedRequest" };
+
+      let issueDetails = await Issue.findOne(
+         { _id },
+         {
+            ProjectContext: 0,
+            Solutions: 0,
+            updatedAt: 0,
+            __v: 0,
+         }
+      );
+
+      if (!issueDetails) throw { name: "UnknownData" };
+
+      let projectMember = user.Projects.find(project => {
+         return project._id.toString() === issueDetails.Project_id;
+      });
+
+      if (!projectMember) throw { name: "UnauthorizedRequest" };
+
+      let issueSnippet = {
+         ID: issueDetails._id,
+         Title: issueDetails.IssueTitle,
+         Description: issueDetails.IssueDescription,
+         "Created by": issueDetails.Creator.UniqueUsername,
+         Active: issueDetails.Active.toString(),
+         "Created at": issueDetails.createdAt,
+      };
+
+      return res.json({ status: "ok", data: issueSnippet });
+   } catch (error) {
       return next(error);
    }
 });

@@ -7,10 +7,10 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import EcoIcon from "@material-ui/icons/Eco";
+import CodeIcon from "@material-ui/icons/Code";
 import DescriptionIcon from "@material-ui/icons/Description";
 import WbIncandescentIcon from "@material-ui/icons/WbIncandescent";
-import AssignmentIcon from "@material-ui/icons/Assignment";
+import BugReportIcon from "@material-ui/icons/BugReport";
 import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import EventIcon from "@material-ui/icons/Event";
 import { Divider } from "@material-ui/core";
@@ -39,7 +39,7 @@ const commonTypographicProps = variant => ({
    gutterBottom: true,
 });
 
-function OrgGeneralDetails({ Organization }) {
+function ProjectGeneralDetails({ Project }) {
    const classes = useStyles();
 
    const history = useHistory();
@@ -53,10 +53,10 @@ function OrgGeneralDetails({ Organization }) {
          <List className={classes.icons}>
             <ListItem className={classes.listElement} divider={false}>
                <ListItemIcon>
-                  <EcoIcon fontSize="large" className={classes.listIcon} />
+                  <CodeIcon fontSize="large" className={classes.listIcon} />
                </ListItemIcon>
                <ListItemText
-                  primary={Organization.OrganizationName}
+                  primary={Project.ProjectName}
                   primaryTypographyProps={commonTypographicProps("h5")}
                />
             </ListItem>
@@ -69,7 +69,7 @@ function OrgGeneralDetails({ Organization }) {
                   />
                </ListItemIcon>
                <ListItemText
-                  primary={Organization.Description}
+                  primary={Project.ProjectDescription}
                   primaryTypographyProps={commonTypographicProps("h6")}
                />
             </ListItem>
@@ -91,12 +91,12 @@ function OrgGeneralDetails({ Organization }) {
                      <Chip
                         className={classes.userChip}
                         clickable={true}
-                        onClick={() => goToProfile(Organization.Creator)}
+                        onClick={() => goToProfile(Project.Creator)}
                         variant="outlined"
-                        label={Organization.Creator}
+                        label={Project.Creator}
                         color="primary"
                         size="medium"
-                        avatar={<Avatar>{Organization.Creator[0]}</Avatar>}
+                        avatar={<Avatar>{Project.Creator[0]}</Avatar>}
                      />
                   }
                   secondaryTypographyProps={{ component: "div" }}
@@ -105,15 +105,15 @@ function OrgGeneralDetails({ Organization }) {
             <Divider variant="middle" className={classes.divider} />
             <ListItem className={classes.listElement}>
                <ListItemIcon>
-                  <AssignmentIcon
+                  <BugReportIcon
                      fontSize="large"
                      className={classes.listIcon}
                   />
                </ListItemIcon>
                <ListItemText
-                  primary="No. of projects: "
+                  primary="No. of Issues: "
                   primaryTypographyProps={commonTypographicProps("h6")}
-                  secondary={0 || Organization.Projects.length}
+                  secondary={0 || Project.IssuesRef.length}
                   secondaryTypographyProps={commonTypographicProps("h6")}
                />
             </ListItem>
@@ -128,7 +128,7 @@ function OrgGeneralDetails({ Organization }) {
                <ListItemText
                   primary="Members: "
                   primaryTypographyProps={commonTypographicProps("h6")}
-                  secondary={Organization.Members.length}
+                  secondary={Project.Members.length}
                   secondaryTypographyProps={commonTypographicProps("h6")}
                />
             </ListItem>
@@ -140,7 +140,7 @@ function OrgGeneralDetails({ Organization }) {
                <ListItemText
                   primary="Created at: "
                   primaryTypographyProps={commonTypographicProps("h6")}
-                  secondary={formatDate(Organization.createdAt)}
+                  secondary={formatDate(Project.createdAt)}
                   secondaryTypographyProps={commonTypographicProps("h6")}
                />
             </ListItem>
@@ -150,4 +150,4 @@ function OrgGeneralDetails({ Organization }) {
    );
 }
 
-export default OrgGeneralDetails;
+export default ProjectGeneralDetails;

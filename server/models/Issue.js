@@ -62,17 +62,6 @@ const issueSchema = new Schema(
          ],
          default: [],
       },
-      Follows: {
-         type: [
-            {
-               FollowedBy: {
-                  type: String,
-                  required: true,
-               },
-            },
-         ],
-         default: [],
-      },
    },
    { timestamps: true, strictQuery: "throw" }
 );

@@ -16,6 +16,8 @@ const useStyles = makeStyles(theme => ({
       display: "flex",
       minHeight: `calc(100vh - ${props.navHeight}px)`,
       overflowY: "scroll",
+      overflowX: "hidden",
+      fontFamily: `"Roboto", sans-serif`,
    }),
    tabs: {
       borderRight: `1px solid ${theme.palette.divider}`,
@@ -87,7 +89,7 @@ function OrganizationHome({ match, User, navHeight }) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <div className="organization-home-container">
+         <div>
             <div className={classes.root}>
                <Tabs
                   orientation="vertical"
