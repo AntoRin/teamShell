@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import "../../styles/user-home.css";
+import { Button } from "@material-ui/core";
 
 function UserHome({ User }) {
    const [activePanelOrg, setActivePanelOrg] = useState(
@@ -97,23 +98,30 @@ function UserHome({ User }) {
                      </div>
                   )}
                   <div className="create-org-btn">
-                     <button
+                     <Button
+                        color="primary"
+                        variant="outlined"
+                        fullWidth={true}
                         onClick={createNewOrganization}
-                        className="create-btn"
+                        endIcon={<AddBoxIcon />}
                      >
-                        <span>New Organization</span>
-                        <AddBoxIcon />
-                     </button>
+                        New Organization
+                     </Button>
                   </div>
                </div>
                <div className="details-section">
                   <h3 className="member-list-header">Projects</h3>
                   {currentProjects()}
                   <div className="create-project-btn">
-                     <button onClick={createNewProject} className="create-btn">
-                        <span>New Project</span>
-                        <AddBoxIcon />
-                     </button>
+                     <Button
+                        color="primary"
+                        variant="outlined"
+                        fullWidth={true}
+                        onClick={createNewProject}
+                        endIcon={<AddBoxIcon />}
+                     >
+                        New Project
+                     </Button>
                   </div>
                </div>
             </div>

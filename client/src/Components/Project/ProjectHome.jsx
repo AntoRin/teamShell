@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import { makeStyles } from "@material-ui/core";
+import { Link, useHistory } from "react-router-dom";
+import { Button, makeStyles, Typography } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import ProjectTabPanel from "./ProjectTabPanel";
 import ProjectSettingsModal from "./ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -30,6 +32,17 @@ const useStyles = makeStyles(theme => ({
       position: "fixed",
       bottom: "5px",
       left: "5px",
+   },
+   crumbs: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      margin: "10px",
+      padding: "5px",
+      borderBottom: "1px dashed rgb(108, 98, 190)",
+   },
+   crumbLinks: {
+      textDecoration: "none",
    },
 }));
 
@@ -112,43 +125,86 @@ function ProjectHome({ match, User, navHeight }) {
       setIsSettingsOpen(true);
    }
 
+   function handleJoinRequest() {}
+
    if (isLoading) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <div className={classes.root}>
-            <Tabs
-               orientation="vertical"
-               indicatorColor="primary"
-               value={tabName}
-               onChange={handleTabChange}
-               className={classes.tabs}
-            >
-               <Tab
-                  className={classes.tab}
-                  label="General Details"
-                  value="General Details"
-               />
-               <Tab className={classes.tab} label="Issues" value="Issues" />
-               <Tab className={classes.tab} label="Members" value="Members" />
-            </Tabs>
-            <ProjectTabPanel tabName={tabName} Project={Project} />
-            {Project.Creator === User.UniqueUsername && (
-               <IconButton
-                  className={classes.settings}
-                  onClick={openSettingsModal}
+         <>
+            <div className={classes.crumbs}>
+               <Breadcrumbs separator={<NavigateNextIcon color="primary" />}>
+                  <Link
+                     className={classes.crumbLinks}
+                     to={`/organization/${parentOrg.OrganizationName}`}
+                  >
+                     <Typography
+                        color="secondary"
+                        variant="h6"
+                        gutterBottom={true}
+                     >
+                        {parentOrg.OrganizationName}
+                     </Typography>
+                  </Link>
+                  <Link
+                     className={classes.crumbLinks}
+                     to={`/project/${parentOrg.OrganizationName}/${Project.ProjectName}`}
+                  >
+                     <Typography
+                        color="secondary"
+                        variant="h6"
+                        gutterBottom={true}
+                     >
+                        {Project.ProjectName}
+                     </Typography>
+                  </Link>
+               </Breadcrumbs>
+               <Button
+                  color="secondary"
+                  variant="outlined"
+                  onClick={handleJoinRequest}
                >
-                  <SettingsIcon color="primary" />
-               </IconButton>
-            )}
-            {isSettingsOpen && (
-               <ProjectSettingsModal
-                  User={User}
-                  Project={Project}
-                  setIsSettingsOpen={setIsSettingsOpen}
-               />
-            )}
-         </div>
+                  Join
+               </Button>
+            </div>
+            <div className={classes.root}>
+               <Tabs
+                  orientation="vertical"
+                  indicatorColor="primary"
+                  value={tabName}
+                  onChange={handleTabChange}
+                  className={classes.tabs}
+               >
+                  <Tab
+                     className={classes.tab}
+                     label="General Details"
+                     value="General Details"
+                  />
+                  <Tab className={classes.tab} label="Issues" value="Issues" />
+                  <Tab
+                     className={classes.tab}
+                     label="Members"
+                     value="Members"
+                  />
+               </Tabs>
+               <ProjectTabPanel tabName={tabName} Project={Project} />
+               {Project.Creator === User.UniqueUsername && (
+                  <IconButton
+                     className={classes.settings}
+                     onClick={openSettingsModal}
+                  >
+                     <SettingsIcon color="primary" />
+                  </IconButton>
+               )}
+               {isSettingsOpen && (
+                  <ProjectSettingsModal
+                     User={User}
+                     Project={Project}
+                     setIsSettingsOpen={setIsSettingsOpen}
+                  />
+               )}
+            </div>
+         </>
       ) : (
          <h1>There was an error</h1>
       );

@@ -17,6 +17,11 @@ const ProjectSchema = new Schema(
          type: String,
          required: true,
       },
+      InviteOnly: {
+         type: Boolean,
+         required: true,
+         default: true,
+      },
       IssuesRef: {
          type: [mongoose.Types._ObjectId],
       },

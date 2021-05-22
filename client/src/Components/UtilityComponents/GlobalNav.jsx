@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
-import MmsIcon from "@material-ui/icons/Mms";
+import StorageIcon from "@material-ui/icons/Storage";
+import { Button } from "@material-ui/core";
+import DeveloperModeIcon from "@material-ui/icons/DeveloperMode";
 import Notifications from "./Notifications";
 import ChatHistory from "./ChatHistory";
 import UserDropDown from "./UserDropDown";
@@ -20,6 +22,8 @@ function GlobalNav({
    const [chatHistoryState, setChatHistoryState] = useState(false);
 
    const navRef = useRef();
+
+   const history = useHistory();
 
    const NotifyIcon = activeNotifications
       ? NotificationsActiveIcon
@@ -71,6 +75,10 @@ function GlobalNav({
       setChatHistoryState(prev => !prev);
    }
 
+   function goToWorkspace() {
+      history.push("/user/environment");
+   }
+
    return (
       <nav ref={navRef} className="global-nav-container">
          <div className="nav-wrapper">
@@ -81,7 +89,15 @@ function GlobalNav({
             </div>
             <div className="user-section">
                <div className="user-links-section">
-                  <Link to="/user/environment">Your Environment</Link>
+                  <Button
+                     variant="text"
+                     color="primary"
+                     size="large"
+                     endIcon={<DeveloperModeIcon fontSize="large" />}
+                     onClick={goToWorkspace}
+                  >
+                     Workspace
+                  </Button>
                </div>
                <div className="notifications-section">
                   <NotifyIcon
@@ -95,7 +111,7 @@ function GlobalNav({
                   />
                </div>
                <div className="message-section">
-                  <MmsIcon
+                  <StorageIcon
                      fontSize="large"
                      className="nav-icon"
                      onClick={toggleMessageHistory}

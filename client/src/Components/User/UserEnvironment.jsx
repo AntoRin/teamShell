@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Tooltip from "@material-ui/core/Tooltip";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
 import Drawer from "@material-ui/core/Drawer";
-import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -16,7 +16,9 @@ const useStyles = makeStyles(theme => ({
       cursor: "pointer",
       display: "flex",
       justifyContent: "flex-start",
-      margin: "0 10px",
+      position: "fixed",
+      top: "15%",
+      left: "10px",
    },
    bottomDrawer: {
       "& .MuiDrawer-paperAnchorBottom": {
@@ -75,16 +77,16 @@ function UserEnvironment({ User }) {
             <div className={classes.configurationToggle}>
                <Tooltip
                   title="Configure work environment"
-                  placement="left"
+                  placement="right"
                   arrow
                >
-                  <Button
+                  <IconButton
                      variant="text"
                      color="inherit"
                      onClick={toggleConfigurationDrawer(true)}
                   >
                      <SettingsSharpIcon fontSize="large" color="primary" />
-                  </Button>
+                  </IconButton>
                </Tooltip>
             </div>
             <Drawer

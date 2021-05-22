@@ -5,7 +5,6 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -19,6 +18,7 @@ import IssueCard from "./IssueCard";
 import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/environment-panel.css";
+import { Tooltip } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -171,13 +171,15 @@ function EnvironmentPanel({ User, currentOrg }) {
    return !isLoading ? (
       <div className="environment-panel-container">
          <div className="environment-panel-main">
-            <IconButton
-               className={classes.projectSettingsBtn}
-               color="primary"
-               onClick={handleProjectSelectOpen}
-            >
-               <AssignmentIcon fontSize="large" />
-            </IconButton>
+            <Tooltip title="Change project" placement="right" arrow>
+               <IconButton
+                  className={classes.projectSettingsBtn}
+                  color="primary"
+                  onClick={handleProjectSelectOpen}
+               >
+                  <AssignmentIcon fontSize="large" />
+               </IconButton>
+            </Tooltip>
             <Dialog onClose={handleProjectSelectClose} open={projectSelectOpen}>
                <DialogTitle id="simple-dialog-title">
                   Select a project to work on

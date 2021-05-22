@@ -1,17 +1,15 @@
 .nav-landing-container {
    overflow: hidden;
-   border-bottom: 1px solid rgb(51, 0, 111);
 }
 
 .nav-landing {
    display: flex;
    justify-content: space-between;
    align-items: center;
-   background: #111;
 }
 
 .nav-left {
-   margin: 10px;
+   margin: 20px;
    padding-left: 5px;
    font-family: "Quicksand", sans-serif;
    border-left: 2px solid rgb(51, 0, 111);
@@ -25,7 +23,7 @@
 }
 
 .nav-right {
-   margin: 10px;
+   margin: 20px;
 }
 
 .nav-right > ul {

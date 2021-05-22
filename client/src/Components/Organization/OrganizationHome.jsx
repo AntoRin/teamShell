@@ -4,6 +4,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import IconButton from "@material-ui/core/IconButton";
 import SettingsIcon from "@material-ui/icons/Settings";
+import { Button, Typography } from "@material-ui/core";
 import OrgTabPanel from "./OrgTabPanel";
 import OrgSettingsModal from "./OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -29,6 +30,17 @@ const useStyles = makeStyles(theme => ({
       position: "fixed",
       bottom: "5px",
       left: "5px",
+   },
+   crumbs: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      margin: "10px",
+      padding: "5px",
+      borderBottom: "1px dashed rgb(108, 98, 190)",
+      "& h6": {
+         cursor: "pointer",
+      },
    },
 }));
 
@@ -84,11 +96,31 @@ function OrganizationHome({ match, User, navHeight }) {
       setIsSettingsOpen(prev => !prev);
    }
 
+   function handleJoinRequest() {}
+
    if (isLoading) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <div>
+         <>
+            <div className={classes.crumbs}>
+               <>
+                  <Typography
+                     color="secondary"
+                     variant="h6"
+                     gutterBottom={true}
+                  >
+                     {Organization.OrganizationName}
+                  </Typography>
+               </>
+               <Button
+                  color="secondary"
+                  variant="outlined"
+                  onClick={handleJoinRequest}
+               >
+                  Join
+               </Button>
+            </div>
             <div className={classes.root}>
                <Tabs
                   orientation="vertical"
@@ -131,7 +163,7 @@ function OrganizationHome({ match, User, navHeight }) {
                   setIsSettingsOpen={setIsSettingsOpen}
                />
             )}
-         </div>
+         </>
       ) : (
          <h1>There was an error</h1>
       );

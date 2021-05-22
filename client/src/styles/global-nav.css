@@ -50,15 +50,6 @@
    margin: 0px 15px;
 }
 
-.user-links-section a {
-   text-decoration: none;
-   color: white;
-   margin: 0px 10px;
-   border-bottom: 2px solid rgb(51, 0, 111);
-   cursor: pointer;
-   font-weight: 700;
-}
-
 .notifications-section {
    position: relative;
 }

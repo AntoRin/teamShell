@@ -8,7 +8,7 @@
 
 .user-details {
    border-right: 2px solid #222;
-   background-color: rgb(10, 10, 10);
+   background-color: rgb(18, 18, 23);
    min-height: 90vh;
    padding: 5px;
 }
@@ -17,14 +17,14 @@
    display: flex;
    justify-content: center;
    flex-direction: column;
-   border: 1px solid lightslategray;
+   border: 1px solid #5a4fcf;
    border-radius: 7px;
    padding: 10px;
    margin: 10px;
 }
 
 .member-list-header {
-   color: crimson;
+   color: rgb(108, 98, 190);
    letter-spacing: 1px;
    font-family: "Source Sans Pro", sans-serif;
    padding: 2px 5px;
@@ -39,7 +39,7 @@
 }
 
 .active-member {
-   border: 2px solid cyan;
+   border: 2px solid rgb(51, 0, 111);
 }
 
 .create-org-btn {
