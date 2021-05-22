@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const Organization = require("../models/Organization");
 const Project = require("../models/Project");
 const User = require("../models/User");
+const { handleNotifications } = require("../utils/notificationHandler");
 
 const router = Router();
 
@@ -143,9 +144,9 @@ router.post("/edit", async (req, res, next) => {
    }
 });
 
-router.get("/add/new-user/:userSecret", async (req, res, next) => {
-   console.log("here in add user");
+router.post("/invite/new-user", handleNotifications);
 
+router.get("/add/new-user/:userSecret", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { userSecret } = req.params;
 
@@ -190,6 +191,42 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
          );
       } else {
          throw { name: "AuthFailure" };
+      }
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.post("/join/new-user", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { initiator, recipient, metaData } = req.body;
+
+   try {
+      if (UniqueUsername !== initiator) throw { name: "UnauthorizedRequest" };
+
+      let project = await Project.findOne({
+         ProjectName: metaData.target_name,
+      });
+      if (!project) throw { name: "UnknownData" };
+      if (!project.InviteOnly) {
+         await Project.findOneAndUpdate(
+            { ProjectName: metaData.target_name },
+            { $push: { Members: UniqueUsername } }
+         );
+
+         await User.updateOne(
+            { UniqueUsername },
+            {
+               $push: {
+                  Projects: {
+                     _id: project._id,
+                     ProjectName,
+                     Status: "Member",
+                     ParentOrganization: project.ParentOrganization,
+                  },
+               },
+            }
+         );
       }
    } catch (error) {
       return next(error);

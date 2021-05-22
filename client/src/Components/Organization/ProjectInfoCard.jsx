@@ -49,7 +49,7 @@ function ProjectInfoCard({ project, organization }) {
       async function getProjectSnippet() {
          setIsLoading(true);
          try {
-            let dataStream = await fetch(`/project/snippet/${project}`, {
+            let dataStream = await fetch(`/api/project/snippet/${project}`, {
                signal: abortFetch.signal,
             });
             let responseData = await dataStream.json();

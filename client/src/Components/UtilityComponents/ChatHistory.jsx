@@ -34,7 +34,7 @@ function ChatHistory({
 
       async function getChatHistory() {
          try {
-            let chatDataStream = await fetch("/chat/chat-history", {
+            let chatDataStream = await fetch("/api/chat/chat-history", {
                signal: abortFetch.signal,
             });
             let chatData = await chatDataStream.json();

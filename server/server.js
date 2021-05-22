@@ -47,12 +47,12 @@ app.use(
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../client/build")));
 
-app.use("/auth", authRoute);
-app.use("/profile", checkAuth, profileRoute);
-app.use("/organization", checkAuth, organizationRoute);
-app.use("/project", checkAuth, projectRoute);
-app.use("/issue", checkAuth, issueRoute);
-app.use("/chat", checkAuth, chatRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/profile", checkAuth, profileRoute);
+app.use("/api/organization", checkAuth, organizationRoute);
+app.use("/api/project", checkAuth, projectRoute);
+app.use("/api/issue", checkAuth, issueRoute);
+app.use("/api/chat", checkAuth, chatRoute);
 app.use("*", (req, res) => {
    res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });

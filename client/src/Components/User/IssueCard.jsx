@@ -120,7 +120,7 @@ function IssueCard({
          }),
       };
 
-      let updateStream = await fetch("/issue/close", putOptions);
+      let updateStream = await fetch("/api/issue/close", putOptions);
 
       let updateData = await updateStream.json();
 
@@ -147,7 +147,7 @@ function IssueCard({
          }),
       };
 
-      let updateStream = await fetch("/issue/reopen", putOptions);
+      let updateStream = await fetch("/api/issue/reopen", putOptions);
 
       let updateData = await updateStream.json();
 
@@ -176,7 +176,10 @@ function IssueCard({
          credentials: "include",
       };
 
-      let deleteResponseStream = await fetch("/issue/delete", deleteOptions);
+      let deleteResponseStream = await fetch(
+         "/api/issue/delete",
+         deleteOptions
+      );
       let deleteData = await deleteResponseStream.json();
 
       if (deleteData.status === "ok") {
@@ -210,7 +213,7 @@ function IssueCard({
          body: JSON.stringify(body),
       };
 
-      let bookmarkDataStream = await fetch("/issue/bookmark", putOptions);
+      let bookmarkDataStream = await fetch("/api/issue/bookmark", putOptions);
       let bookmarkData = await bookmarkDataStream.json();
 
       if (bookmarkData.status === "ok") {
@@ -241,7 +244,7 @@ function IssueCard({
       };
 
       let bookmarkDataStream = await fetch(
-         "/issue/bookmark/remove",
+         "/api/issue/bookmark/remove",
          putOptions
       );
       let bookmarkData = await bookmarkDataStream.json();

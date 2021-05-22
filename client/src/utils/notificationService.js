@@ -12,7 +12,10 @@ async function initiateNewNotification({ initiator, recipient, metaData }) {
       credentials: "include",
    };
 
-   let notificationStream = await fetch("/profile/notifications", postOptions);
+   let notificationStream = await fetch(
+      "/api/profile/notifications",
+      postOptions
+   );
 
    let notificationData = await notificationStream.json();
 

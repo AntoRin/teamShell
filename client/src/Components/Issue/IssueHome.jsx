@@ -36,7 +36,7 @@ function IssueHome({ match, User }) {
       async function getIssueDetails() {
          try {
             let rawData = await fetch(
-               `/issue/details/${match.params.IssueID}`,
+               `/api/issue/details/${match.params.IssueID}`,
                { credentials: "include", signal: abortFetch.signal }
             );
 

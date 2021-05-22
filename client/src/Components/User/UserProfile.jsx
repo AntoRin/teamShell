@@ -43,7 +43,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
                } else {
                   setIsLoading(true);
                   let userDataStream = await fetch(
-                     `/profile/details/${match.params.UniqueUsername}`,
+                     `/api/profile/details/${match.params.UniqueUsername}`,
                      { credentials: "include", signal: abortFetch.signal }
                   );
 
@@ -61,7 +61,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
                }
             } else {
                let userDataStream = await fetch(
-                  `/profile/details/${match.params.UniqueUsername}`,
+                  `/api/profile/details/${match.params.UniqueUsername}`,
                   { credentials: "include", signal: abortFetch.signal }
                );
 
@@ -126,7 +126,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
       };
 
       let uploadStream = await fetch(
-         "/profile/uploads/profile-image",
+         "/api/profile/uploads/profile-image",
          postOptions
       );
 
@@ -149,7 +149,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
          body: JSON.stringify(body),
          credentials: "include",
       };
-      let updateRequest = await fetch("/profile/edit", updateOptions);
+      let updateRequest = await fetch("/api/profile/edit", updateOptions);
       let updateResponse = await updateRequest.json();
       updateResponse.status === "ok"
          ? setActionStatus({

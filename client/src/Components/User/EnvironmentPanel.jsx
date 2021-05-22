@@ -89,7 +89,7 @@ function EnvironmentPanel({ User, currentOrg }) {
             }
 
             let projectRequest = await fetch(
-               `/project/details/${activeProject}`,
+               `/api/project/details/${activeProject}`,
                { credentials: "include", signal: abortFetch.signal }
             );
 

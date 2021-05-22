@@ -11,7 +11,7 @@ function UserDropDown({ isOpen, setIsDropdownOpen, UniqueUsername }) {
    }
 
    async function handleLogout() {
-      let logout = await fetch("/auth/logout", {
+      let logout = await fetch("/api/auth/logout", {
          redirect: "manual",
          credentials: "include",
       });

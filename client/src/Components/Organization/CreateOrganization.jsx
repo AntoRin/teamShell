@@ -35,7 +35,10 @@ function CreateOrganization() {
          credentials: "include",
       };
 
-      let createOrgRequest = await fetch("/organization/create", postOptions);
+      let createOrgRequest = await fetch(
+         "/api/organization/create",
+         postOptions
+      );
       let createOrgResponse = await createOrgRequest.json();
 
       if (createOrgResponse.status === "ok")

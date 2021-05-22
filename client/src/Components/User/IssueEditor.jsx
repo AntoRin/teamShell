@@ -69,9 +69,9 @@ function IssueEditor({ activeProject, User }) {
             credentials: "include",
          };
 
-         let newIssueSubmit = await fetch("/issue/create", postOptions);
+         let newIssueSubmit = await fetch("/api/issue/create", postOptions);
          let newIssueResponse = await newIssueSubmit.json();
-         console.log(newIssueResponse);
+
          if (newIssueResponse.status === "ok") {
             setIssueTitle("");
             editorRef.current.editor.core.setContents("");
@@ -84,11 +84,9 @@ function IssueEditor({ activeProject, User }) {
                recipient: activeProject,
                metaData: {
                   notification_type: "NewIssue",
-                  info_type: "New Issue",
                   target_category: "Issue",
                   target_name: issueTitle,
-                  target_info: "You can work on this issue now",
-                  initiator_opinion: "created",
+                  target_info: "",
                },
             };
             await initiateNewNotification(notificationData);

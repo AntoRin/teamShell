@@ -16,11 +16,6 @@ const OrganizationSchema = new Schema(
          type: String,
          required: true,
       },
-      InviteOnly: {
-         type: Boolean,
-         required: true,
-         default: true,
-      },
       Members: {
          type: Array,
          default: [],

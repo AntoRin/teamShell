@@ -36,10 +36,13 @@ function GlobalNav({
 
       async function changeNotificationSeenStatus() {
          try {
-            let responseStream = await fetch("/profile/notifications/seen", {
-               credentials: "include",
-               signal: abortFetch.signal,
-            });
+            let responseStream = await fetch(
+               "/api/profile/notifications/seen",
+               {
+                  credentials: "include",
+                  signal: abortFetch.signal,
+               }
+            );
 
             let responseData = await responseStream.json();
             console.log(responseData);

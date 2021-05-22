@@ -58,10 +58,13 @@ function Notifications({
 
       async function getNotifications() {
          try {
-            let notificationDataStream = await fetch("/profile/notifications", {
-               credentials: "include",
-               signal: abortFetch.signal,
-            });
+            let notificationDataStream = await fetch(
+               "/api/profile/notifications",
+               {
+                  credentials: "include",
+                  signal: abortFetch.signal,
+               }
+            );
 
             let notificationData = await notificationDataStream.json();
             if (notificationData.status === "ok") {
@@ -97,10 +100,7 @@ function Notifications({
    async function performNotificationAction(event, action) {
       let notificationAction = await fetch(action);
 
-      if (
-         notificationAction.redirected ||
-         notificationAction.type === "basic"
-      ) {
+      if (notificationAction.redirected) {
          let redirectUrl = new URL(notificationAction.url);
          history.replace(redirectUrl.pathname);
          return;

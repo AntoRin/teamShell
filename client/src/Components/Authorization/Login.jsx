@@ -53,7 +53,7 @@ function Login() {
          credentials: "include",
       };
 
-      let loginRequest = await fetch("/auth/login", postOptions);
+      let loginRequest = await fetch("/api/auth/login", postOptions);
       if (loginRequest.type === "opaqueredirect") {
          setIsLoading(false);
          window.location.href = "/user/home";

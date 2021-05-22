@@ -10,7 +10,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import { Button, TextField } from "@material-ui/core";
 import FullScreenDialog from "../UtilityComponents/FullScreenDialog";
-import inititateNewNotification from "../../utils/notificationService";
 import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/settings-modal.css";
 
@@ -61,7 +60,7 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
          credentials: "include",
       };
 
-      let update = await fetch("/project/edit", postOptions);
+      let update = await fetch("/api/project/edit", postOptions);
       let updateResponse = await update.json();
 
       if (updateResponse.status === "ok") window.location.reload();
@@ -83,20 +82,34 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
          recipient: newUser,
          metaData: {
             notification_type: "Invitation",
-            info_type: "You have a new invite",
             target_category: "Project",
             target_name: Project.ProjectName,
             target_info: `Project with ${Project.Members.length} member(s)`,
-            initiator_opinion: "invited",
          },
       };
 
-      let invitationResponse = await inititateNewNotification(invitationData);
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(invitationData),
+         credentials: "include",
+      };
 
-      if (invitationResponse.status === "ok")
+      let invitationStream = await fetch(
+         "/api/project/invite/new-user",
+         postOptions
+      );
+
+      let invitationResponse = await invitationStream.json();
+
+      if (invitationResponse.status === "ok") {
          setActionStatus({ info: "Invitation sent to user", type: "success" });
-      if (invitationResponse.status === "error")
+         return;
+      }
+      if (invitationResponse.status === "error") {
          setActionStatus({ info: "User not found", type: "error" });
+         return;
+      }
    }
 
    return (

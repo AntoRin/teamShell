@@ -50,7 +50,7 @@ function IssuesInfoCard({ Issue }) {
       async function getIssueInfo() {
          setIsLoading(true);
          try {
-            let dataStream = await fetch(`/issue/snippet/${Issue._id}`, {
+            let dataStream = await fetch(`/api/issue/snippet/${Issue._id}`, {
                signal: abortFetch.signal,
             });
             let responseData = await dataStream.json();

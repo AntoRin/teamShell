@@ -13,7 +13,7 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
 
       async function getSearchResults() {
          let query = textSearch;
-         let searchStream = await fetch(`/profile/search?user=${query}`, {
+         let searchStream = await fetch(`/api/profile/search?user=${query}`, {
             credentials: "include",
          });
          let resultData = await searchStream.json();

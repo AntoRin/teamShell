@@ -64,7 +64,7 @@ function ProjectHome({ match, User, navHeight }) {
       async function getProjectDetails() {
          try {
             let orgRequest = await fetch(
-               `/organization/details/${match.params.OrganizationName}`,
+               `/api/organization/details/${match.params.OrganizationName}`,
                {
                   credentials: "include",
                   signal: abortFetch.signal,
@@ -85,7 +85,7 @@ function ProjectHome({ match, User, navHeight }) {
             }
 
             let projectRequest = await fetch(
-               `/project/details/${match.params.ProjectName}`,
+               `/api/project/details/${match.params.ProjectName}`,
                {
                   credentials: "include",
                   signal: abortFetch.signal,
@@ -125,7 +125,35 @@ function ProjectHome({ match, User, navHeight }) {
       setIsSettingsOpen(true);
    }
 
-   function handleJoinRequest() {}
+   async function handleJoinRequest() {
+      let requestData = {
+         initiator: User.UniqueUsername,
+         recipient: Project.ProjectName,
+         metaData: {
+            notification_type: "RequestToJoin",
+            info_type: "New Request",
+            target_category: "Project",
+            target_name: Project.ProjectName,
+            target_info: "",
+            initiator_opinion: "requested",
+         },
+      };
+
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(requestData),
+         credentials: "include",
+      };
+
+      let requestStream = await fetch(
+         "/api/project/join/new-user",
+         postOptions
+      );
+      let requestResponse = await requestStream.json();
+
+      console.log(requestResponse);
+   }
 
    if (isLoading) {
       return <LinearLoader />;

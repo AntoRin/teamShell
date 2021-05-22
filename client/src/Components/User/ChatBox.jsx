@@ -55,7 +55,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
 
          try {
             let responseStream = await fetch(
-               `/chat/all-messages?User1=${User1}&User2=${User2}`,
+               `/api/chat/all-messages?User1=${User1}&User2=${User2}`,
                { signal: abortFetch.signal }
             );
             let responseData = await responseStream.json();

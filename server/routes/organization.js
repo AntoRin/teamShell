@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Organization = require("../models/Organization");
 const { Router } = require("express");
+const { handleNotifications } = require("../utils/notificationHandler");
 const router = Router();
 
 router.post("/create", async (req, res, next) => {
@@ -76,6 +77,8 @@ router.post("/edit", async (req, res, next) => {
       return next(error);
    }
 });
+
+router.post("/invite/new-user", handleNotifications);
 
 router.get("/add/new-user/:userSecret", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;

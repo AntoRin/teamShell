@@ -13,7 +13,6 @@ import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { Button, TextField } from "@material-ui/core";
 import FullScreenDialog from "../UtilityComponents/FullScreenDialog";
 import StatusBar from "../UtilityComponents/StatusBar";
-import inititateNewNotification from "../../utils/notificationService";
 import "../../styles/settings-modal.css";
 
 const useStyles = makeStyles(theme => ({
@@ -67,7 +66,7 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
          credentials: "include",
       };
 
-      let updateRequest = await fetch("/organization/edit", postOptions);
+      let updateRequest = await fetch("/api/organization/edit", postOptions);
       let updateResponse = await updateRequest.json();
       if (updateResponse.status === "ok") window.location.reload();
    }
@@ -75,7 +74,7 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    async function addUserToOrg(event) {
       event.preventDefault();
 
-      if (!Organization.Creator !== User.UniqueUsername) return;
+      if (Organization.Creator !== User.UniqueUsername) return;
 
       if (Organization.Members.includes(newUser)) {
          setActionStatus({ info: "User already present", type: "info" });
@@ -90,15 +89,25 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
          recipient: newUser,
          metaData: {
             notification_type: "Invitation",
-            info_type: "You have a new invite",
             target_category: "Organization",
             target_name: Organization.OrganizationName,
             target_info: `Organization with ${Organization.Members.length} member(s)`,
-            initiator_opinion: "invited",
          },
       };
 
-      let invitationResponse = await inititateNewNotification(invitationData);
+      let postOptions = {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(invitationData),
+         credentials: "include",
+      };
+
+      let invitationStream = await fetch(
+         "/api/organization/invite/new-user",
+         postOptions
+      );
+
+      let invitationResponse = await invitationStream.json();
 
       if (invitationResponse.status === "ok") {
          setActionStatus({ info: "Invitation sent to user", type: "success" });

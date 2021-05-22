@@ -41,7 +41,7 @@ function Register() {
          body: JSON.stringify(body),
       };
 
-      let registerDataStream = await fetch("/auth/register", postOptions);
+      let registerDataStream = await fetch("/api/auth/register", postOptions);
       let registerResponse = await registerDataStream.json();
       if (registerResponse.status === "ok") history.push("/login");
 

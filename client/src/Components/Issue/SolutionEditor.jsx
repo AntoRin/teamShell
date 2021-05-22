@@ -34,7 +34,10 @@ function SolutionEditor({ issueDetails, User }) {
             credentials: "include",
          };
 
-         let newSolution = await fetch("/issue/solution/create", postOptions);
+         let newSolution = await fetch(
+            "/api/issue/solution/create",
+            postOptions
+         );
          let solutionStatus = await newSolution.json();
 
          if (solutionStatus.status === "ok") {
@@ -48,11 +51,9 @@ function SolutionEditor({ issueDetails, User }) {
                recipient: issueDetails.ProjectContext,
                metaData: {
                   notification_type: "NewSolution",
-                  info_type: "New Solution",
                   target_category: "Solution",
                   target_name: issueDetails.IssueTitle,
-                  target_info: "Solution is ready to be reviewed",
-                  initiator_opinion: "created",
+                  target_info: "Solution can be reviewed",
                },
             };
 
