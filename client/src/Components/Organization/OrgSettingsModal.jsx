@@ -89,8 +89,8 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
          },
          recipient: newUser,
          metaData: {
-            notification_type: "User",
-            info_type: "Invitation",
+            notification_type: "Invitation",
+            info_type: "You have a new invite",
             target_category: "Organization",
             target_name: Organization.OrganizationName,
             target_info: `Organization with ${Organization.Members.length} member(s)`,

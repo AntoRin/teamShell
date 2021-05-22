@@ -82,8 +82,8 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
          },
          recipient: newUser,
          metaData: {
-            notification_type: "User",
-            info_type: "Invitation",
+            notification_type: "Invitation",
+            info_type: "You have a new invite",
             target_category: "Project",
             target_name: Project.ProjectName,
             target_info: `Project with ${Project.Members.length} member(s)`,

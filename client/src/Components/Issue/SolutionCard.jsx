@@ -112,11 +112,11 @@ function SolutionCard({ solution, User, issueDetails }) {
             },
             recipient: solution.SolutionCreator.UniqueUsername,
             metaData: {
-               notification_type: "User",
+               notification_type: "NewSolutionLike",
                info_type: "New like",
                target_category: "Solution",
                target_name: issueDetails.IssueTitle,
-               target_info: "Getting attention!",
+               target_info: "",
                initiator_opinion: "liked",
             },
          };

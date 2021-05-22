@@ -110,50 +110,33 @@ router.post("/notifications", async (req, res, next) => {
 
    try {
       switch (metaData.notification_type) {
-         case "User":
+         case "Invitation": {
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw { name: "UnauthorizedRequest" };
 
-            if (user.UniqueUsername === initiator.UniqueUsername)
-               throw { name: "SilentEnd" };
+            let jwtPayloadName, routeBaseName;
 
-            let userPersonalLink, notificationSnippet;
-
-            if (
-               metaData.target_category === "Issue" ||
-               metaData.target_category === "Solution"
-            ) {
-               let issue = await Issue.findOne({
-                  IssueTitle: metaData.target_name,
-               });
-
-               userPersonalLink = `/issue/${issue._id}`;
-               notificationSnippet = `${metaData.initiator_opinion} your solution.`;
+            if (metaData.target_category === "Organization") {
+               jwtPayloadName = "OrganizationName";
+               routeBaseName = "organization";
+            } else if (metaData.target_category === "Project") {
+               jwtPayloadName = "ProjectName";
+               routeBaseName = "project";
             } else {
-               let jwtPayloadName, routeBaseName;
-
-               if (metaData.target_category === "Organization") {
-                  jwtPayloadName = "OrganizationName";
-                  routeBaseName = "organization";
-               } else if (metaData.target_category === "Project") {
-                  jwtPayloadName = "ProjectName";
-                  routeBaseName = "project";
-               } else {
-                  throw { name: "ServerError" };
-               }
-
-               let userSecret = jwt.sign(
-                  { _id: user._id, [jwtPayloadName]: metaData.target_name },
-                  process.env.ORG_JWT_SECRET
-               );
-
-               userPersonalLink = `/${routeBaseName}/add/new-user/${userSecret}`;
-               notificationSnippet = `${metaData.initiator_opinion} you to join`;
+               throw { name: "ServerError" };
             }
+
+            let userSecret = jwt.sign(
+               { _id: user._id, [jwtPayloadName]: metaData.target_name },
+               process.env.ORG_JWT_SECRET
+            );
+
+            let Hyperlink = `/${routeBaseName}/add/new-user/${userSecret}`;
+            notificationSnippet = `${metaData.initiator_opinion} you to join`;
 
             let invitation = {
                ...payloadBlueprint,
-               Hyperlink: userPersonalLink,
+               Hyperlink,
                ActivityContent: {
                   Action: notificationSnippet,
                   Keyword: metaData.target_name,
@@ -172,18 +155,66 @@ router.post("/notifications", async (req, res, next) => {
                }
             );
             return res.json({ status: "ok", data: "Notification sent" });
-         case "Group":
+         }
+         case "NewSolutionLike": {
+            let user = await User.findOne({ UniqueUsername: recipient });
+            if (!user) throw { name: "UnauthorizedRequest" };
+
+            if (user.UniqueUsername === initiator.UniqueUsername)
+               throw { name: "SilentEnd" };
+
+            let Hyperlink, notificationSnippet;
+
             let issue = await Issue.findOne({
                IssueTitle: metaData.target_name,
             });
 
-            let groupLink = `/issue/${issue._id}`;
+            Hyperlink = `/issue/${issue._id}`;
+            notificationSnippet = `${metaData.initiator_opinion} your solution to the Issue `;
 
             let notification = {
                ...payloadBlueprint,
-               Hyperlink: groupLink,
+               Hyperlink,
                ActivityContent: {
-                  Action: `${metaData.initiator_opinion} a new ${metaData.target_category}:`,
+                  Action: notificationSnippet,
+                  Keyword: metaData.target_name,
+               },
+            };
+
+            await User.updateOne(
+               { _id: user._id },
+               {
+                  $push: {
+                     Notifications: {
+                        $each: [notification],
+                        $position: 0,
+                     },
+                  },
+               }
+            );
+            return res.json({ status: "ok", data: "Notification sent" });
+         }
+         case "NewIssue":
+         case "NewSolution": {
+            let issue = await Issue.findOne({
+               IssueTitle: metaData.target_name,
+            });
+
+            let Hyperlink = `/issue/${issue._id}`;
+
+            let Action;
+
+            if (metaData.target_category === "Issue")
+               Action = `${metaData.initiator_opinion} a new Issue `;
+
+            if (metaData.target_category === "Solution")
+               Action = `${metaData.initiator_opinion} a new solution for the Issue `;
+
+            let notification = {
+               ...payloadBlueprint,
+               Hyperlink,
+               ActivityContent: {
+                  Action,
                   Keyword: metaData.target_name,
                },
             };
@@ -200,6 +231,7 @@ router.post("/notifications", async (req, res, next) => {
                }
             );
             return res.json({ status: "ok", data: "Notification sent" });
+         }
       }
    } catch (error) {
       console.log(error);

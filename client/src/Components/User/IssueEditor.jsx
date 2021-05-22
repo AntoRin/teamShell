@@ -83,11 +83,11 @@ function IssueEditor({ activeProject, User }) {
                },
                recipient: activeProject,
                metaData: {
-                  notification_type: "Group",
+                  notification_type: "NewIssue",
                   info_type: "New Issue",
                   target_category: "Issue",
                   target_name: issueTitle,
-                  target_info: "You can propose a solution to this issue now",
+                  target_info: "You can work on this issue now",
                   initiator_opinion: "created",
                },
             };

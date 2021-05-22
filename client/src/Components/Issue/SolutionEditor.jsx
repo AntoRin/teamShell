@@ -14,9 +14,8 @@ function SolutionEditor({ issueDetails, User }) {
       try {
          let solutionPlainText = editorRef.current.editor.core.getContents();
 
-         let solutionEncoded = editorRef.current.editor.util.HTMLEncoder(
-            solutionPlainText
-         );
+         let solutionEncoded =
+            editorRef.current.editor.util.HTMLEncoder(solutionPlainText);
 
          let body = {
             Issue_id: issueDetails._id,
@@ -48,7 +47,7 @@ function SolutionEditor({ issueDetails, User }) {
                },
                recipient: issueDetails.ProjectContext,
                metaData: {
-                  notification_type: "Group",
+                  notification_type: "NewSolution",
                   info_type: "New Solution",
                   target_category: "Solution",
                   target_name: issueDetails.IssueTitle,
