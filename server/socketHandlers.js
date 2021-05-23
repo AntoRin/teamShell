@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
 const {
    redisGetAsync,
@@ -24,6 +25,19 @@ function parseCookies(socket, next) {
    let token = allCookies.token;
    socket.authToken = token;
    next();
+}
+
+function verifySocketIntegrity(socket, next) {
+   try {
+      let thisUser = jwt.verify(socket.authToken, process.env.JWT_SECRET);
+      socket.userName = thisUser.UniqueUsername;
+      return next();
+   } catch (error) {
+      let err = new Error(error.message);
+      console.log(err);
+      socket.disconnect();
+      return next(err);
+   }
 }
 
 async function initiateListeners(socket, io) {
@@ -122,4 +136,4 @@ async function initiateListeners(socket, io) {
    });
 }
 
-module.exports = { parseCookies, initiateListeners };
+module.exports = { parseCookies, verifySocketIntegrity, initiateListeners };

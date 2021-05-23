@@ -20,8 +20,11 @@ const app = express();
 
 //Middleware
 const checkAuth = require("./middleware/checkAuth");
-const verifySocketIntegrity = require("./middleware/verifySocketIntegrity");
-const { parseCookies, initiateListeners } = require("./socketHandlers");
+const {
+   parseCookies,
+   initiateListeners,
+   verifySocketIntegrity,
+} = require("./socketHandlers");
 
 app.use(express.json({ limit: 500000 }));
 app.use(
