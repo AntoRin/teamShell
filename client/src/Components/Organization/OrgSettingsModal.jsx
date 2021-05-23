@@ -27,7 +27,9 @@ const useStyles = makeStyles(theme => ({
 function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
    const classes = useStyles();
 
-   const [newDescription, setNewDescription] = useState("");
+   const [newDescription, setNewDescription] = useState(
+      Organization.Description
+   );
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [actionStatus, setActionStatus] = useState({
@@ -68,7 +70,12 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
 
       let updateRequest = await fetch("/api/organization/edit", postOptions);
       let updateResponse = await updateRequest.json();
-      if (updateResponse.status === "ok") window.location.reload();
+
+      if (updateResponse.status === "ok") {
+         setActionStatus({ info: "Successfully updated", type: "success" });
+      } else {
+         setActionStatus({ info: "There was an error", type: "error" });
+      }
    }
 
    async function addUserToOrg(event) {

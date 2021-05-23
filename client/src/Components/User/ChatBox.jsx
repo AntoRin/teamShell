@@ -60,6 +60,10 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
             );
             let responseData = await responseStream.json();
             let chat = responseData.data.Messages;
+            if (!chat) {
+               setIsLoading(false);
+               return;
+            }
             let chatLatest = chat.reverse();
             setAllChat(chatLatest);
             setIsLoading(false);

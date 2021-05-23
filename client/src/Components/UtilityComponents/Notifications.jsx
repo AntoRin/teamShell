@@ -97,7 +97,7 @@ function Notifications({
       };
    }, [setActiveNotifications, socket]);
 
-   async function performNotificationAction(event, Hyperlink, InfoType) {
+   async function performNotificationAction(Hyperlink, InfoType) {
       if (InfoType === "Invitation") {
          let notificationAction = await fetch(Hyperlink);
          if (notificationAction.redirected) {
@@ -127,9 +127,8 @@ function Notifications({
                   return (
                      <div
                         key={notification._id}
-                        onClick={event =>
+                        onClick={() =>
                            performNotificationAction(
-                              event,
                               notification.Hyperlink,
                               notification.InfoType
                            )

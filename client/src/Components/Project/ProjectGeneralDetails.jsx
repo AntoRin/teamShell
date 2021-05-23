@@ -10,6 +10,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import CodeIcon from "@material-ui/icons/Code";
 import DescriptionIcon from "@material-ui/icons/Description";
 import WbIncandescentIcon from "@material-ui/icons/WbIncandescent";
+import LockIcon from "@material-ui/icons/Lock";
 import BugReportIcon from "@material-ui/icons/BugReport";
 import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import EventIcon from "@material-ui/icons/Event";
@@ -100,6 +101,18 @@ function ProjectGeneralDetails({ Project }) {
                      />
                   }
                   secondaryTypographyProps={{ component: "div" }}
+               />
+            </ListItem>
+            <Divider variant="middle" className={classes.divider} />
+            <ListItem className={classes.listElement}>
+               <ListItemIcon>
+                  <LockIcon fontSize="large" className={classes.listIcon} />
+               </ListItemIcon>
+               <ListItemText
+                  primary="Invite Only: "
+                  primaryTypographyProps={commonTypographicProps("h6")}
+                  secondary={Project.InviteOnly ? "Yes" : "No"}
+                  secondaryTypographyProps={commonTypographicProps("h6")}
                />
             </ListItem>
             <Divider variant="middle" className={classes.divider} />

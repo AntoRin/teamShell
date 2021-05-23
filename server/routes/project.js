@@ -138,10 +138,13 @@ router.get("/snippet/:ProjectName", async (req, res, next) => {
 });
 
 router.post("/edit", async (req, res, next) => {
-   let { ProjectName, ProjectDescription } = req.body;
+   let { ProjectName, ProjectDescription, InviteOnly } = req.body;
 
    try {
-      await Project.updateOne({ ProjectName }, { ProjectDescription });
+      await Project.updateOne(
+         { ProjectName },
+         { $set: { ProjectDescription, InviteOnly } }
+      );
       return res.json({ status: "ok" });
    } catch (error) {
       return next(error);

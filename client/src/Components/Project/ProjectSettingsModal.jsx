@@ -8,7 +8,7 @@ import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import { Button, TextField } from "@material-ui/core";
+import { Button, Switch, TextField, Typography } from "@material-ui/core";
 import FullScreenDialog from "../UtilityComponents/FullScreenDialog";
 import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/settings-modal.css";
@@ -19,13 +19,20 @@ const useStyles = makeStyles(theme => ({
       cursor: "default",
       boxShadow: "0px 1px 2px black",
    },
-   submitBtn: {},
+   optionPair: {
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "flex-end",
+   },
 }));
 
 function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
    const classes = useStyles();
 
-   const [newDescription, setNewDescription] = useState("");
+   const [newDescription, setNewDescription] = useState(
+      Project.ProjectDescription
+   );
+   const [inviteOnly, setInviteOnly] = useState(Boolean(Project.InviteOnly));
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [newUser, setNewUser] = useState("");
    const [actionStatus, setActionStatus] = useState({
@@ -35,6 +42,10 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
+   }
+
+   function handleSwitchChange(event) {
+      setInviteOnly(event.target.checked);
    }
 
    function handleNewUserNameChange(event) {
@@ -51,6 +62,7 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
       let body = {
          ProjectName: Project.ProjectName,
          ProjectDescription: newDescription,
+         InviteOnly: inviteOnly,
       };
 
       let postOptions = {
@@ -63,7 +75,11 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
       let update = await fetch("/api/project/edit", postOptions);
       let updateResponse = await update.json();
 
-      if (updateResponse.status === "ok") window.location.reload();
+      if (updateResponse.status === "ok") {
+         setActionStatus({ info: "Successfully updated", type: "success" });
+      } else {
+         setActionStatus({ info: "There was an error", type: "error" });
+      }
    }
 
    async function addUserToProject(event) {
@@ -141,7 +157,18 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
                            />
                         </div>
                         <br />
-
+                        <div className={classes.optionPair}>
+                           <Typography variant="body1" gutterBottom={true}>
+                              Invite Only
+                           </Typography>
+                           <Switch
+                              color="primary"
+                              checked={inviteOnly}
+                              size="medium"
+                              onChange={handleSwitchChange}
+                           />
+                        </div>
+                        <br />
                         <Button
                            type="submit"
                            variant="outlined"
