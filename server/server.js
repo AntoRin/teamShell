@@ -115,11 +115,21 @@ mongoose.connect(
                console.log(error);
             }
 
-            let UserStatus = User.watch();
+            let UserStatus = User.watch(
+               [
+                  {
+                     $match: {
+                        "fullDocument.UniqueUsername": socket.userName,
+                     },
+                  },
+               ],
+               { fullDocument: "updateLookup" }
+            );
             let ProjectStatus = Project.watch();
             let IssueStatus = Issue.watch();
 
-            UserStatus.on("change", () => {
+            UserStatus.on("change", diff => {
+               console.log(diff);
                io.to(socket.id).emit("user-data-change");
             });
 

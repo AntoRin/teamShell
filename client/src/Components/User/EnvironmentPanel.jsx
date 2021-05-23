@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
@@ -12,13 +13,14 @@ import ListItemText from "@material-ui/core/ListItemText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
 import AssignmentIcon from "@material-ui/icons/Assignment";
+import ArrowRightAltIcon from "@material-ui/icons/ArrowRightAlt";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/environment-panel.css";
-import { Tooltip } from "@material-ui/core";
+import { Breadcrumbs, Tooltip } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -36,32 +38,24 @@ const useStyles = makeStyles(theme => ({
    },
    projectSettingsBtn: {
       position: "fixed",
-      top: "25%",
+      top: "30%",
       left: "10px",
+   },
+   environmentCrumbs: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      "& div": {
+         cursor: "pointer",
+         color: "blue",
+      },
    },
 }));
 
 function EnvironmentPanel({ User, currentOrg }) {
    const classes = useStyles();
 
-   const [activeProject, setActiveProject] = useState(() => {
-      let preference = window.localStorage.getItem(
-         "environment_project_context"
-      );
-      if (preference) {
-         let savedProject = User.Projects.find(
-            project => project.ProjectName === preference
-         );
-         if (savedProject.ParentOrganization === currentOrg)
-            return savedProject.ProjectName;
-      }
-
-      let currentProject = User.Projects.find(
-         project => project.ParentOrganization === currentOrg
-      );
-      if (currentProject) return currentProject.ProjectName;
-      else return "";
-   });
+   const [activeProject, setActiveProject] = useState(null);
    const [projectDetails, setProjectDetails] = useState({});
    const [accordionExpanded, setAccordionExpanded] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
@@ -71,11 +65,19 @@ function EnvironmentPanel({ User, currentOrg }) {
    });
    const [projectSelectOpen, setProjectSelectOpen] = useState(false);
 
+   const history = useHistory();
+
    const socket = useContext(SocketInstance);
 
    useEffect(() => {
-      window.localStorage.setItem("environment_project_context", activeProject);
-   }, [activeProject]);
+      if (!User.Projects.length > 0) return;
+
+      let project = User.Projects.find(
+         project => project.ParentOrganization === currentOrg
+      );
+      if (project) setActiveProject(project.ProjectName);
+      else setActiveProject(null);
+   }, [currentOrg, User.Projects]);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -137,6 +139,10 @@ function EnvironmentPanel({ User, currentOrg }) {
       setAccordionExpanded(prev => !prev);
    }
 
+   function goToCrumbLink(link) {
+      history.push(link);
+   }
+
    function currentProjects() {
       let thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === currentOrg
@@ -170,6 +176,31 @@ function EnvironmentPanel({ User, currentOrg }) {
 
    return !isLoading ? (
       <div className="environment-panel-container">
+         <Breadcrumbs
+            className={classes.environmentCrumbs}
+            separator={<ArrowRightAltIcon fontSize="large" color="secondary" />}
+         >
+            <Typography
+               variant="h6"
+               color="primary"
+               component="div"
+               gutterBottom={true}
+               onClick={() => goToCrumbLink(`/organization/${currentOrg}`)}
+            >
+               {currentOrg}
+            </Typography>
+            <Typography
+               variant="h6"
+               color="primary"
+               component="div"
+               gutterBottom={true}
+               onClick={() =>
+                  goToCrumbLink(`/project/${currentOrg}/${activeProject}`)
+               }
+            >
+               {activeProject}
+            </Typography>
+         </Breadcrumbs>
          <div className="environment-panel-main">
             <Tooltip title="Change project" placement="right" arrow>
                <IconButton

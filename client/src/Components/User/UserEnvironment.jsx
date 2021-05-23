@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
       display: "flex",
       justifyContent: "flex-start",
       position: "fixed",
-      top: "15%",
+      top: "20%",
       left: "10px",
    },
    bottomDrawer: {
@@ -69,6 +69,7 @@ function UserEnvironment({ User }) {
 
    function handleOrgChange(event) {
       setCurrentOrg(event.target.textContent);
+      setConfigurationDrawer(false);
    }
 
    return (
