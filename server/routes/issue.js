@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Project = require("../models/Project");
 const Issue = require("../models/Issue");
+const { handleNotifications } = require("../utils/notificationHandler");
 const router = Router();
 
 router.get("/details/:IssueID", async (req, res, next) => {
@@ -71,55 +72,64 @@ router.get("/snippet/:IssueID", async (req, res, next) => {
    }
 });
 
-router.post("/create", async (req, res, next) => {
-   let { UniqueUsername, Email } = req.thisUser;
-   let { IssueTitle, IssueDescription, ProjectContext, Project_id, Creator } =
-      req.body;
-
-   let issue = {
-      IssueTitle,
-      IssueDescription,
-      ProjectContext,
-      Creator,
-      Project_id,
-      Active: true,
-   };
-
-   try {
-      if (Creator.UniqueUsername !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
-
-      let newIssue = new Issue(issue);
-
-      await newIssue.save();
-
-      let newIssueId = newIssue._id;
-
-      await Project.updateOne(
-         { _id: Project_id },
-         { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
-      );
-
-      let userIssueContext = {
-         _id: newIssueId,
+router.post(
+   "/create",
+   async (req, res, next) => {
+      let { UniqueUsername, Email } = req.thisUser;
+      let {
          IssueTitle,
+         IssueDescription,
+         ProjectContext,
+         Project_id,
+         Creator,
+      } = req.body;
+
+      let issue = {
+         IssueTitle,
+         IssueDescription,
+         ProjectContext,
+         Creator,
+         Project_id,
+         Active: true,
       };
 
-      await User.updateOne(
-         { UniqueUsername, Email },
-         {
-            $push: {
-               "Issues.Created": { $each: [userIssueContext], $position: 0 },
-            },
-         }
-      );
+      try {
+         if (Creator.UniqueUsername !== UniqueUsername)
+            throw { name: "UnauthorizedRequest" };
 
-      return res.json({ status: "ok", data: "" });
-   } catch (error) {
-      console.log(error);
-      return next(error);
-   }
-});
+         let newIssue = new Issue(issue);
+
+         await newIssue.save();
+
+         let newIssueId = newIssue._id;
+
+         await Project.updateOne(
+            { _id: Project_id },
+            { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
+         );
+
+         let userIssueContext = {
+            _id: newIssueId,
+            IssueTitle,
+         };
+
+         await User.updateOne(
+            { UniqueUsername, Email },
+            {
+               $push: {
+                  "Issues.Created": { $each: [userIssueContext], $position: 0 },
+               },
+            }
+         );
+
+         return next();
+      } catch (error) {
+         console.log(error);
+         return next(error);
+      }
+   },
+   handleNotifications
+);
 
 router.put("/bookmark", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
@@ -242,80 +252,91 @@ router.delete("/delete", async (req, res, next) => {
    }
 });
 
-router.post("/solution/create", async (req, res, next) => {
-   let { UniqueUsername, Email } = req.thisUser;
-   let { Issue_id, Project_id, SolutionCreator, SolutionBody } = req.body;
+router.post(
+   "/solution/create",
+   async (req, res, next) => {
+      let { UniqueUsername, Email } = req.thisUser;
+      let { Issue_id, Project_id, SolutionCreator, SolutionBody } = req.body;
 
-   let newSolution = {
-      SolutionCreator,
-      SolutionBody,
-   };
-
-   try {
-      if (UniqueUsername !== SolutionCreator.UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
-
-      let updatedIssue = await Issue.findOneAndUpdate(
-         { _id: Issue_id },
-         { $push: { Solutions: { $each: [newSolution], $position: 0 } } },
-         {
-            returnOriginal: false,
-         }
-      );
-
-      let newSolutionID = updatedIssue.Solutions[0]._id;
-
-      let UserSolutionContext = {
-         _id: newSolutionID,
-         IssueContext: {
-            _id: updatedIssue._id,
-            IssueTitle: updatedIssue.IssueTitle,
-         },
+      let newSolution = {
+         SolutionCreator,
+         SolutionBody,
       };
 
-      await User.updateOne(
-         { UniqueUsername, Email },
-         {
-            $push: {
-               Solutions: {
-                  $each: [UserSolutionContext],
-                  $position: 0,
+      try {
+         if (UniqueUsername !== SolutionCreator.UniqueUsername)
+            throw { name: "UnauthorizedRequest" };
+
+         let updatedIssue = await Issue.findOneAndUpdate(
+            { _id: Issue_id },
+            { $push: { Solutions: { $each: [newSolution], $position: 0 } } },
+            {
+               returnOriginal: false,
+            }
+         );
+
+         let newSolutionID = updatedIssue.Solutions[0]._id;
+
+         let UserSolutionContext = {
+            _id: newSolutionID,
+            IssueContext: {
+               _id: updatedIssue._id,
+               IssueTitle: updatedIssue.IssueTitle,
+            },
+         };
+
+         await User.updateOne(
+            { UniqueUsername, Email },
+            {
+               $push: {
+                  Solutions: {
+                     $each: [UserSolutionContext],
+                     $position: 0,
+                  },
                },
-            },
-         }
-      );
+            }
+         );
 
-      return res.json({ status: "ok", data: "" });
-   } catch (error) {
-      console.log(error);
-      return next(error);
-   }
-});
+         return next();
+      } catch (error) {
+         console.log(error);
+         return next(error);
+      }
+   },
+   handleNotifications
+);
 
-router.post("/solution/add-like", async (req, res, next) => {
-   let { UniqueUsername } = req.thisUser;
-   let { user_id, solution_id } = req.body;
+router.post(
+   "/solution/add-like",
+   async (req, res, next) => {
+      let { UniqueUsername } = req.thisUser;
+      let { user_id, solution_id, solution_creator } = req.body;
 
-   let userRef = {
-      _id: user_id,
-      UniqueUsername,
-   };
+      let userRef = {
+         _id: user_id,
+         UniqueUsername,
+      };
 
-   try {
-      await Issue.updateOne(
-         { "Solutions._id": solution_id },
-         {
-            $push: {
-               "Solutions.$.LikedBy": { $each: [userRef], $position: 0 },
-            },
-         }
-      );
-      return res.json({ status: "ok", data: "Like added" });
-   } catch (error) {
-      console.log(error);
-      return next(error);
-   }
-});
+      try {
+         await Issue.updateOne(
+            { "Solutions._id": solution_id },
+            {
+               $push: {
+                  "Solutions.$.LikedBy": { $each: [userRef], $position: 0 },
+               },
+            }
+         );
+
+         if (UniqueUsername !== solution_creator) return next();
+
+         return res.json({ status: "ok", data: "Like added" });
+      } catch (error) {
+         console.log(error);
+         return next(error);
+      }
+   },
+   handleNotifications
+);
 
 router.post("/solution/remove-like", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;

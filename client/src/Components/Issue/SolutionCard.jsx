@@ -13,7 +13,6 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { readonly_editor_config } from "../../config/editor_config";
-import initiateNewNotification from "../../utils/notificationService";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-card.css";
@@ -76,52 +75,40 @@ function SolutionCard({ solution, User, issueDetails }) {
       let body = {
          user_id: User._id,
          solution_id: solution._id,
+         solution_creator: solution.SolutionCreator.UniqueUsername,
+         initiator: {
+            UniqueUsername: User.UniqueUsername,
+            ProfileImage: User.ProfileImage,
+         },
+         recipient: solution.SolutionCreator.UniqueUsername,
+         metaData: {
+            notification_type: "NewSolutionLike",
+            info_type: "New like",
+            target_category: "Solution",
+            target_name: issueDetails.IssueTitle,
+            target_info: "",
+            initiator_opinion: "liked",
+         },
       };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-
-      let liked = solution.LikedBy.some(like => {
-         return like.UniqueUsername === User.UniqueUsername;
-      });
-
-      let endpoint = liked ? "remove-like" : "add-like";
-
-      let postInteraction = await fetch(
-         `/api/issue/solution/${endpoint}`,
-         postOptions
-      );
-
-      let postInteractionData = await postInteraction.json();
-
-      console.log(postInteractionData);
-
-      if (
-         postInteractionData.status === "ok" &&
-         postInteractionData.data === "Like added" &&
-         solution.SolutionCreator.UniqueUsername !== User.UniqueUsername
-      ) {
-         let notificationData = {
-            initiator: {
-               UniqueUsername: User.UniqueUsername,
-               ProfileImage: User.ProfileImage,
-            },
-            recipient: solution.SolutionCreator.UniqueUsername,
-            metaData: {
-               notification_type: "NewSolutionLike",
-               info_type: "New like",
-               target_category: "Solution",
-               target_name: issueDetails.IssueTitle,
-               target_info: "",
-               initiator_opinion: "liked",
-            },
+      try {
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            credentials: "include",
          };
 
-         initiateNewNotification(notificationData);
+         let liked = solution.LikedBy.some(like => {
+            return like.UniqueUsername === User.UniqueUsername;
+         });
+
+         let endpoint = liked ? "remove-like" : "add-like";
+
+         await fetch(`/api/issue/solution/${endpoint}`, postOptions);
+      } catch (error) {
+         console.log(error);
+         return;
       }
    }
 

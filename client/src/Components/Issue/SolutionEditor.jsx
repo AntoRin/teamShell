@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import SunEditor from "suneditor-react";
-import initiateNewNotification from "../../utils/notificationService";
 import { solution_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-editor.css";
@@ -25,6 +24,17 @@ function SolutionEditor({ issueDetails, User }) {
                UniqueUsername: User.UniqueUsername,
                ProfileImage: User.ProfileImage,
             },
+            initiator: {
+               UniqueUsername: User.UniqueUsername,
+               ProfileImage: User.ProfileImage,
+            },
+            recipient: issueDetails.ProjectContext,
+            metaData: {
+               notification_type: "NewSolution",
+               target_category: "Solution",
+               target_name: issueDetails.IssueTitle,
+               target_info: "Solution can be reviewed",
+            },
          };
 
          let postOptions = {
@@ -38,27 +48,10 @@ function SolutionEditor({ issueDetails, User }) {
             "/api/issue/solution/create",
             postOptions
          );
-         let solutionStatus = await newSolution.json();
+         let solutionResponse = await newSolution.json();
 
-         if (solutionStatus.status === "ok") {
+         if (solutionResponse.status === "ok")
             editorRef.current.editor.core.setContents("");
-
-            let notificationData = {
-               initiator: {
-                  UniqueUsername: User.UniqueUsername,
-                  ProfileImage: User.ProfileImage,
-               },
-               recipient: issueDetails.ProjectContext,
-               metaData: {
-                  notification_type: "NewSolution",
-                  target_category: "Solution",
-                  target_name: issueDetails.IssueTitle,
-                  target_info: "Solution can be reviewed",
-               },
-            };
-
-            await initiateNewNotification(notificationData);
-         }
       } catch (error) {
          console.log(error);
       }

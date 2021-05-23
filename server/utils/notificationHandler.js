@@ -44,7 +44,7 @@ async function handleNotifications(req, res, next) {
             let invitation = {
                ...payloadBlueprint,
                Hyperlink,
-               InfoType: "New Invitation",
+               InfoType: "Invitation",
                ActivityContent: {
                   Action: notificationSnippet,
                   Keyword: metaData.target_name,
@@ -62,7 +62,7 @@ async function handleNotifications(req, res, next) {
                   },
                }
             );
-            return res.json({ status: "ok", data: "Notification sent" });
+            return res.json({ status: "ok", data: "" });
          }
          case "NewSolutionLike": {
             let user = await User.findOne({ UniqueUsername: recipient });
@@ -101,7 +101,7 @@ async function handleNotifications(req, res, next) {
                   },
                }
             );
-            return res.json({ status: "ok", data: "Notification sent" });
+            return res.json({ status: "ok", data: "" });
          }
          case "NewIssue":
          case "NewSolution": {
@@ -140,7 +140,7 @@ async function handleNotifications(req, res, next) {
                   },
                }
             );
-            return res.json({ status: "ok", data: "Notification sent" });
+            return res.json({ status: "ok", data: "" });
          }
       }
    } catch (error) {

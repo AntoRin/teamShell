@@ -97,19 +97,22 @@ function Notifications({
       };
    }, [setActiveNotifications, socket]);
 
-   async function performNotificationAction(event, action) {
-      let notificationAction = await fetch(action);
+   async function performNotificationAction(event, Hyperlink, InfoType) {
+      if (InfoType === "Invitation") {
+         let notificationAction = await fetch(Hyperlink);
+         if (notificationAction.redirected) {
+            let redirectUrl = new URL(notificationAction.url);
+            history.replace(redirectUrl.pathname);
+            return;
+         }
 
-      if (notificationAction.redirected) {
-         let redirectUrl = new URL(notificationAction.url);
-         history.replace(redirectUrl.pathname);
-         return;
+         let actionData = await notificationAction.json();
+
+         if (actionData.status === "error")
+            setActionStatus({ info: actionData.error, type: "error" });
+      } else {
+         history.push(Hyperlink);
       }
-
-      let actionData = await notificationAction.json();
-
-      if (actionData.status === "error")
-         setActionStatus({ info: actionData.error, type: "error" });
    }
 
    function closeNotifications() {
@@ -127,7 +130,8 @@ function Notifications({
                         onClick={event =>
                            performNotificationAction(
                               event,
-                              notification.Hyperlink
+                              notification.Hyperlink,
+                              notification.InfoType
                            )
                         }
                         className="notification-block"

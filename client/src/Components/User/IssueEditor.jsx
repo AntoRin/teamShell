@@ -3,7 +3,6 @@ import SunEditor from "suneditor-react";
 import Button from "@material-ui/core/Button";
 import AddBoxSharpIcon from "@material-ui/icons/AddBoxSharp";
 import { makeStyles } from "@material-ui/core/styles";
-import initiateNewNotification from "../../utils/notificationService";
 import { issue_editor_config } from "../../config/editor_config";
 import "../../styles/issue-editor.css";
 import "suneditor/dist/css/suneditor.min.css";
@@ -60,6 +59,17 @@ function IssueEditor({ activeProject, User }) {
                User_id: User._id,
                ProfileImage: User.ProfileImage,
             },
+            initiator: {
+               UniqueUsername: User.UniqueUsername,
+               ProfileImage: User.ProfileImage,
+            },
+            recipient: activeProject,
+            metaData: {
+               notification_type: "NewIssue",
+               target_category: "Issue",
+               target_name: issueTitle,
+               target_info: "",
+            },
          };
 
          let postOptions = {
@@ -75,21 +85,6 @@ function IssueEditor({ activeProject, User }) {
          if (newIssueResponse.status === "ok") {
             setIssueTitle("");
             editorRef.current.editor.core.setContents("");
-
-            let notificationData = {
-               initiator: {
-                  UniqueUsername: User.UniqueUsername,
-                  ProfileImage: User.ProfileImage,
-               },
-               recipient: activeProject,
-               metaData: {
-                  notification_type: "NewIssue",
-                  target_category: "Issue",
-                  target_name: issueTitle,
-                  target_info: "",
-               },
-            };
-            await initiateNewNotification(notificationData);
          }
       } catch (error) {
          console.log(error);
