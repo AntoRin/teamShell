@@ -7,7 +7,6 @@ async function handleNotifications(req, res, next) {
 
    let payloadBlueprint = {
       Initiator: initiator,
-      InfoType: metaData.info_type,
       Target: {
          Category: metaData.target_category,
          Name: metaData.target_name,
@@ -64,6 +63,31 @@ async function handleNotifications(req, res, next) {
             );
             return res.json({ status: "ok", data: "" });
          }
+         case "RequestToJoin":
+            {
+               let Hyperlink = `/user/profile/${initiator.UniqueUsername}`;
+               let notificationSnippet = `requested to join the project `;
+
+               let notification = {
+                  ...payloadBlueprint,
+                  Hyperlink,
+                  InfoType: "Request",
+                  ActivityContent: {
+                     Action: notificationSnippet,
+                     Keyword: metaData.target_name,
+                  },
+               };
+               console.log("hoihoinoinoininoinon");
+               await User.updateOne(
+                  { UniqueUsername: req.projectCreator },
+                  {
+                     $push: {
+                        Notifications: { $each: [notification], $position: 0 },
+                     },
+                  }
+               );
+            }
+            return res.json({ status: "ok", data: "" });
          case "NewSolutionLike": {
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw { name: "UnauthorizedRequest" };

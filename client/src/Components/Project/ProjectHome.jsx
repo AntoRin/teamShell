@@ -10,6 +10,7 @@ import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import ProjectTabPanel from "./ProjectTabPanel";
 import ProjectSettingsModal from "./ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
+import StatusBar from "../UtilityComponents/StatusBar";
 
 const useStyles = makeStyles(theme => ({
    root: props => ({
@@ -55,6 +56,10 @@ function ProjectHome({ match, User, navHeight }) {
    const [Project, setProject] = useState({});
    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
    const [tabName, setTabName] = useState("General Details");
+   const [actionStatus, setActionStatus] = useState({
+      info: null,
+      type: "success",
+   });
 
    const history = useHistory();
 
@@ -127,15 +132,16 @@ function ProjectHome({ match, User, navHeight }) {
 
    async function handleJoinRequest() {
       let requestData = {
-         initiator: User.UniqueUsername,
+         initiator: {
+            UniqueUsername: User.UniqueUsername,
+            ProfileImage: User.ProfileImage,
+         },
          recipient: Project.ProjectName,
          metaData: {
             notification_type: "RequestToJoin",
-            info_type: "New Request",
             target_category: "Project",
             target_name: Project.ProjectName,
             target_info: "",
-            initiator_opinion: "requested",
          },
       };
 
@@ -152,7 +158,9 @@ function ProjectHome({ match, User, navHeight }) {
       );
       let requestResponse = await requestStream.json();
 
-      console.log(requestResponse);
+      if (requestResponse.status === "ok")
+         setActionStatus({ info: requestResponse.data, type: "info" });
+      else setActionStatus({ info: requestResponse.error, type: "error" });
    }
 
    if (isLoading) {
@@ -232,6 +240,12 @@ function ProjectHome({ match, User, navHeight }) {
                   />
                )}
             </div>
+            {actionStatus.info && (
+               <StatusBar
+                  actionStatus={actionStatus}
+                  setActionStatus={setActionStatus}
+               />
+            )}
          </>
       ) : (
          <h1>There was an error</h1>

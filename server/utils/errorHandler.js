@@ -1,6 +1,6 @@
 function errorHandler(error, req, res, next) {
    console.log(error.name);
-   switch (error.name) {
+   switch (error) {
       case "MongoError":
          if (error.code === 31254)
             return res

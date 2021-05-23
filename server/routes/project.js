@@ -92,7 +92,11 @@ router.get("/details/:ProjectName", async (req, res, next) => {
 
       let project = aggregationResult[0];
 
-      if (project.Members.includes(UniqueUsername)) {
+      let parentOrg = await Organization.findOne({
+         OrganizationName: project.ParentOrganization,
+      });
+
+      if (parentOrg.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Project: project });
       } else {
          throw { name: "UnauthorizedRequest" };
@@ -197,40 +201,54 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
    }
 });
 
-router.post("/join/new-user", async (req, res, next) => {
-   let { UniqueUsername } = req.thisUser;
-   let { initiator, recipient, metaData } = req.body;
+router.post(
+   "/join/new-user",
+   async (req, res, next) => {
+      let { UniqueUsername } = req.thisUser;
+      let { initiator, recipient, metaData } = req.body;
 
-   try {
-      if (UniqueUsername !== initiator) throw { name: "UnauthorizedRequest" };
+      try {
+         if (UniqueUsername !== initiator.UniqueUsername)
+            throw { name: "UnauthorizedRequest" };
 
-      let project = await Project.findOne({
-         ProjectName: metaData.target_name,
-      });
-      if (!project) throw { name: "UnknownData" };
-      if (!project.InviteOnly) {
-         await Project.findOneAndUpdate(
-            { ProjectName: metaData.target_name },
-            { $push: { Members: UniqueUsername } }
-         );
+         let project = await Project.findOne({
+            ProjectName: metaData.target_name,
+         });
+         if (!project) throw { name: "UnknownData" };
 
-         await User.updateOne(
-            { UniqueUsername },
-            {
-               $push: {
-                  Projects: {
-                     _id: project._id,
-                     ProjectName,
-                     Status: "Member",
-                     ParentOrganization: project.ParentOrganization,
+         if (project.Members.includes(UniqueUsername))
+            throw { name: "ProjectInvitationRebound" };
+
+         if (!project.InviteOnly) {
+            await Project.findOneAndUpdate(
+               { ProjectName: metaData.target_name },
+               { $push: { Members: UniqueUsername } }
+            );
+
+            await User.updateOne(
+               { UniqueUsername },
+               {
+                  $push: {
+                     Projects: {
+                        _id: project._id,
+                        ProjectName: project.ProjectName,
+                        Status: "Member",
+                        ParentOrganization: project.ParentOrganization,
+                     },
                   },
-               },
-            }
-         );
+               }
+            );
+
+            return res.json({ status: "ok", data: "You joined the project" });
+         } else {
+            req.projectCreator = project.Creator;
+            return next();
+         }
+      } catch (error) {
+         return next(error);
       }
-   } catch (error) {
-      return next(error);
-   }
-});
+   },
+   handleNotifications
+);
 
 module.exports = router;
