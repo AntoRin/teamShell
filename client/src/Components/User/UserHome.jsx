@@ -6,13 +6,22 @@ import { Button } from "@material-ui/core";
 
 function UserHome({ User }) {
    const [activePanelOrg, setActivePanelOrg] = useState(
-      window.localStorage.getItem("home_organization_context") ||
-         (User.Organizations.length > 0
-            ? User.Organizations[0].OrganizationName
-            : "")
+      User.Organizations.length > 0
+         ? User.Organizations[0].OrganizationName
+         : ""
    );
 
    const history = useHistory();
+
+   useEffect(() => {
+      let preference = window.localStorage.getItem("home_organization_context");
+      if (preference) {
+         let userOrg = User.Organizations.find(
+            org => org.OrganizationName === preference
+         );
+         if (userOrg) setActivePanelOrg(userOrg.OrganizationName);
+      }
+   }, [User.Organizations]);
 
    useEffect(() => {
       window.localStorage.setItem("home_organization_context", activePanelOrg);

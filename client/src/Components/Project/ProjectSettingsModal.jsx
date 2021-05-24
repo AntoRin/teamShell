@@ -26,7 +26,12 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
+function ProjectSettingsModal({
+   User,
+   Project,
+   isSettingsOpen,
+   setIsSettingsOpen,
+}) {
    const classes = useStyles();
 
    const [newDescription, setNewDescription] = useState(
@@ -133,6 +138,7 @@ function ProjectSettingsModal({ User, Project, setIsSettingsOpen }) {
          <FullScreenDialog
             actionStatus={actionStatus}
             setActionStatus={setActionStatus}
+            isSettingsOpen={isSettingsOpen}
             setIsSettingsOpen={setIsSettingsOpen}
          >
             <List>

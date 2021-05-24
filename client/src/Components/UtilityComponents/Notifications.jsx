@@ -170,29 +170,35 @@ function Notifications({
       InitiatorName,
       target_name
    ) {
-      let message, title;
+      let message,
+         title,
+         requireConfirmation = false;
+
       switch (InfoType) {
          case "Invitation":
             title = "Invitation";
             message = `Do you want to join ${target_name}?`;
+            requireConfirmation = true;
             break;
          case "Request":
             title = "Request";
             message = `Do you want to accept the user's request to join ${target_name}?`;
+            requireConfirmation = true;
             break;
          default:
-            title = "";
-            message = "Do you want to continue?";
+            requireConfirmation = false;
       }
+
       setNotificationProgress({
-         pending: true,
+         pending: requireConfirmation,
          Hyperlink,
          InfoType,
          additionalInfo: { InitiatorName, target_name },
          confirmTitle: title,
          confirmMessage: message,
       });
-      setConfirmationRequired(true);
+
+      setConfirmationRequired(requireConfirmation);
    }
 
    function closeNotifications() {

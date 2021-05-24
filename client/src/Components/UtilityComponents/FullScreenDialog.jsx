@@ -18,6 +18,11 @@ const useStyles = makeStyles(theme => ({
       marginLeft: theme.spacing(2),
       flex: 1,
    },
+   dialog: {
+      "& .MuiDialog-paperFullScreen": {
+         backgroundColor: "#B9D9EB",
+      },
+   },
 }));
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -26,6 +31,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 
 function FullScreenDialog({
    children,
+   isSettingsOpen,
    setIsSettingsOpen,
    actionStatus,
    setActionStatus,
@@ -39,8 +45,9 @@ function FullScreenDialog({
    return (
       <div>
          <Dialog
+            className={classes.dialog}
             fullScreen
-            open={true}
+            open={isSettingsOpen}
             onClose={closeSettings}
             TransitionComponent={Transition}
          >

@@ -198,6 +198,7 @@ function ProjectHome({ match, User, navHeight }) {
                <Button
                   color="secondary"
                   variant="outlined"
+                  disabled={Project.Members.includes(User.UniqueUsername)}
                   onClick={handleJoinRequest}
                >
                   Join
@@ -232,13 +233,12 @@ function ProjectHome({ match, User, navHeight }) {
                      <SettingsIcon color="primary" />
                   </IconButton>
                )}
-               {isSettingsOpen && (
-                  <ProjectSettingsModal
-                     User={User}
-                     Project={Project}
-                     setIsSettingsOpen={setIsSettingsOpen}
-                  />
-               )}
+               <ProjectSettingsModal
+                  User={User}
+                  Project={Project}
+                  isSettingsOpen={isSettingsOpen}
+                  setIsSettingsOpen={setIsSettingsOpen}
+               />
             </div>
             {actionStatus.info && (
                <StatusBar

@@ -72,12 +72,42 @@ function EnvironmentPanel({ User, currentOrg }) {
    useEffect(() => {
       if (!User.Projects.length > 0) return;
 
-      let project = User.Projects.find(
-         project => project.ParentOrganization === currentOrg
+      let preference = window.localStorage.getItem(
+         "environment_project_context"
       );
-      if (project) setActiveProject(project.ProjectName);
-      else setActiveProject(null);
+
+      let preferenceFound = false;
+      let nextBestOption = null;
+
+      User.Projects.forEach(project => {
+         if (
+            project.ProjectName === preference &&
+            project.ParentOrganization === currentOrg
+         ) {
+            setActiveProject(project.ProjectName);
+            preferenceFound = true;
+            return;
+         }
+         if (project.ParentOrganization === currentOrg) {
+            if (!nextBestOption) nextBestOption = project.ProjectName;
+         }
+      });
+      if (preferenceFound) return;
+
+      if (nextBestOption) setActiveProject(nextBestOption);
+      else {
+         window.localStorage.removeItem("environment_project_context");
+         setActiveProject(null);
+      }
    }, [currentOrg, User.Projects]);
+
+   useEffect(() => {
+      if (activeProject !== null)
+         window.localStorage.setItem(
+            "environment_project_context",
+            activeProject
+         );
+   }, [activeProject]);
 
    useEffect(() => {
       let abortFetch = new AbortController();

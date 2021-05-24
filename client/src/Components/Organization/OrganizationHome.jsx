@@ -155,14 +155,13 @@ function OrganizationHome({ match, User, navHeight }) {
                   <SettingsIcon color="primary" />
                </IconButton>
             )}
-            {isSettingsOpen && (
-               <OrgSettingsModal
-                  User={User}
-                  match={match}
-                  Organization={Organization}
-                  setIsSettingsOpen={setIsSettingsOpen}
-               />
-            )}
+            <OrgSettingsModal
+               User={User}
+               match={match}
+               Organization={Organization}
+               isSettingsOpen={isSettingsOpen}
+               setIsSettingsOpen={setIsSettingsOpen}
+            />
          </>
       ) : (
          <h1>There was an error</h1>

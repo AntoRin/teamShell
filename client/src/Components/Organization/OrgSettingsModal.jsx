@@ -24,7 +24,13 @@ const useStyles = makeStyles(theme => ({
    submitBtn: {},
 }));
 
-function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
+function OrgSettingsModal({
+   User,
+   match,
+   Organization,
+   isSettingsOpen,
+   setIsSettingsOpen,
+}) {
    const classes = useStyles();
 
    const [newDescription, setNewDescription] = useState(
@@ -136,6 +142,7 @@ function OrgSettingsModal({ User, match, Organization, setIsSettingsOpen }) {
          <FullScreenDialog
             actionStatus={actionStatus}
             setActionStatus={setActionStatus}
+            isSettingsOpen={isSettingsOpen}
             setIsSettingsOpen={setIsSettingsOpen}
          >
             <List>

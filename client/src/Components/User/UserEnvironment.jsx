@@ -38,20 +38,31 @@ function UserEnvironment({ User }) {
    const classes = useStyles();
 
    const [currentOrg, setCurrentOrg] = useState(
-      () =>
-         window.localStorage.getItem("environment_organization_context") ||
-         (User.Organizations.length > 0
-            ? User.Organizations[0].OrganizationName
-            : "")
+      User.Organizations.length > 0
+         ? User.Organizations[0].OrganizationName
+         : null
    );
 
    const [configurationDrawer, setConfigurationDrawer] = useState(false);
 
    useEffect(() => {
-      window.localStorage.setItem(
-         "environment_organization_context",
-         currentOrg
+      let preference = window.localStorage.getItem(
+         "environment_organization_context"
       );
+      if (preference) {
+         let userOrg = User.Organizations.find(
+            org => org.OrganizationName === preference
+         );
+         if (userOrg) setCurrentOrg(userOrg.OrganizationName);
+      }
+   }, [User.Organizations]);
+
+   useEffect(() => {
+      if (currentOrg !== null)
+         window.localStorage.setItem(
+            "environment_organization_context",
+            currentOrg
+         );
    }, [currentOrg]);
 
    function toggleConfigurationDrawer(open) {
