@@ -1,13 +1,47 @@
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { ListItemIcon, makeStyles } from "@material-ui/core";
+import { List, ListItem, ListItemText } from "@material-ui/core";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
+import EcoIcon from "@material-ui/icons/Eco";
+import CodeIcon from "@material-ui/icons/Code";
+import SettingsApplicationsOutlinedIcon from "@material-ui/icons/SettingsApplicationsOutlined";
+import BugReportOutlinedIcon from "@material-ui/icons/BugReportOutlined";
+import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import "../../styles/user-drop-down.css";
+
+const useStyles = makeStyles({
+   dropdownContainer: {
+      backgroundColor: "rgb(30, 32, 40)",
+
+      "& > div": {
+         zIndex: 200,
+      },
+   },
+   listElement: {
+      "&.MuiListItem-divider": {
+         color: "lightblue",
+      },
+   },
+   icons: {
+      color: "lightgreen",
+   },
+});
+
+const listTextProps = {
+   variant: "h6",
+};
 
 function UserDropDown({ isOpen, setIsDropdownOpen, UniqueUsername }) {
+   const classes = useStyles();
+
    const history = useHistory();
-   //----------------------Change logout endpoint & credentials----------------------------
 
    function closeDropdown() {
       setIsDropdownOpen(false);
+   }
+
+   function goToLink(link) {
+      history.push(link);
    }
 
    async function handleLogout() {
@@ -20,35 +54,111 @@ function UserDropDown({ isOpen, setIsDropdownOpen, UniqueUsername }) {
 
    return isOpen ? (
       <ClickAwayListener onClickAway={closeDropdown}>
-         <div className="drop-down-container">
-            <div className="option-profile">
-               <Link
-                  className="drop-down-link"
-                  to={`/user/profile/${UniqueUsername}`}
+         <div className={classes.dropdownContainer}>
+            <List>
+               <ListItem
+                  className={classes.listElement}
+                  dense={true}
+                  button={true}
+                  divider={true}
+                  onClick={() => goToLink(`/user/profile/${UniqueUsername}`)}
                >
-                  Profile
-               </Link>
-            </div>
-            <div className="option-organizations">
-               <Link className="drop-down-link" to="/user/organizations">
-                  Organizations
-               </Link>
-            </div>
-            <div className="option-projects">
-               <Link className="drop-down-link" to="/user/projects">
-                  Projects
-               </Link>
-            </div>
-            <div className="option-projects">
-               <Link className="drop-down-link" to="/user/settings">
-                  Settings
-               </Link>
-            </div>
-            <div className="logout">
-               <button onClick={handleLogout} id="logoutBtn">
-                  Logout
-               </button>
-            </div>
+                  <ListItemIcon>
+                     <AccountBoxIcon className={classes.icons} />
+                  </ListItemIcon>
+                  <ListItemText
+                     primary="Profile"
+                     primaryTypographyProps={listTextProps}
+                  />
+               </ListItem>
+               <ListItem
+                  className={classes.listElement}
+                  dense={true}
+                  button={true}
+                  divider={true}
+                  onClick={() =>
+                     goToLink(
+                        `/user/profile/${UniqueUsername}?tab=organizations`
+                     )
+                  }
+               >
+                  <ListItemIcon>
+                     <EcoIcon className={classes.icons} />
+                  </ListItemIcon>
+                  <ListItemText
+                     primary="Organizations"
+                     primaryTypographyProps={listTextProps}
+                  />
+               </ListItem>
+               <ListItem
+                  className={classes.listElement}
+                  dense={true}
+                  button={true}
+                  divider={true}
+                  onClick={() =>
+                     goToLink(`/user/profile/${UniqueUsername}?tab=projects`)
+                  }
+               >
+                  <ListItemIcon>
+                     <CodeIcon className={classes.icons} />
+                  </ListItemIcon>
+                  <ListItemText
+                     primary="Projects"
+                     primaryTypographyProps={listTextProps}
+                  />
+               </ListItem>
+               <ListItem
+                  className={classes.listElement}
+                  dense={true}
+                  button={true}
+                  divider={true}
+                  onClick={() =>
+                     goToLink(`/user/profile/${UniqueUsername}?tab=issues`)
+                  }
+               >
+                  <ListItemIcon>
+                     <BugReportOutlinedIcon className={classes.icons} />
+                  </ListItemIcon>
+                  <ListItemText
+                     primary="Issues"
+                     primaryTypographyProps={listTextProps}
+                  />
+               </ListItem>
+               <ListItem
+                  className={classes.listElement}
+                  dense={true}
+                  button={true}
+                  divider={true}
+                  onClick={() =>
+                     goToLink(`/user/profile/${UniqueUsername}?tab=update`)
+                  }
+               >
+                  <ListItemIcon>
+                     <SettingsApplicationsOutlinedIcon
+                        className={classes.icons}
+                     />
+                  </ListItemIcon>
+                  <ListItemText
+                     primary="Settings"
+                     primaryTypographyProps={listTextProps}
+                  />
+               </ListItem>
+               <ListItem
+                  className={classes.listElement}
+                  dense={true}
+                  button={true}
+                  divider={true}
+                  onClick={handleLogout}
+               >
+                  <ListItemIcon>
+                     <MeetingRoomIcon className={classes.icons} />
+                  </ListItemIcon>
+                  <ListItemText
+                     primary="Logout"
+                     primaryTypographyProps={listTextProps}
+                  />
+               </ListItem>
+            </List>
          </div>
       </ClickAwayListener>
    ) : null;

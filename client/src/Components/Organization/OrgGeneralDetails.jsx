@@ -50,7 +50,7 @@ function OrgGeneralDetails({ Organization }) {
 
    return (
       <Container>
-         <List className={classes.icons}>
+         <List>
             <ListItem className={classes.listElement} divider={false}>
                <ListItemIcon>
                   <EcoIcon fontSize="large" className={classes.listIcon} />
