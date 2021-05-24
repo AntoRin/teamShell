@@ -1,5 +1,5 @@
 function errorHandler(error, req, res, next) {
-   console.log(error.name);
+   console.log(error);
    switch (error.name) {
       case "MongoError":
          if (error.code === 31254)
@@ -60,12 +60,12 @@ function errorHandler(error, req, res, next) {
       case "OrgInvitationRebound":
          return res.status(400).json({
             status: "error",
-            error: "You are already a part of the organization",
+            error: "User is already a part of the organization",
          });
       case "ProjectInvitationRebound":
          return res
             .status(400)
-            .json({ status: "error", error: "You are already in the project" });
+            .json({ status: "error", error: "User is already in the project" });
       case "ValidationError":
          return res
             .status(400)

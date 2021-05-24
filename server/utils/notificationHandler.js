@@ -65,7 +65,7 @@ async function handleNotifications(req, res, next) {
          }
          case "RequestToJoin":
             {
-               let Hyperlink = `/user/profile/${initiator.UniqueUsername}`;
+               let Hyperlink = null;
                let notificationSnippet = `requested to join the project `;
 
                let notification = {
@@ -77,7 +77,6 @@ async function handleNotifications(req, res, next) {
                      Keyword: metaData.target_name,
                   },
                };
-               console.log("hoihoinoinoininoinon");
                await User.updateOne(
                   { UniqueUsername: req.projectCreator },
                   {

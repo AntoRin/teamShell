@@ -159,7 +159,7 @@ function ProjectHome({ match, User, navHeight }) {
       let requestResponse = await requestStream.json();
 
       if (requestResponse.status === "ok")
-         setActionStatus({ info: requestResponse.data, type: "info" });
+         setActionStatus({ info: "Request sent", type: "info" });
       else setActionStatus({ info: requestResponse.error, type: "error" });
    }
 

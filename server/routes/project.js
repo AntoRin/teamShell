@@ -153,6 +153,49 @@ router.post("/edit", async (req, res, next) => {
 
 router.post("/invite/new-user", handleNotifications);
 
+router.post("/accept/new-user", async (req, res, next) => {
+   let { newUser, requestedProject } = req.body;
+   let { UniqueUsername } = req.thisUser;
+
+   try {
+      let project = await Project.findOne({ ProjectName: requestedProject });
+
+      if (!project) throw { name: "UnknownData" };
+
+      if (!project.Creator === UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+
+      if (project.Members.includes(newUser))
+         throw { name: "ProjectInvitationRebound" };
+
+      let updatedProject = await Project.findOneAndUpdate(
+         { ProjectName: requestedProject },
+         { $push: { Members: { $each: [newUser], $position: 0 } } }
+      );
+      await User.updateOne(
+         { UniqueUsername: newUser },
+         {
+            $push: {
+               Projects: {
+                  $each: [
+                     {
+                        _id: updatedProject._id,
+                        ProjectName: updatedProject.ProjectName,
+                        Status: "Member",
+                        ParentOrganization: updatedProject.ParentOrganization,
+                     },
+                  ],
+                  $position: 0,
+               },
+            },
+         }
+      );
+      return res.json({ status: "ok", data: "" });
+   } catch (error) {
+      return next(error);
+   }
+});
+
 router.get("/add/new-user/:userSecret", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { userSecret } = req.params;
