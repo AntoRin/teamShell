@@ -87,7 +87,7 @@ function IssueCard({
       async function getProfileImage() {
          try {
             let responseStream = await fetch(
-               "/api/profile/profile-image/${issue.Creator.UniqueUsername}"
+               `/api/profile/profile-image/${issue.Creator.UniqueUsername}`
             );
             let response = await responseStream.json();
 
@@ -100,7 +100,7 @@ function IssueCard({
       }
 
       getProfileImage();
-   }, []);
+   }, [issue.Creator.UniqueUsername]);
 
    useEffect(() => {
       if (editorRef.current) {
@@ -295,7 +295,7 @@ function IssueCard({
                               ? creatorProfileImage.startsWith("https://")
                                  ? creatorProfileImage
                                  : `data:image/jpeg;base64,${creatorProfileImage}`
-                              : "/assets/UserIcon.jpg"
+                              : "/assets/UserIcon.png"
                         }
                         alt=""
                      />

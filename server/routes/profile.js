@@ -93,9 +93,11 @@ router.post("/uploads/profile-image", imageParser, async (req, res, next) => {
 
       let buffer = file.buffer;
 
+      let ImageData = buffer.toString("base64");
+
       await ProfileImage.updateOne(
-         { UniqueUsername },
-         { ProfileImage: buffer },
+         { UserContext: UniqueUsername },
+         { ImageData },
          { upsert: true }
       );
 

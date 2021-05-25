@@ -421,9 +421,11 @@ function UserProfile({ location, match, User, setChatSettings }) {
                   <img
                      id="profilePictureBig"
                      src={
-                        Profile.ProfileImage.startsWith("https://")
-                           ? Profile.ProfileImage
-                           : `data:image/jpeg;base64,${Profile.ProfileImage}`
+                        Profile.ProfileImage
+                           ? Profile.ProfileImage.startsWith("https://")
+                              ? Profile.ProfileImage
+                              : `data:image/jpeg;base64,${Profile.ProfileImage}`
+                           : "/assets/UserIcon.png"
                      }
                      alt=""
                   />
