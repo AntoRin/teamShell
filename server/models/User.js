@@ -21,9 +21,9 @@ const UserSchema = new Schema(
          type: String,
          required: true,
       },
-      ProfileImage: {
-         type: {},
-         default: "No Image",
+      AccountType: {
+         type: String,
+         required: true,
       },
       Bio: {
          type: String,
@@ -35,7 +35,6 @@ const UserSchema = new Schema(
                Initiator: {
                   type: {
                      UniqueUsername: String,
-                     ProfileImage: String,
                   },
                   required: true,
                },

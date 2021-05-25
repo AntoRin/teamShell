@@ -1,11 +1,7 @@
 const { Router } = require("express");
-const jwt = require("jsonwebtoken");
 const multer = require("multer");
-const fsPromises = require("fs/promises");
-const path = require("path");
 const User = require("../models/User");
-const Project = require("../models/Project");
-const Issue = require("../models/Issue");
+const ProfileImage = require("../models/ProfileImage");
 const { handleNotifications } = require("../utils/notificationHandler");
 
 const router = Router();
@@ -32,7 +28,7 @@ router.get("/details/:UniqueUsername", async (req, res, next) => {
          {
             UniqueUsername: requestedUser,
          },
-         { Password: 0, updatedAt: 0, Notifications: 0 }
+         { Password: 0, updatedAt: 0, Notifications: 0, __v: 0 }
       );
 
       if (!queryResult) throw { name: "UserNotFound" };
@@ -43,12 +39,34 @@ router.get("/details/:UniqueUsername", async (req, res, next) => {
       if (UniqueUsername === requestedUser) {
          user = _doc;
       } else {
-         let { Issues, Solutions, ...restrictedAccessData } = _doc;
-         user = restrictedAccessData;
+         let { Issues, Solutions, ...limitedAccessData } = _doc;
+         user = limitedAccessData;
       }
+
+      let profileImage = await ProfileImage.findOne({
+         UserContext: requestedUser,
+      });
+
+      if (profileImage) user.ProfileImage = profileImage.ImageData;
 
       if (user) return res.json({ status: "ok", user });
       else throw { name: "UnknownData" };
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.get("/profile-image/:UniqueUsername", async (req, res, next) => {
+   let requestedUser = req.params.UniqueUsername;
+
+   try {
+      let profileImage = await ProfileImage.findOne({
+         UserContext: requestedUser,
+      });
+
+      if (!profileImage) throw { name: "SilentEnd" };
+
+      return res.json({ status: "ok", data: profileImage.ImageData });
    } catch (error) {
       return next(error);
    }
@@ -67,7 +85,7 @@ router.put("/edit", async (req, res, next) => {
 });
 
 router.post("/uploads/profile-image", imageParser, async (req, res, next) => {
-   let { UniqueUsername, Email } = req.thisUser;
+   let { UniqueUsername } = req.thisUser;
    try {
       let file = req.file;
 
@@ -75,7 +93,11 @@ router.post("/uploads/profile-image", imageParser, async (req, res, next) => {
 
       let buffer = file.buffer;
 
-      await User.updateOne({ UniqueUsername, Email }, { ProfileImage: buffer });
+      await ProfileImage.updateOne(
+         { UniqueUsername },
+         { ProfileImage: buffer },
+         { upsert: true }
+      );
 
       return res.json({ status: "ok", data: "Image Uploaded" });
    } catch (error) {

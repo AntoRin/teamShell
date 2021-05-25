@@ -77,10 +77,30 @@ function IssueCard({
    const [description, setDescription] = useState("");
    const [anchorEl, setAnchorEl] = useState(null);
    const [userBookmarked, setUserBookmarked] = useState(false);
+   const [creatorProfileImage, setCreatorProfileImage] = useState(null);
 
    const editorRef = useRef();
 
    const history = useHistory();
+
+   useEffect(() => {
+      async function getProfileImage() {
+         try {
+            let responseStream = await fetch(
+               "/api/profile/profile-image/${issue.Creator.UniqueUsername}"
+            );
+            let response = await responseStream.json();
+
+            if (response.status === "ok")
+               return setCreatorProfileImage(response.data);
+         } catch (error) {
+            console.log(error);
+            return;
+         }
+      }
+
+      getProfileImage();
+   }, []);
 
    useEffect(() => {
       if (editorRef.current) {
@@ -271,9 +291,11 @@ function IssueCard({
                      <img
                         className={classes["profile-image"]}
                         src={
-                           issue.Creator.ProfileImage.startsWith("https://")
-                              ? issue.Creator.ProfileImage
-                              : `data:image/jpeg;base64,${issue.Creator.ProfileImage}`
+                           creatorProfileImage
+                              ? creatorProfileImage.startsWith("https://")
+                                 ? creatorProfileImage
+                                 : `data:image/jpeg;base64,${creatorProfileImage}`
+                              : "/assets/UserIcon.jpg"
                         }
                         alt=""
                      />

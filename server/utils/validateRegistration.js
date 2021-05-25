@@ -1,11 +1,24 @@
-const mongoose = require("mongoose");
+const User = require("../models/User");
+const ProfileImage = require("../models/ProfileImage");
 
-async function validateRegistration(userInfo, collection) {
-   let present = await collection.findOne({ ...userInfo });
-   if (present) {
-      let { Password, ...user } = present._doc;
+async function validateRegistration(userInfo) {
+   let { _doc } = await User.findOne(
+      { ...userInfo },
+      { Password: 0, updatedAt: 0, __v: 0 }
+   );
+
+   let user = { ..._doc };
+
+   if (user) {
+      let profileImage = await ProfileImage.findOne({
+         UserContext: userInfo.UniqueUsername,
+      });
+      if (profileImage) {
+         user.ProfileImage = profileImage.ImageData;
+      }
+
       return user;
-   } else return false;
+   } else return null;
 }
 
 module.exports = validateRegistration;

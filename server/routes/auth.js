@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { google } = require("googleapis");
 
 const User = require("../models/User");
+const ProfileImage = require("../models/ProfileImage");
 const validateRegistration = require("../utils/validateRegistration");
 
 const router = Router();
@@ -26,6 +27,7 @@ router.post("/register", async (req, res, next) => {
          Username,
          Email,
          Password: hashedPassword,
+         AccountType: "Email",
       });
 
       await newUser.save();
@@ -41,7 +43,7 @@ router.post("/login", async (req, res, next) => {
    try {
       let present = await User.findOne({ Email });
 
-      if (!present || present.Password === "GitHub Verified")
+      if (!present || present.AccountType !== "Email")
          throw { name: "AuthFailure" };
 
       let verified = await bcrypt.compare(Password, present.Password);
@@ -105,10 +107,13 @@ router.get("/login/github/callback", async (req, res, next) => {
       let userInfo = {
          UniqueUsername: userDetails.login,
          Email: emailData[0].email,
-         Password: "GitHub Verified",
       };
+      let ImageData = userDetails.avatar_url;
 
-      let present = await validateRegistration(userInfo, User);
+      let present = await validateRegistration(userInfo);
+
+      if (present && present.AccountType !== "GitHub")
+         throw { name: "AuthFailure" };
 
       let loginToken = jwt.sign(
          { UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email },
@@ -120,8 +125,21 @@ router.get("/login/github/callback", async (req, res, next) => {
             .cookie("token", loginToken, { httpOnly: true })
             .redirect("/user/home");
       } else {
-         let newUser = new User(userInfo);
+         let newUser = new User({
+            ...userInfo,
+            AccountType: "GitHub",
+            Password: "GitHub Verified",
+         });
          await newUser.save();
+
+         if (ImageData) {
+            let profileImage = new ProfileImage({
+               UserContext: userInfo.UniqueUsername,
+               ImageData,
+            });
+            await profileImage.save();
+         }
+
          return res
             .cookie("token", loginToken, {
                httpOnly: true,
@@ -129,7 +147,6 @@ router.get("/login/github/callback", async (req, res, next) => {
             .redirect("/user/home");
       }
    } catch (error) {
-      console.log(error.type);
       return next(error);
    }
 });
@@ -167,11 +184,14 @@ router.get("/login/google/callback", async (req, res, next) => {
 
       let {
          name: UniqueUsername,
-         picture: ProfileImage,
+         picture: ImageData,
          email: Email,
       } = await userDataStream.json();
 
-      let present = await validateRegistration({ UniqueUsername, Email }, User);
+      let present = await validateRegistration({ UniqueUsername, Email });
+
+      if (present && present.AccountType !== "Google")
+         throw { name: "AuthFailure" };
 
       let loginToken = jwt.sign(
          { UniqueUsername, Email },
@@ -186,12 +206,20 @@ router.get("/login/google/callback", async (req, res, next) => {
          let userInfo = {
             UniqueUsername,
             Email,
-            ProfileImage,
             Password: "Google Verified",
+            AccountType: "Google",
          };
-
          let newUser = new User(userInfo);
          await newUser.save();
+
+         if (ImageData) {
+            let profileImage = new ProfileImage({
+               UserContext: userInfo.UniqueUsername,
+               ImageData,
+            });
+            await profileImage.save();
+         }
+
          return res
             .cookie("token", loginToken, {
                httpOnly: true,
@@ -213,8 +241,9 @@ router.get("/verify", async (req, res, next) => {
 
    try {
       let { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET);
-      let present = await validateRegistration({ UniqueUsername, Email }, User);
+      let present = await validateRegistration({ UniqueUsername, Email });
       if (!present) throw { name: "AuthFailure" };
+
       return res.json({ status: "ok", User: present });
    } catch (error) {
       return next(error);

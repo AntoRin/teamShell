@@ -28,11 +28,11 @@ function Login() {
    }
 
    async function handleGithubLogin() {
-      window.location.pathname = "/auth/login/github";
+      window.location.pathname = "/api/auth/login/github";
    }
 
    async function handleGoogleLogin() {
-      window.location.pathname = "/auth/login/google";
+      window.location.pathname = "/api/auth/login/google";
    }
 
    async function handleLogin(event) {
