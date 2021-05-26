@@ -91,8 +91,7 @@ async function handleNotifications(req, res, next) {
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw { name: "UnauthorizedRequest" };
 
-            if (user.UniqueUsername === initiator.UniqueUsername)
-               throw { name: "SilentEnd" };
+            if (user.UniqueUsername === initiator) throw { name: "SilentEnd" };
 
             let Hyperlink, notificationSnippet;
 
@@ -155,7 +154,7 @@ async function handleNotifications(req, res, next) {
             await User.updateMany(
                {
                   "Projects.ProjectName": recipient,
-                  UniqueUsername: { $ne: initiator.UniqueUsername },
+                  UniqueUsername: { $ne: initiator },
                },
                {
                   $push: {

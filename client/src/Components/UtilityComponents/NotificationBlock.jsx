@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import ListItem from "@material-ui/core/ListItem";
@@ -39,7 +39,32 @@ function NotificationBlock({
 }) {
    const classes = useStyles();
 
+   const [initiatorProfileImage, setInitiatorProfileImage] = useState(null);
+
    const history = useHistory();
+
+   useEffect(() => {
+      async function getInitiatorProfileImage() {
+         try {
+            let responseStream = await fetch(
+               `/api/profile/profile-image/${notification.Initiator}`
+            );
+
+            if (responseStream.status === 204) return;
+
+            let responseData = await responseStream.json();
+
+            if (responseData.status === "ok" && responseData.data)
+               setInitiatorProfileImage(responseData.data);
+            else if (responseData.status === "error") throw responseData.error;
+         } catch (error) {
+            console.log(error);
+            return;
+         }
+      }
+
+      getInitiatorProfileImage();
+   }, [notification.Initiator]);
 
    useEffect(() => {
       if (notificationProgress.pending) return;
@@ -146,7 +171,7 @@ function NotificationBlock({
             handleNotificationClick(
                notification.Hyperlink,
                notification.InfoType,
-               notification.Initiator.UniqueUsername,
+               notification.Initiator,
                notification.ActivityContent.Keyword
             )
          }
@@ -156,9 +181,11 @@ function NotificationBlock({
             <ListItemAvatar>
                <Avatar
                   src={
-                     notification.Initiator.ProfileImage.startsWith("https://")
-                        ? notification.Initiator.ProfileImage
-                        : `data:image/jpeg;base64,${notification.Initiator.ProfileImage}`
+                     initiatorProfileImage
+                        ? initiatorProfileImage.startsWith("https://")
+                           ? initiatorProfileImage
+                           : `data:image/jpeg;base64,${initiatorProfileImage}`
+                        : "/assets/UserIcon.png"
                   }
                   alt=""
                />
@@ -181,7 +208,7 @@ function NotificationBlock({
                                        classes["notification-initiator"]
                                     }
                                  >
-                                    {notification.Initiator.UniqueUsername}
+                                    {notification.Initiator}
                                  </span>
                               }{" "}
                               <span>{notification.ActivityContent.Action}</span>{" "}

@@ -108,18 +108,19 @@ function Notifications({
          <ClickAwayListener onClickAway={closeNotifications}>
             <div className="notifications-container">
                <List className={classes.root}>
-                  {notifications.map(notification => {
-                     return (
-                        <NotificationBlock
-                           key={notification._id}
-                           notification={notification}
-                           setConfirmationRequired={setConfirmationRequired}
-                           notificationProgress={notificationProgress}
-                           setNotificationProgress={setNotificationProgress}
-                           setActionStatus={setActionStatus}
-                        />
-                     );
-                  })}
+                  {notifications.length > 0 &&
+                     notifications.map(notification => {
+                        return (
+                           <NotificationBlock
+                              key={notification._id}
+                              notification={notification}
+                              setConfirmationRequired={setConfirmationRequired}
+                              notificationProgress={notificationProgress}
+                              setNotificationProgress={setNotificationProgress}
+                              setActionStatus={setActionStatus}
+                           />
+                        );
+                     })}
                   <Divider variant="inset" component="li" />
                </List>
                {actionStatus.info && (

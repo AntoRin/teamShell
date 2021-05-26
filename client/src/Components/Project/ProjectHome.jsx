@@ -132,10 +132,7 @@ function ProjectHome({ match, User, navHeight }) {
 
    async function handleJoinRequest() {
       let requestData = {
-         initiator: {
-            UniqueUsername: User.UniqueUsername,
-            ProfileImage: User.ProfileImage,
-         },
+         initiator: User.UniqueUsername,
          recipient: Project.ProjectName,
          metaData: {
             notification_type: "RequestToJoin",

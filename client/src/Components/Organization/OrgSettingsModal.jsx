@@ -95,10 +95,7 @@ function OrgSettingsModal({
       }
 
       let invitationData = {
-         initiator: {
-            UniqueUsername: User.UniqueUsername,
-            ProfileImage: User.ProfileImage,
-         },
+         initiator: User.UniqueUsername,
          recipient: newUser,
          metaData: {
             notification_type: "Invitation",

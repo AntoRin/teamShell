@@ -64,7 +64,7 @@ router.get("/profile-image/:UniqueUsername", async (req, res, next) => {
          UserContext: requestedUser,
       });
 
-      if (!profileImage) throw { name: "SilentEnd" };
+      if (!profileImage) throw { name: "NoDataResponse" };
 
       return res.json({ status: "ok", data: profileImage.ImageData });
    } catch (error) {

@@ -24,10 +24,7 @@ function SolutionEditor({ issueDetails, User }) {
                UniqueUsername: User.UniqueUsername,
                ProfileImage: User.ProfileImage,
             },
-            initiator: {
-               UniqueUsername: User.UniqueUsername,
-               ProfileImage: User.ProfileImage,
-            },
+            initiator: User.UniqueUsername,
             recipient: issueDetails.ProjectContext,
             metaData: {
                notification_type: "NewSolution",

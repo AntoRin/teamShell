@@ -76,10 +76,7 @@ function SolutionCard({ solution, User, issueDetails }) {
          user_id: User._id,
          solution_id: solution._id,
          solution_creator: solution.SolutionCreator.UniqueUsername,
-         initiator: {
-            UniqueUsername: User.UniqueUsername,
-            ProfileImage: User.ProfileImage,
-         },
+         initiator: User.UniqueUsername,
          recipient: solution.SolutionCreator.UniqueUsername,
          metaData: {
             notification_type: "NewSolutionLike",

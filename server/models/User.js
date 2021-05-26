@@ -33,9 +33,7 @@ const UserSchema = new Schema(
          type: [
             {
                Initiator: {
-                  type: {
-                     UniqueUsername: String,
-                  },
+                  type: String,
                   required: true,
                },
                InfoType: {

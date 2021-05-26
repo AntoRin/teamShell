@@ -59,10 +59,7 @@ function IssueEditor({ activeProject, User }) {
                User_id: User._id,
                ProfileImage: User.ProfileImage,
             },
-            initiator: {
-               UniqueUsername: User.UniqueUsername,
-               ProfileImage: User.ProfileImage,
-            },
+            initiator: User.UniqueUsername,
             recipient: activeProject,
             metaData: {
                notification_type: "NewIssue",

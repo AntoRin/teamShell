@@ -91,8 +91,9 @@ function IssueCard({
             );
             let response = await responseStream.json();
 
-            if (response.status === "ok")
+            if (response.status === "ok" && response.data)
                return setCreatorProfileImage(response.data);
+            else if (response.status === "error") throw response.error;
          } catch (error) {
             console.log(error);
             return;
