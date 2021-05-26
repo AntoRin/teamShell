@@ -11,6 +11,7 @@ import OrganizationHome from "./Organization/OrganizationHome";
 import CreateProject from "./Project/CreateProject";
 import ProjectHome from "./Project/ProjectHome";
 import UserEnvironment from "./User/UserEnvironment";
+import UserWorkspace from "./User/UserWorkspace";
 import IssueHome from "./Issue/IssueHome";
 
 function App() {
@@ -51,6 +52,11 @@ function App() {
                   path="/user/environment"
                   exact
                   component={UserEnvironment}
+               />
+               <ProtectedRoute
+                  path="/user/workspace"
+                  exact
+                  component={UserWorkspace}
                />
                <ProtectedRoute path="/issue/:IssueID" component={IssueHome} />
                <ProtectedRoute path="/" component={UserHome} />

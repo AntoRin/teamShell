@@ -9,7 +9,8 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import EnvironmentPanel from "./EnvironmentPanel";
+// import EnvironmentPanel from "./EnvironmentPanel";
+import WorkspaceSelection from "./WorkspaceSelection";
 
 const useStyles = makeStyles(theme => ({
    configurationToggle: {
@@ -136,7 +137,8 @@ function UserEnvironment({ User }) {
                </List>
             </Drawer>
          </>
-         <EnvironmentPanel User={User} currentOrg={currentOrg} />
+         {/* <EnvironmentPanel User={User} currentOrg={currentOrg} /> */}
+         <WorkspaceSelection User={User} currentOrg={currentOrg} />
       </div>
    );
 }
