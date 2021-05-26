@@ -111,7 +111,7 @@ router.get("/notifications", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
 
    try {
-      let user = await User.findOne({ UniqueUsername, Email });
+      let user = await User.findOne({ UniqueUsername, Email }).lean();
       if (!user) throw { name: "UnauthorizedRequest" };
       let { Notifications } = user;
       return res.json({ status: "ok", data: { Notifications } });

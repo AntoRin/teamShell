@@ -19,6 +19,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import useRequest from "../Hooks/useRequest";
 import { readonly_editor_config } from "../../config/editor_config";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
@@ -77,31 +78,15 @@ function IssueCard({
    const [description, setDescription] = useState("");
    const [anchorEl, setAnchorEl] = useState(null);
    const [userBookmarked, setUserBookmarked] = useState(false);
-   const [creatorProfileImage, setCreatorProfileImage] = useState(null);
+
+   const creatorProfileImage = useRequest(
+      `/api/profile/profile-image/${issue.Creator.UniqueUsername}`,
+      JSON.stringify({})
+   );
 
    const editorRef = useRef();
 
    const history = useHistory();
-
-   useEffect(() => {
-      async function getProfileImage() {
-         try {
-            let responseStream = await fetch(
-               `/api/profile/profile-image/${issue.Creator.UniqueUsername}`
-            );
-            let response = await responseStream.json();
-
-            if (response.status === "ok" && response.data)
-               return setCreatorProfileImage(response.data);
-            else if (response.status === "error") throw response.error;
-         } catch (error) {
-            console.log(error);
-            return;
-         }
-      }
-
-      getProfileImage();
-   }, [issue.Creator.UniqueUsername]);
 
    useEffect(() => {
       if (editorRef.current) {
@@ -292,10 +277,10 @@ function IssueCard({
                      <img
                         className={classes["profile-image"]}
                         src={
-                           creatorProfileImage
-                              ? creatorProfileImage.startsWith("https://")
-                                 ? creatorProfileImage
-                                 : `data:image/jpeg;base64,${creatorProfileImage}`
+                           creatorProfileImage.data
+                              ? creatorProfileImage.data.startsWith("https://")
+                                 ? creatorProfileImage.data
+                                 : `data:image/jpeg;base64,${creatorProfileImage.data}`
                               : "/assets/UserIcon.png"
                         }
                         alt=""

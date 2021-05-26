@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import ListItem from "@material-ui/core/ListItem";
@@ -6,6 +6,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
+import useRequest from "../Hooks/useRequest";
 import formatDate from "../../utils/formatDate";
 
 const useStyles = makeStyles(theme => ({
@@ -39,32 +40,12 @@ function NotificationBlock({
 }) {
    const classes = useStyles();
 
-   const [initiatorProfileImage, setInitiatorProfileImage] = useState(null);
+   const initiatorProfileImage = useRequest(
+      `/api/profile/profile-image/${notification.Initiator}`,
+      JSON.stringify({})
+   );
 
    const history = useHistory();
-
-   useEffect(() => {
-      async function getInitiatorProfileImage() {
-         try {
-            let responseStream = await fetch(
-               `/api/profile/profile-image/${notification.Initiator}`
-            );
-
-            if (responseStream.status === 204) return;
-
-            let responseData = await responseStream.json();
-
-            if (responseData.status === "ok" && responseData.data)
-               setInitiatorProfileImage(responseData.data);
-            else if (responseData.status === "error") throw responseData.error;
-         } catch (error) {
-            console.log(error);
-            return;
-         }
-      }
-
-      getInitiatorProfileImage();
-   }, [notification.Initiator]);
 
    useEffect(() => {
       if (notificationProgress.pending) return;
@@ -181,10 +162,10 @@ function NotificationBlock({
             <ListItemAvatar>
                <Avatar
                   src={
-                     initiatorProfileImage
-                        ? initiatorProfileImage.startsWith("https://")
-                           ? initiatorProfileImage
-                           : `data:image/jpeg;base64,${initiatorProfileImage}`
+                     initiatorProfileImage.data
+                        ? initiatorProfileImage.data.startsWith("https://")
+                           ? initiatorProfileImage.data
+                           : `data:image/jpeg;base64,${initiatorProfileImage.data}`
                         : "/assets/UserIcon.png"
                   }
                   alt=""

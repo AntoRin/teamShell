@@ -68,6 +68,8 @@ function Notifications({
                }
             );
 
+            if (abortFetch.signal.aborted) return;
+
             let notificationData = await notificationDataStream.json();
             if (notificationData.status === "ok") {
                let { Notifications } = notificationData.data;
