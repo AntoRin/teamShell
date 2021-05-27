@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useHistory, Link } from "react-router-dom";
 import HomeIcon from "@material-ui/icons/Home";
-import StatusBar from "../UtilityComponents/StatusBar";
+import { GlobalActionStatus } from "../App";
 import "../../styles/register-login.css";
 
 function Register() {
@@ -11,10 +11,8 @@ function Register() {
       email: "",
       password: "",
    });
-   const [actionStatus, setActionStatus] = useState({
-      info: null,
-      type: "success",
-   });
+
+   const setActionStatus = useContext(GlobalActionStatus);
 
    const history = useHistory();
 
@@ -120,12 +118,6 @@ function Register() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
-         {actionStatus.info && (
-            <StatusBar
-               actionStatus={actionStatus}
-               setActionStatus={setActionStatus}
-            />
-         )}
       </div>
    );
 }

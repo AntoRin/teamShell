@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -11,8 +11,8 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { Button, TextField } from "@material-ui/core";
+import { GlobalActionStatus } from "../App";
 import FullScreenDialog from "../UtilityComponents/FullScreenDialog";
-import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/settings-modal.css";
 
 const useStyles = makeStyles(theme => ({
@@ -38,10 +38,8 @@ function OrgSettingsModal({
    );
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
-   const [actionStatus, setActionStatus] = useState({
-      info: null,
-      type: "success",
-   });
+
+   const setActionStatus = useContext(GlobalActionStatus);
 
    const history = useHistory();
 
@@ -60,7 +58,7 @@ function OrgSettingsModal({
    async function updateOrgSettings(event) {
       event.preventDefault();
 
-      if (!Organization.Creator !== User.UniqueUsername) return;
+      if (Organization.Creator !== User.UniqueUsername) return;
 
       let body = {
          Org: Organization.OrganizationName,
@@ -137,7 +135,6 @@ function OrgSettingsModal({
    return (
       <div>
          <FullScreenDialog
-            actionStatus={actionStatus}
             setActionStatus={setActionStatus}
             isSettingsOpen={isSettingsOpen}
             setIsSettingsOpen={setIsSettingsOpen}
@@ -234,12 +231,6 @@ function OrgSettingsModal({
                </ListItem>
                <Divider />
             </List>
-            {actionStatus.info && (
-               <StatusBar
-                  actionStatus={actionStatus}
-                  setActionStatus={setActionStatus}
-               />
-            )}
          </FullScreenDialog>
       </div>
    );

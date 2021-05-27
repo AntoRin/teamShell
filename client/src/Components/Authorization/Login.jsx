@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useHistory, Link } from "react-router-dom";
 import GitHubIcon from "@material-ui/icons/GitHub";
 import GTranslateIcon from "@material-ui/icons/GTranslate";
 import HomeIcon from "@material-ui/icons/Home";
-import StatusBar from "../UtilityComponents/StatusBar";
+import { GlobalActionStatus } from "../App";
 import CenteredLoader from "../UtilityComponents/CenteredLoader";
 import "../../styles/register-login.css";
 
@@ -12,11 +12,9 @@ function Login() {
       userId: "",
       password: "",
    });
-   const [actionStatus, setActionStatus] = useState({
-      info: null,
-      type: "success",
-   });
    const [isLoading, setIsLoading] = useState(false);
+
+   const setActionStatus = useContext(GlobalActionStatus);
 
    const history = useHistory();
 
@@ -117,12 +115,6 @@ function Login() {
          <div onClick={() => history.push("/")} className="home-redirect">
             <HomeIcon />
          </div>
-         {actionStatus.info && (
-            <StatusBar
-               actionStatus={actionStatus}
-               setActionStatus={setActionStatus}
-            />
-         )}
       </div>
    );
 }

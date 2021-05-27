@@ -10,9 +10,9 @@ import IconButton from "@material-ui/core/IconButton";
 import AppsIcon from "@material-ui/icons/Apps";
 import Tooltip from "@material-ui/core/Tooltip";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
+import { GlobalActionStatus } from "../App";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
-import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/environment-panel.css";
@@ -54,15 +54,12 @@ function UserWorkspace({ location, User }) {
    const [activeProject, setActiveProject] = useState(null);
    const [projectDetails, setProjectDetails] = useState({});
    const [isLoading, setIsLoading] = useState(false);
-   const [actionStatus, setActionStatus] = useState({
-      type: "success",
-      info: null,
-   });
    const [accordionExpanded, setAccordionExpanded] = useState(false);
 
    const history = useHistory();
 
    const socket = useContext(SocketInstance);
+   const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
       let queryString = location.search;
@@ -101,7 +98,7 @@ function UserWorkspace({ location, User }) {
                let project = projectData.Project;
                setProjectDetails(project);
                setIsLoading(false);
-            }
+            } else if (projectData.status === "error") throw projectData.error;
          } catch (error) {
             if (error.name !== "AbortError") {
                console.log(error);
@@ -188,12 +185,6 @@ function UserWorkspace({ location, User }) {
                </div>
             </div>
          </div>
-         {actionStatus.info && (
-            <StatusBar
-               actionStatus={actionStatus}
-               setActionStatus={setActionStatus}
-            />
-         )}
       </div>
    );
 }

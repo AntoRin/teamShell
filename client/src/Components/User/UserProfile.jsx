@@ -4,8 +4,8 @@ import Typography from "@material-ui/core/Typography";
 import { Button } from "@material-ui/core";
 import { ButtonGroup } from "@material-ui/core";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
+import { GlobalActionStatus } from "../App";
 import DetailCard from "./DetailCard";
-import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/user-profile.css";
 
@@ -16,16 +16,13 @@ function UserProfile({ location, match, User, setChatSettings }) {
    const [isValid, setIsValid] = useState(false);
    const [query, setQuery] = useState("");
    const [issueTabType, setIssueTabType] = useState("created");
-   const [actionStatus, setActionStatus] = useState({
-      type: "success",
-      info: null,
-   });
 
    const bioElement = useRef();
    const usernameElement = useRef();
    const fileInputElement = useRef();
 
    const socket = useContext(SocketInstance);
+   const setActionStatus = useContext(GlobalActionStatus);
 
    const history = useHistory();
 
@@ -451,12 +448,6 @@ function UserProfile({ location, match, User, setChatSettings }) {
                </div>
                <div className="profile-details-section">{tabComponent()}</div>
             </div>
-            {actionStatus.info && (
-               <StatusBar
-                  actionStatus={actionStatus}
-                  setActionStatus={setActionStatus}
-               />
-            )}
          </div>
       ) : (
          <h1>There was an error</h1>

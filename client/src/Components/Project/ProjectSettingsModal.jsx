@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItem from "@material-ui/core/ListItem";
@@ -9,8 +9,8 @@ import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import { Button, Switch, TextField, Typography } from "@material-ui/core";
+import { GlobalActionStatus } from "../App";
 import FullScreenDialog from "../UtilityComponents/FullScreenDialog";
-import StatusBar from "../UtilityComponents/StatusBar";
 import "../../styles/settings-modal.css";
 
 const useStyles = makeStyles(theme => ({
@@ -40,10 +40,8 @@ function ProjectSettingsModal({
    const [inviteOnly, setInviteOnly] = useState(Boolean(Project.InviteOnly));
    const [addUserQuery, setAddUserQuery] = useState(false);
    const [newUser, setNewUser] = useState("");
-   const [actionStatus, setActionStatus] = useState({
-      info: null,
-      type: "success",
-   });
+
+   const setActionStatus = useContext(GlobalActionStatus);
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
@@ -133,7 +131,6 @@ function ProjectSettingsModal({
    return (
       <div>
          <FullScreenDialog
-            actionStatus={actionStatus}
             setActionStatus={setActionStatus}
             isSettingsOpen={isSettingsOpen}
             setIsSettingsOpen={setIsSettingsOpen}
@@ -235,12 +232,6 @@ function ProjectSettingsModal({
                )}
                <Divider />
             </List>
-            {actionStatus.info && (
-               <StatusBar
-                  actionStatus={actionStatus}
-                  setActionStatus={setActionStatus}
-               />
-            )}
          </FullScreenDialog>
       </div>
    );
