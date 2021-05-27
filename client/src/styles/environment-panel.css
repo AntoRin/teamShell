@@ -6,30 +6,9 @@
 
 .environment-panel-main {
    width: 100%;
-   /* display: grid;
-   grid-template-columns: 1fr 4fr; */
    display: flex;
    justify-content: center;
    width: 100%;
-}
-
-.panel-project-selection {
-   padding: 5px;
-   margin: 5px;
-   width: 100%;
-}
-
-.panel-project-member {
-   background-color: rgb(40, 40, 40);
-   padding: 5px;
-   margin: 10px;
-   width: 90%;
-   font-family: "Roboto", sans-serif;
-   cursor: pointer;
-}
-
-.panel-project-active {
-   border: 2px solid rgb(108, 98, 190);
 }
 
 .environment-workspace {
@@ -40,11 +19,6 @@
    max-width: 100%;
    overflow-x: hidden;
    width: 70%;
-}
-
-#multilineEditor {
-   color: white;
-   font-size: 1.2rem;
 }
 
 .all-issues-division {
