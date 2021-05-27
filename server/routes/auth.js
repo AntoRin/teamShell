@@ -13,7 +13,7 @@ const router = Router();
 const googleClient = new google.auth.OAuth2({
    clientId: process.env.GOOGLE_CLIENT_ID,
    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-   redirectUri: "http://localhost:5000/auth/login/google/callback",
+   redirectUri: "http://localhost:5000/api/auth/login/google/callback",
 });
 
 router.post("/register", async (req, res, next) => {
@@ -161,7 +161,7 @@ router.get("/login/google", async (req, res, next) => {
 
    const authUrl = googleClient.generateAuthUrl({
       scope: scopes,
-      prompt: "consent",
+      access_type: "offline",
    });
 
    res.redirect(authUrl);
@@ -169,6 +169,8 @@ router.get("/login/google", async (req, res, next) => {
 
 router.get("/login/google/callback", async (req, res, next) => {
    try {
+      if (req.query.error) throw req.query.error;
+
       const code = req.query.code;
       const { tokens } = await googleClient.getToken(code);
       let getOptions = {
@@ -187,6 +189,21 @@ router.get("/login/google/callback", async (req, res, next) => {
          picture: ImageData,
          email: Email,
       } = await userDataStream.json();
+
+      // googleClient.on("tokens", tokens => {
+      //    if (tokens.refresh_token) {
+      //       console.log(tokens.refresh_token);
+      //    }
+      //    console.log(tokens.access_token);
+      // });
+
+      if (tokens.refresh_token) {
+         console.log("Got refToken: ", tokens.refresh_token);
+         await User.updateOne(
+            { UniqueUsername },
+            { GoogleRefreshToken: tokens.refresh_token }
+         );
+      }
 
       let present = await validateRegistration({ UniqueUsername, Email });
 
@@ -208,6 +225,7 @@ router.get("/login/google/callback", async (req, res, next) => {
             Email,
             Password: "Google Verified",
             AccountType: "Google",
+            GoogleRefreshToken: tokens.refresh_token,
          };
          let newUser = new User(userInfo);
          await newUser.save();

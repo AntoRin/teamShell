@@ -1,11 +1,19 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
+const { google } = require("googleapis");
+
 const Organization = require("../models/Organization");
 const Project = require("../models/Project");
 const User = require("../models/User");
 const { handleNotifications } = require("../utils/notificationHandler");
 
 const router = Router();
+
+const googleClient = new google.auth.OAuth2({
+   clientId: process.env.GOOGLE_CLIENT_ID,
+   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+   redirectUri: "http://localhost:5000/api/auth/login/google/callback",
+});
 
 router.post("/create", async (req, res, next) => {
    let { ProjectName, ProjectDescription, ParentOrganization } = req.body;
@@ -296,5 +304,74 @@ router.post(
    },
    handleNotifications
 );
+
+router.get("/drive/google/authorize", async (req, res) => {
+   let { UniqueUsername } = req.thisUser;
+
+   try {
+      const scopes = "https://www.googleapis.com/auth/drive.file";
+      const authUrl = googleClient.generateAuthUrl({
+         scope: scopes,
+         access_type: "offline",
+         include_granted_scopes: true,
+      });
+
+      // console.log(authUrl);
+      return res.redirect(authUrl);
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
+router.get("/drive/google/callback", async (req, res, next) => {
+   try {
+      if (req.query.error) throw req.query.error;
+
+      const code = req.query.code;
+      const { tokens } = await googleClient.getToken(code);
+
+      if (tokens.refresh_token) {
+         console.log("Got refToken: ", tokens.refresh_token);
+         await User.updateOne(
+            { UniqueUsername },
+            { GoogleRefreshToken: tokens.refresh_token }
+         );
+      }
+
+      console.log("Drive tokens", tokens);
+
+      return res.json({ status: "ok", data: "" });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
+router.get("/drive/google/list-files", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+
+   try {
+      let user = await User.findOne({ UniqueUsername }).lean();
+      let refresh_token = user.GoogleRefreshToken;
+
+      googleClient.setCredentials({ refresh_token });
+
+      const drive = google.drive({ version: "v3", auth: googleClient });
+
+      let response = await drive.files.create({
+         media: {
+            mimeType: "text/plain",
+            body: "This was created with google apis",
+         },
+      });
+      // let data = response.data;
+      console.log(response);
+      return res.json({ status: "ok" });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
 
 module.exports = router;

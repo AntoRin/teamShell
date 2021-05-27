@@ -25,6 +25,9 @@ const UserSchema = new Schema(
          type: String,
          required: true,
       },
+      GoogleRefreshToken: {
+         type: String,
+      },
       Bio: {
          type: String,
          default: "",

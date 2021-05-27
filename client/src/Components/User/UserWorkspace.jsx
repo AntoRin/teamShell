@@ -1,19 +1,16 @@
 import { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import Typography from "@material-ui/core/Typography";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import IconButton from "@material-ui/core/IconButton";
 import AppsIcon from "@material-ui/icons/Apps";
 import Tooltip from "@material-ui/core/Tooltip";
+import { Button, Container, ButtonGroup } from "@material-ui/core";
+import FolderIcon from "@material-ui/icons/Folder";
+import CodeIcon from "@material-ui/icons/Code";
+import WorkspaceIssueTab from "./WorkspaceIssueTab";
+import WorkspaceDriveTab from "./WorkspaceDriveTab";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
-import IssueEditor from "./IssueEditor";
-import IssueCard from "./IssueCard";
-import LinearLoader from "../UtilityComponents/LinearLoader";
 import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/environment-panel.css";
 
@@ -28,22 +25,15 @@ const useStyles = makeStyles(theme => ({
       color: "red",
       fontFamily: `"Poppins", "sans-serif"`,
    },
-   arrowIcon: {
-      color: "white",
-   },
    projectSettingsBtn: {
       position: "fixed",
       top: "15%",
       left: "10px",
    },
-   environmentCrumbs: {
+   workspaceNav: {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      "& div": {
-         cursor: "pointer",
-         color: "blue",
-      },
    },
 }));
 
@@ -54,7 +44,7 @@ function UserWorkspace({ location, User }) {
    const [activeProject, setActiveProject] = useState(null);
    const [projectDetails, setProjectDetails] = useState({});
    const [isLoading, setIsLoading] = useState(false);
-   const [accordionExpanded, setAccordionExpanded] = useState(false);
+   const [tab, setTab] = useState("Issues");
 
    const history = useHistory();
 
@@ -96,6 +86,10 @@ function UserWorkspace({ location, User }) {
 
             if (projectData.status === "ok") {
                let project = projectData.Project;
+
+               if (project.ParentOrganization !== parentOrg)
+                  throw new Error("Project not found");
+
                setProjectDetails(project);
                setIsLoading(false);
             } else if (projectData.status === "error") throw projectData.error;
@@ -115,76 +109,54 @@ function UserWorkspace({ location, User }) {
          abortFetch.abort();
          socket.off("project-data-change");
       };
-   }, [activeProject, socket, history]);
-
-   function changeAccordionState() {
-      setAccordionExpanded(prev => !prev);
-   }
+   }, [activeProject, parentOrg, socket, history]);
 
    function goToEnvironment() {
       history.push("/user/environment");
    }
 
+   function changeWorkspaceTab(event) {
+      setTab(event.target.textContent);
+   }
+
    return (
       <div className="environment-panel-container">
-         <div className="environment-panel-main">
-            <Tooltip title="Change project" placement="right" arrow>
-               <IconButton
-                  className={classes.projectSettingsBtn}
+         <Tooltip title="Change project" placement="right" arrow>
+            <IconButton
+               className={classes.projectSettingsBtn}
+               color="primary"
+               onClick={goToEnvironment}
+            >
+               <AppsIcon fontSize="large" />
+            </IconButton>
+         </Tooltip>
+         <Container className={classes.workspaceNav}>
+            <ButtonGroup>
+               <Button
                   color="primary"
-                  onClick={goToEnvironment}
+                  endIcon={<CodeIcon />}
+                  onClick={changeWorkspaceTab}
                >
-                  <AppsIcon fontSize="large" />
-               </IconButton>
-            </Tooltip>
-            <div className="environment-workspace">
-               {activeProject ? (
-                  <div className="new-issue-division">
-                     <Accordion
-                        TransitionProps={{ unmountOnExit: true }}
-                        className={classes.root}
-                        expanded={accordionExpanded}
-                        onChange={changeAccordionState}
-                     >
-                        <AccordionSummary
-                           expandIcon={
-                              <ExpandMoreIcon className={classes.arrowIcon} />
-                           }
-                        >
-                           <Typography className={classes.heading}>
-                              Create a new issue
-                           </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                           <IssueEditor
-                              activeProject={activeProject}
-                              User={User}
-                           />
-                        </AccordionDetails>
-                     </Accordion>
-                  </div>
-               ) : (
-                  <h1>Create a project to get started</h1>
-               )}
-               <div className="all-issues-division">
-                  {!isLoading ? (
-                     projectDetails.Issues &&
-                     projectDetails.Issues.length > 0 &&
-                     projectDetails.Issues.map(issue => (
-                        <IssueCard
-                           key={issue._id}
-                           User={User}
-                           issue={issue}
-                           showContent={false}
-                           setActionStatus={setActionStatus}
-                        />
-                     ))
-                  ) : (
-                     <LinearLoader />
-                  )}
-               </div>
-            </div>
-         </div>
+                  Issues
+               </Button>
+               <Button
+                  color="primary"
+                  endIcon={<FolderIcon />}
+                  onClick={changeWorkspaceTab}
+               >
+                  Drive
+               </Button>
+            </ButtonGroup>
+         </Container>
+         <WorkspaceIssueTab
+            User={User}
+            activeProject={activeProject}
+            projectDetails={projectDetails}
+            setActionStatus={setActionStatus}
+            isLoading={isLoading}
+            tab={tab}
+         />
+         <WorkspaceDriveTab tab={tab} />
       </div>
    );
 }

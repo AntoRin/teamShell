@@ -4,8 +4,8 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import List from "@material-ui/core/List";
 import Divider from "@material-ui/core/Divider";
 import { SocketInstance } from "./ProtectedRoute";
+import { GlobalActionStatus } from "../App";
 import NotificationBlock from "./NotificationBlock";
-import StatusBar from "../UtilityComponents/StatusBar";
 import ConfirmDialog from "../UtilityComponents/ConfirmDialog";
 import "../../styles/notifications.css";
 
@@ -39,10 +39,6 @@ function Notifications({
    const classes = useStyles();
 
    const [notifications, setNotifications] = useState([]);
-   const [actionStatus, setActionStatus] = useState({
-      info: null,
-      type: "success",
-   });
    const [confirmationRequired, setConfirmationRequired] = useState(false);
    const [notificationProgress, setNotificationProgress] = useState({
       pending: true,
@@ -54,6 +50,7 @@ function Notifications({
    });
 
    const socket = useContext(SocketInstance);
+   const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -125,12 +122,6 @@ function Notifications({
                      })}
                   <Divider variant="inset" component="li" />
                </List>
-               {actionStatus.info && (
-                  <StatusBar
-                     actionStatus={actionStatus}
-                     setActionStatus={setActionStatus}
-                  />
-               )}
             </div>
          </ClickAwayListener>
          <ConfirmDialog

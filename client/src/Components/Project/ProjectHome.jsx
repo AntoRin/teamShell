@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Button, makeStyles, Typography } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
@@ -7,10 +7,10 @@ import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import { GlobalActionStatus } from "../App";
 import ProjectTabPanel from "./ProjectTabPanel";
 import ProjectSettingsModal from "./ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
-import StatusBar from "../UtilityComponents/StatusBar";
 
 const useStyles = makeStyles(theme => ({
    root: props => ({
@@ -56,10 +56,8 @@ function ProjectHome({ match, User, navHeight }) {
    const [Project, setProject] = useState({});
    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
    const [tabName, setTabName] = useState("General Details");
-   const [actionStatus, setActionStatus] = useState({
-      info: null,
-      type: "success",
-   });
+
+   const setActionStatus = useContext(GlobalActionStatus);
 
    const history = useHistory();
 
@@ -237,12 +235,6 @@ function ProjectHome({ match, User, navHeight }) {
                   setIsSettingsOpen={setIsSettingsOpen}
                />
             </div>
-            {actionStatus.info && (
-               <StatusBar
-                  actionStatus={actionStatus}
-                  setActionStatus={setActionStatus}
-               />
-            )}
          </>
       ) : (
          <h1>There was an error</h1>

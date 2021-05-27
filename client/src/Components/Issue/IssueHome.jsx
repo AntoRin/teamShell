@@ -2,10 +2,10 @@ import { useState, useEffect, useContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
+import { GlobalActionStatus } from "../App";
 import SolutionEditor from "./SolutionEditor";
 import SolutionCard from "./SolutionCard";
 import IssueCard from "../User/IssueCard";
-import StatusBar from "../UtilityComponents/StatusBar";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/issue-home.css";
 
@@ -24,12 +24,9 @@ function IssueHome({ match, User }) {
    const [issueDetails, setIssueDetails] = useState("");
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
-   const [actionStatus, setActionStatus] = useState({
-      type: "success",
-      info: null,
-   });
 
    const socket = useContext(SocketInstance);
+   const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -123,12 +120,6 @@ function IssueHome({ match, User }) {
                      : null}
                </div>
             </div>
-            {actionStatus.info && (
-               <StatusBar
-                  actionStatus={actionStatus}
-                  setActionStatus={setActionStatus}
-               />
-            )}
          </div>
       ) : (
          <h1>Something went wrong</h1>
