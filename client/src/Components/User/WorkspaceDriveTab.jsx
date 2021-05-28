@@ -1,12 +1,20 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
-import { IconButton, makeStyles, Tooltip, Typography } from "@material-ui/core";
+import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
 import SettingsInputHdmiIcon from "@material-ui/icons/SettingsInputHdmi";
 import ListIcon from "@material-ui/icons/List";
 import GeneralConfirmDialog from "../UtilityComponents/GeneralConfirmDialog";
+import Card from "@material-ui/core/Card";
+import CardActionArea from "@material-ui/core/CardActionArea";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles({
    actionBtn: {
-      position: "absolute",
+      position: "fixed",
       bottom: "15%",
       left: "10px",
    },
@@ -19,7 +27,21 @@ const useStyles = makeStyles({
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      width: "80%",
+      width: "100%",
+   },
+   cardElements: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+      flexWrap: "wrap",
+   },
+   cardRoot: {
+      width: "25%",
+      minWidth: "300px",
+      height: "300px",
+      margin: "30px",
+      background: "#555",
    },
 });
 
@@ -47,6 +69,7 @@ function WorkspaceDriveTab({ tab }) {
             "/api/project/drive/google/list-files"
          );
          let responseData = await responseStream.json();
+         console.log(responseData.data.data.files);
 
          if (responseData.status === "ok")
             setUserFiles(responseData.data.data.files);
@@ -78,31 +101,55 @@ function WorkspaceDriveTab({ tab }) {
             </IconButton>
          </Tooltip>
          <div className={classes.driveContainer}>
-            <div>
+            <div className={classes.cardElements}>
                {userFiles &&
                   userFiles.map(file => (
                      <>
-                        <Typography
-                           variant="h5"
-                           color="primary"
-                           gutterBottom={true}
-                        >
-                           {file.name}
-                        </Typography>
-                        <Typography
-                           variant="h5"
-                           color="primary"
-                           gutterBottom={true}
-                        >
-                           {file.description}
-                        </Typography>
-                        <Typography
-                           variant="h5"
-                           color="primary"
-                           gutterBottom={true}
-                        >
-                           {file.webContentLink}
-                        </Typography>
+                        <Card className={classes.cardRoot}>
+                           <CardActionArea>
+                              <CardMedia
+                                 component="img"
+                                 alt=""
+                                 height="140"
+                                 image={file.iconLink}
+                                 title=""
+                              />
+                              <CardContent>
+                                 <Typography
+                                    gutterBottom
+                                    variant="h5"
+                                    component="h2"
+                                 >
+                                    {file.name}
+                                 </Typography>
+                                 <Typography
+                                    variant="body2"
+                                    color="textSecondary"
+                                    component="p"
+                                 >
+                                    {file.description}
+                                 </Typography>
+                              </CardContent>
+                           </CardActionArea>
+                           <CardActions>
+                              <Button
+                                 size="small"
+                                 color="primary"
+                                 href={file.webContentLink}
+                                 download={true}
+                              >
+                                 Download
+                              </Button>
+                              <Button
+                                 size="small"
+                                 color="primary"
+                                 href={file.webViewLink}
+                                 target="_blank"
+                              >
+                                 Link
+                              </Button>
+                           </CardActions>
+                        </Card>
                      </>
                   ))}
             </div>

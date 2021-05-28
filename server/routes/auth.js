@@ -162,6 +162,7 @@ router.get("/login/google", async (req, res, next) => {
    const authUrl = googleClient.generateAuthUrl({
       scope: scopes,
       access_type: "offline",
+      include_granted_scopes: true,
    });
 
    res.redirect(authUrl);
@@ -173,6 +174,9 @@ router.get("/login/google/callback", async (req, res, next) => {
 
       const code = req.query.code;
       const { tokens } = await googleClient.getToken(code);
+
+      console.log(tokens.scope);
+
       let getOptions = {
          headers: {
             Authorization: `Bearer ${tokens.access_token}`,
@@ -189,13 +193,6 @@ router.get("/login/google/callback", async (req, res, next) => {
          picture: ImageData,
          email: Email,
       } = await userDataStream.json();
-
-      // googleClient.on("tokens", tokens => {
-      //    if (tokens.refresh_token) {
-      //       console.log(tokens.refresh_token);
-      //    }
-      //    console.log(tokens.access_token);
-      // });
 
       if (tokens.refresh_token) {
          console.log("Got refToken: ", tokens.refresh_token);

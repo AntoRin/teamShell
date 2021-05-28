@@ -306,8 +306,6 @@ router.post(
 );
 
 router.get("/drive/google/authorize", async (req, res) => {
-   let { UniqueUsername } = req.thisUser;
-
    try {
       const scopes = "https://www.googleapis.com/auth/drive.file";
       const authUrl = googleClient.generateAuthUrl({
@@ -332,6 +330,8 @@ router.get("/drive/google/callback", async (req, res, next) => {
 
       const code = req.query.code;
       const { tokens } = await googleClient.getToken(code);
+
+      console.log(tokens.scope);
 
       if (tokens.refresh_token) {
          console.log("Got refToken: ", tokens.refresh_token);
@@ -368,7 +368,7 @@ router.get("/drive/google/list-files", async (req, res, next) => {
 
       return res.json({ status: "ok", data: driveResponse });
    } catch (error) {
-      console.log(error);
+      console.log(error.name);
       return next(error);
    }
 });
