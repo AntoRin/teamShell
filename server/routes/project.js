@@ -12,7 +12,7 @@ const router = Router();
 const googleClient = new google.auth.OAuth2({
    clientId: process.env.GOOGLE_CLIENT_ID,
    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-   redirectUri: "http://localhost:5000/api/auth/login/google/callback",
+   redirectUri: "http://localhost:5000/api/project/drive/google/callback",
 });
 
 router.post("/create", async (req, res, next) => {
@@ -325,6 +325,8 @@ router.get("/drive/google/authorize", async (req, res) => {
 });
 
 router.get("/drive/google/callback", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   console.log(UniqueUsername);
    try {
       if (req.query.error) throw req.query.error;
 
@@ -339,9 +341,7 @@ router.get("/drive/google/callback", async (req, res, next) => {
          );
       }
 
-      console.log("Drive tokens", tokens);
-
-      return res.json({ status: "ok", data: "" });
+      return res.redirect("/user/environment");
    } catch (error) {
       console.log(error);
       return next(error);
@@ -355,18 +355,53 @@ router.get("/drive/google/list-files", async (req, res, next) => {
       let user = await User.findOne({ UniqueUsername }).lean();
       let refresh_token = user.GoogleRefreshToken;
 
+      console.log(refresh_token);
+
       googleClient.setCredentials({ refresh_token });
 
       const drive = google.drive({ version: "v3", auth: googleClient });
 
-      let response = await drive.files.create({
+      let driveResponse = await drive.files.list({
+         corpora: "user",
+         fields: "*",
+      });
+
+      return res.json({ status: "ok", data: driveResponse });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
+router.post("/drive/google/create-file", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+
+   try {
+      let user = await User.findOne({ UniqueUsername }).lean();
+      let refresh_token = user.GoogleRefreshToken;
+
+      googleClient.setCredentials({ refresh_token });
+
+      let drive = google.drive({ version: "v3", auth: googleClient });
+
+      let driveResponse = await drive.files.create({
          media: {
             mimeType: "text/plain",
-            body: "This was created with google apis",
+            body: "Testing again, what the hell",
+         },
+         requestBody: {
+            description: "Testing if description works",
+            mimeType: "text/plain",
+            name: "Drive integration with teamShell",
+            starred: true,
+            folderColorRgb: "#222",
          },
       });
-      // let data = response.data;
-      console.log(response);
+      if (driveResponse.response.data.error)
+         throw driveResponse.response.data.error;
+
+      console.log(driveResponse);
+
       return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);

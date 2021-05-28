@@ -1,50 +1,121 @@
-import { makeStyles } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
+import { useState } from "react";
+import { IconButton, makeStyles, Tooltip, Typography } from "@material-ui/core";
+import SettingsInputHdmiIcon from "@material-ui/icons/SettingsInputHdmi";
+import ListIcon from "@material-ui/icons/List";
+import GeneralConfirmDialog from "../UtilityComponents/GeneralConfirmDialog";
 
 const useStyles = makeStyles({
-   root: {
+   actionBtn: {
       position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
+      bottom: "15%",
+      left: "10px",
+   },
+   authorize: {
+      position: "fixed",
+      bottom: "5%",
+      left: "10px",
+   },
+   driveContainer: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "80%",
    },
 });
-
-async function authorizeDrive() {
-   try {
-      window.location.pathname = "/api/project/drive/google/authorize";
-   } catch (error) {
-      console.log(error);
-      return;
-   }
-}
-
-async function performDriveAction() {
-   try {
-      let responseStream = await fetch("/api/project/drive/google/list-files");
-      let data = await responseStream.json();
-      console.log(data);
-   } catch (error) {
-      console.log(error);
-      return;
-   }
-}
 
 function WorkspaceDriveTab({ tab }) {
    const classes = useStyles();
 
+   const [confirmationRequired, setConfirmationRequired] = useState(false);
+   const [userFiles, setUserFiles] = useState(null);
+
+   function confirmDriveAuthorization() {
+      setConfirmationRequired(true);
+   }
+
+   function closeConfirmDialog() {
+      setConfirmationRequired(false);
+   }
+
+   function authorizeDrive() {
+      window.location.pathname = "/api/project/drive/google/authorize";
+   }
+
+   async function listDriveFiles() {
+      try {
+         let responseStream = await fetch(
+            "/api/project/drive/google/list-files"
+         );
+         let responseData = await responseStream.json();
+
+         if (responseData.status === "ok")
+            setUserFiles(responseData.data.data.files);
+         else if (responseData.status === "error") throw responseData.error;
+      } catch (error) {
+         console.log(error);
+         return;
+      }
+   }
+
    return tab === "Drive" ? (
-      <div className={classes.root}>
-         <Button variant="contained" color="primary" onClick={authorizeDrive}>
-            Create drive
-         </Button>
-         <Button
-            variant="contained"
-            color="primary"
-            onClick={performDriveAction}
+      <div>
+         <Tooltip
+            className={classes.actionBtn}
+            title="List Drive Files"
+            placement="right"
          >
-            List drive files
-         </Button>
+            <IconButton onClick={listDriveFiles}>
+               <ListIcon fontSize="large" color="secondary" />
+            </IconButton>
+         </Tooltip>
+         <Tooltip
+            className={classes.authorize}
+            title="Authorize Google Drive"
+            placement="right"
+         >
+            <IconButton onClick={confirmDriveAuthorization}>
+               <SettingsInputHdmiIcon fontSize="large" color="secondary" />
+            </IconButton>
+         </Tooltip>
+         <div className={classes.driveContainer}>
+            <div>
+               {userFiles &&
+                  userFiles.map(file => (
+                     <>
+                        <Typography
+                           variant="h5"
+                           color="primary"
+                           gutterBottom={true}
+                        >
+                           {file.name}
+                        </Typography>
+                        <Typography
+                           variant="h5"
+                           color="primary"
+                           gutterBottom={true}
+                        >
+                           {file.description}
+                        </Typography>
+                        <Typography
+                           variant="h5"
+                           color="primary"
+                           gutterBottom={true}
+                        >
+                           {file.webContentLink}
+                        </Typography>
+                     </>
+                  ))}
+            </div>
+         </div>
+         <GeneralConfirmDialog
+            confirmationRequired={confirmationRequired}
+            handleConfirmationSuccess={authorizeDrive}
+            handleConfirmationFailure={closeConfirmDialog}
+            title="Give access to Google Drive?"
+            body="Giving access enables the application to create and manage
+            files that you create with this application. Close if already
+            given access."
+         />
       </div>
    ) : null;
 }
