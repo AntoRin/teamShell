@@ -9,6 +9,7 @@ import FolderIcon from "@material-ui/icons/Folder";
 import CodeIcon from "@material-ui/icons/Code";
 import WorkspaceIssueTab from "./WorkspaceIssueTab";
 import WorkspaceDriveTab from "./WorkspaceDriveTab";
+import WorkspaceFileTab from "./WorkspaceFileTab";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import parseQueryStrings from "../../utils/parseQueryStrings";
@@ -44,7 +45,7 @@ function UserWorkspace({ location, User }) {
    const [activeProject, setActiveProject] = useState(null);
    const [projectDetails, setProjectDetails] = useState({});
    const [isLoading, setIsLoading] = useState(false);
-   const [tab, setTab] = useState("Issues");
+   const [tab, setTab] = useState("issues");
 
    const history = useHistory();
 
@@ -115,8 +116,8 @@ function UserWorkspace({ location, User }) {
       history.push("/user/environment");
    }
 
-   function changeWorkspaceTab(event) {
-      setTab(event.target.textContent);
+   function changeWorkspaceTab(tabName) {
+      setTab(tabName.toLowerCase());
    }
 
    return (
@@ -135,16 +136,23 @@ function UserWorkspace({ location, User }) {
                <Button
                   color="primary"
                   endIcon={<CodeIcon />}
-                  onClick={changeWorkspaceTab}
+                  onClick={() => changeWorkspaceTab("issues")}
                >
                   Issues
                </Button>
                <Button
                   color="primary"
                   endIcon={<FolderIcon />}
-                  onClick={changeWorkspaceTab}
+                  onClick={() => changeWorkspaceTab("yourdrive")}
                >
-                  Drive
+                  Your Drive
+               </Button>
+               <Button
+                  color="primary"
+                  endIcon={<FolderIcon />}
+                  onClick={() => changeWorkspaceTab("projectfiles")}
+               >
+                  Project Files
                </Button>
             </ButtonGroup>
          </Container>
@@ -156,7 +164,16 @@ function UserWorkspace({ location, User }) {
             isLoading={isLoading}
             tab={tab}
          />
-         <WorkspaceDriveTab tab={tab} />
+         <WorkspaceDriveTab
+            User={User}
+            activeProject={activeProject}
+            tab={tab}
+         />
+         <WorkspaceFileTab
+            User={User}
+            activeProject={activeProject}
+            tab={tab}
+         />
       </div>
    );
 }

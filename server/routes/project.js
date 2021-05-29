@@ -5,6 +5,7 @@ const { google } = require("googleapis");
 const Organization = require("../models/Organization");
 const Project = require("../models/Project");
 const User = require("../models/User");
+const DriveFile = require("../models/DriveFile");
 const { handleNotifications } = require("../utils/notificationHandler");
 
 const router = Router();
@@ -405,6 +406,52 @@ router.post("/drive/google/create-file", async (req, res, next) => {
       return res.json({ status: "ok" });
    } catch (error) {
       console.log(error);
+      return next(error);
+   }
+});
+
+router.post("/drive/file/add", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { body: fileData } = req;
+
+   try {
+      let user = await User.findOne({ UniqueUsername }).lean();
+      let userInProject = user.Projects.find(
+         project => project.ProjectName === fileData.project
+      );
+      if (!userInProject) throw { name: "UnauthorizedRequest" };
+
+      let driveFile = new DriveFile(fileData);
+      let savedFile = await driveFile.save();
+
+      await Project.updateOne(
+         { ProjectName: fileData.project },
+         { $push: { FilesRef: { $each: [savedFile._id], $position: 0 } } }
+      );
+
+      return res.json({ status: "ok", data: "File added to project" });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
+router.get("/drive/files/get/:ProjectName", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let requestedProject = req.params.ProjectName;
+
+   try {
+      let user = await User.findOne({ UniqueUsername }).lean();
+      let userInProject = user.find(
+         project => project.ProjectName === requestedProject
+      );
+
+      if (!userInProject) throw { name: "UnauthorizedRequest" };
+
+      let files = await DriveFile.find({ project: requestedProject });
+
+      return res.json({ status: "ok", data: files });
+   } catch (error) {
       return next(error);
    }
 });

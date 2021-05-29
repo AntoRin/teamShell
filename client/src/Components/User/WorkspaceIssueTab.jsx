@@ -38,7 +38,7 @@ function WorkspaceIssueTab({
       setAccordionExpanded(prev => !prev);
    }
 
-   return tab === "Issues" ? (
+   return tab === "issues" ? (
       <div className="environment-panel-main">
          <div className="environment-workspace">
             {activeProject ? (
