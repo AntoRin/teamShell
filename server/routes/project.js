@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
 const { google } = require("googleapis");
+const multer = require("multer");
 
 const Organization = require("../models/Organization");
 const Project = require("../models/Project");
@@ -15,6 +16,18 @@ const googleClient = new google.auth.OAuth2({
    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
    redirectUri: "http://localhost:5000/api/project/drive/google/callback",
 });
+
+const upload = multer({
+   storage: multer.memoryStorage(),
+   fileFilter: (req, file, cb) => {
+      if (!file) cb(new Error("Error parsing file"), false);
+      else cb(null, true);
+   },
+   limits: {
+      fileSize: 500000,
+   },
+});
+const fileParser = upload.single("newDriveFile");
 
 router.post("/create", async (req, res, next) => {
    let { ProjectName, ProjectDescription, ParentOrganization } = req.body;
@@ -374,12 +387,18 @@ router.get("/drive/google/list-files", async (req, res, next) => {
    }
 });
 
-router.post("/drive/google/create-file", async (req, res, next) => {
+router.post("/drive/google/create-file", fileParser, async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
 
    try {
       let user = await User.findOne({ UniqueUsername }).lean();
       let refresh_token = user.GoogleRefreshToken;
+
+      let file = req.file;
+
+      if (!file) throw { name: UploadFailure };
+
+      let encodedFile = file.buffer.toString("base64");
 
       googleClient.setCredentials({ refresh_token });
 
@@ -387,13 +406,13 @@ router.post("/drive/google/create-file", async (req, res, next) => {
 
       let driveResponse = await drive.files.create({
          media: {
-            mimeType: "text/plain",
-            body: "Testing again, what the hell",
+            mimeType: file.mimetype,
+            body: encodedFile,
          },
          requestBody: {
-            description: "Testing if description works",
-            mimeType: "text/plain",
-            name: "Drive integration with teamShell",
+            description: "First file upload",
+            mimeType: file.mimetype,
+            name: "First file upload",
             starred: true,
             folderColorRgb: "#222",
          },
@@ -422,12 +441,8 @@ router.post("/drive/file/add", async (req, res, next) => {
       if (!userInProject) throw { name: "UnauthorizedRequest" };
 
       let driveFile = new DriveFile(fileData);
-      let savedFile = await driveFile.save();
 
-      await Project.updateOne(
-         { ProjectName: fileData.project },
-         { $push: { FilesRef: { $each: [savedFile._id], $position: 0 } } }
-      );
+      await driveFile.save();
 
       return res.json({ status: "ok", data: "File added to project" });
    } catch (error) {
@@ -442,7 +457,7 @@ router.get("/drive/files/get/:ProjectName", async (req, res, next) => {
 
    try {
       let user = await User.findOne({ UniqueUsername }).lean();
-      let userInProject = user.find(
+      let userInProject = user.Projects.find(
          project => project.ProjectName === requestedProject
       );
 

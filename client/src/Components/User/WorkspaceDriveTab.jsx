@@ -1,7 +1,8 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
 import SettingsInputHdmiIcon from "@material-ui/icons/SettingsInputHdmi";
 import ListIcon from "@material-ui/icons/List";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import GeneralConfirmDialog from "../UtilityComponents/GeneralConfirmDialog";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
@@ -11,6 +12,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { GlobalActionStatus } from "../App";
+import ContentModal from "../UtilityComponents/ContentModal";
 
 const useStyles = makeStyles({
    actionBtn: {
@@ -22,6 +24,12 @@ const useStyles = makeStyles({
       position: "fixed",
       bottom: "5%",
       left: "10px",
+   },
+   sideToolbar: {
+      position: "fixed",
+      bottom: "5%",
+      left: "10px",
+      margin: "15px 5px",
    },
    driveContainer: {
       display: "flex",
@@ -50,8 +58,11 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
 
    const [confirmationRequired, setConfirmationRequired] = useState(false);
    const [userFiles, setUserFiles] = useState(null);
+   const [isModalOpen, setIsModalOpen] = useState(false);
 
    const setActionStatus = useContext(GlobalActionStatus);
+
+   const fileInputElement = useRef();
 
    function confirmDriveAuthorization() {
       setConfirmationRequired(true);
@@ -63,6 +74,14 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
 
    function authorizeDrive() {
       window.location.pathname = "/api/project/drive/google/authorize";
+   }
+
+   function openCreateModal() {
+      setIsModalOpen(true);
+   }
+
+   function closeCreateModal() {
+      setIsModalOpen(false);
    }
 
    async function listDriveFiles() {
@@ -123,26 +142,73 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
       }
    }
 
+   async function handleNewDriveFile(event) {
+      try {
+         let form = event.target;
+         let formData = new FormData(form);
+         let newFile = fileInputElement.current.files[0];
+
+         formData.append("newDriveFile", newFile);
+
+         let postOptions = {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+         };
+
+         let responseStream = await fetch(
+            "/api/project/drive/google/create-file",
+            postOptions
+         );
+         let response = await responseStream.json();
+
+         if (response.status === "ok")
+            setActionStatus({ info: "File uploaded", type: "success" });
+         else if (response.status === "error") throw response.error;
+      } catch (error) {
+         if (error.name !== "AbortError") {
+            setActionStatus({
+               info: "There was an error uploading file",
+               type: "error",
+            });
+            return;
+         }
+      }
+   }
+
    return tab === "yourdrive" ? (
       <div>
-         <Tooltip
-            className={classes.actionBtn}
-            title="List Drive Files"
-            placement="right"
-         >
-            <IconButton onClick={listDriveFiles}>
-               <ListIcon fontSize="large" color="secondary" />
-            </IconButton>
-         </Tooltip>
-         <Tooltip
-            className={classes.authorize}
-            title="Authorize Google Drive"
-            placement="right"
-         >
-            <IconButton onClick={confirmDriveAuthorization}>
-               <SettingsInputHdmiIcon fontSize="large" color="secondary" />
-            </IconButton>
-         </Tooltip>
+         <div className={classes.sideToolbar}>
+            <div>
+               <Tooltip title="Upload a new file to Drive" placement="right">
+                  <IconButton
+                     onClick={listDriveFiles}
+                     onClick={openCreateModal}
+                  >
+                     <CloudUploadIcon fontSize="large" color="primary" />
+                  </IconButton>
+               </Tooltip>
+            </div>
+            <div>
+               <Tooltip title="List Drive Files" placement="right">
+                  <IconButton onClick={listDriveFiles}>
+                     <ListIcon fontSize="large" color="primary" />
+                  </IconButton>
+               </Tooltip>
+            </div>
+            <div>
+               <Tooltip title="Authorize Google Drive" placement="right">
+                  <IconButton onClick={confirmDriveAuthorization}>
+                     <SettingsInputHdmiIcon fontSize="large" color="primary" />
+                  </IconButton>
+               </Tooltip>
+            </div>
+         </div>
+         <ContentModal isModalOpen={isModalOpen} handleClose={closeCreateModal}>
+            <form encType="multipart/form-data" onSubmit={handleNewDriveFile}>
+               <input type="file" ref="fileInputElement" required />
+            </form>
+         </ContentModal>
          <div className={classes.driveContainer}>
             <div className={classes.cardElements}>
                {userFiles &&

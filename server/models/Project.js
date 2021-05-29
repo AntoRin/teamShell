@@ -24,10 +24,7 @@ const ProjectSchema = new Schema(
       },
       IssuesRef: {
          type: [mongoose.Types.ObjectId],
-      },
-      FilesRef: {
-         type: [mongoose.Types.ObjectId],
-      },
+      },      
       Creator: {
          type: String,
          required: true,

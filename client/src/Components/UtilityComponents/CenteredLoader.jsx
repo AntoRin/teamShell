@@ -28,7 +28,7 @@ function CenteredLoader({ color, backdrop }) {
       </Backdrop>
    ) : (
       <div className={classes.xyCentered}>
-         <CircularProgress color={color} />
+         <CircularProgress className={classes.xyCentered} color={color} />
       </div>
    );
 }
