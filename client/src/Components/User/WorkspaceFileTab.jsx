@@ -15,7 +15,6 @@ const useStyles = makeStyles({
       alignItems: "center",
    },
    cardRoot: {
-      width: "25%",
       width: "360px",
       height: "350px",
       margin: "30px",
@@ -64,7 +63,7 @@ function WorkspaceFileTab({ User, activeProject, tab }) {
       }
 
       getProjectFiles();
-   }, [tab]);
+   }, [tab, activeProject]);
 
    return tab === "projectfiles" ? (
       <div className={classes.filesContainer}>

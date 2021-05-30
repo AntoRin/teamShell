@@ -2,6 +2,7 @@ const { Router } = require("express");
 const jwt = require("jsonwebtoken");
 const { google } = require("googleapis");
 const multer = require("multer");
+const stream = require("stream");
 
 const Organization = require("../models/Organization");
 const Project = require("../models/Project");
@@ -328,7 +329,6 @@ router.get("/drive/google/authorize", async (req, res) => {
          include_granted_scopes: true,
       });
 
-      // console.log(authUrl);
       return res.redirect(authUrl);
    } catch (error) {
       console.log(error);
@@ -369,8 +369,6 @@ router.get("/drive/google/list-files", async (req, res, next) => {
       let user = await User.findOne({ UniqueUsername }).lean();
       let refresh_token = user.GoogleRefreshToken;
 
-      console.log(refresh_token);
-
       googleClient.setCredentials({ refresh_token });
 
       const drive = google.drive({ version: "v3", auth: googleClient });
@@ -398,7 +396,14 @@ router.post("/drive/google/create-file", fileParser, async (req, res, next) => {
 
       if (!file) throw { name: UploadFailure };
 
-      let encodedFile = file.buffer.toString("base64");
+      console.log(file.mimetype + " " + file.originalname);
+
+      let encodingType = file.mimetype === "text/plain" ? "utf-8" : "base64";
+
+      let encodedFile = file.buffer.toString(encodingType);
+
+      let tempStream = new stream.PassThrough();
+      tempStream.end(file.buffer);
 
       googleClient.setCredentials({ refresh_token });
 
@@ -407,22 +412,17 @@ router.post("/drive/google/create-file", fileParser, async (req, res, next) => {
       let driveResponse = await drive.files.create({
          media: {
             mimeType: file.mimetype,
-            body: encodedFile,
+            body: tempStream,
          },
          requestBody: {
-            description: "First file upload",
-            mimeType: file.mimetype,
-            name: "First file upload",
-            starred: true,
-            folderColorRgb: "#222",
+            description: "Testing images",
+            name: file.originalname,
+            starred: false,
+            folderColorRgb: "#666",
          },
       });
-      if (driveResponse.response.data.error)
-         throw driveResponse.response.data.error;
 
-      console.log(driveResponse);
-
-      return res.json({ status: "ok" });
+      return res.json({ status: "ok", data: driveResponse });
    } catch (error) {
       console.log(error);
       return next(error);
@@ -463,7 +463,9 @@ router.get("/drive/files/get/:ProjectName", async (req, res, next) => {
 
       if (!userInProject) throw { name: "UnauthorizedRequest" };
 
-      let files = await DriveFile.find({ project: requestedProject });
+      let files = await DriveFile.find({ project: requestedProject })
+         .lean()
+         .sort({ createdTime: -1 });
 
       return res.json({ status: "ok", data: files });
    } catch (error) {

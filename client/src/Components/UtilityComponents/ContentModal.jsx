@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function ContentModal({ isModalOpen, handleClose, children }) {
+function ContentModal({ isModalOpen, handleModalClose, children }) {
    const classes = useStyles();
    return (
       <Modal
@@ -25,7 +25,7 @@ function ContentModal({ isModalOpen, handleClose, children }) {
          aria-describedby="transition-modal-description"
          className={classes.modal}
          open={isModalOpen}
-         onClose={handleClose}
+         onClose={handleModalClose}
          closeAfterTransition
          BackdropComponent={Backdrop}
          BackdropProps={{

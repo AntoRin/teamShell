@@ -45,7 +45,6 @@ const useStyles = makeStyles({
       flexWrap: "wrap",
    },
    cardRoot: {
-      width: "25%",
       width: "360px",
       height: "320px",
       margin: "30px",
@@ -143,6 +142,7 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
    }
 
    async function handleNewDriveFile(event) {
+      event.preventDefault();
       try {
          let form = event.target;
          let formData = new FormData(form);
@@ -181,10 +181,7 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
          <div className={classes.sideToolbar}>
             <div>
                <Tooltip title="Upload a new file to Drive" placement="right">
-                  <IconButton
-                     onClick={listDriveFiles}
-                     onClick={openCreateModal}
-                  >
+                  <IconButton onClick={openCreateModal}>
                      <CloudUploadIcon fontSize="large" color="primary" />
                   </IconButton>
                </Tooltip>
@@ -204,9 +201,15 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
                </Tooltip>
             </div>
          </div>
-         <ContentModal isModalOpen={isModalOpen} handleClose={closeCreateModal}>
+         <ContentModal
+            isModalOpen={isModalOpen}
+            handleModalClose={closeCreateModal}
+         >
             <form encType="multipart/form-data" onSubmit={handleNewDriveFile}>
-               <input type="file" ref="fileInputElement" required />
+               <input type="file" ref={fileInputElement} required />
+               <Button variant="outlined" color="primary" type="submit">
+                  Upload
+               </Button>
             </form>
          </ContentModal>
          <div className={classes.driveContainer}>
