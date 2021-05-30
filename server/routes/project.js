@@ -396,13 +396,8 @@ router.post("/drive/google/create-file", fileParser, async (req, res, next) => {
 
       if (!file) throw { name: UploadFailure };
 
-      console.log(file.mimetype + " " + file.originalname);
-
-      let encodingType = file.mimetype === "text/plain" ? "utf-8" : "base64";
-
-      let encodedFile = file.buffer.toString(encodingType);
-
       let tempStream = new stream.PassThrough();
+
       tempStream.end(file.buffer);
 
       googleClient.setCredentials({ refresh_token });
@@ -429,6 +424,29 @@ router.post("/drive/google/create-file", fileParser, async (req, res, next) => {
    }
 });
 
+router.delete("/drive/google/delete-file", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { fileId } = req.body;
+
+   try {
+      let user = await User.findOne({ UniqueUsername }).lean();
+      let refresh_token = user.GoogleRefreshToken;
+
+      googleClient.setCredentials({ refresh_token });
+
+      let drive = google.drive({ version: "v3", auth: googleClient });
+
+      let driveResponse = await drive.files.delete({ fileId });
+
+      await DriveFile.deleteOne({ id: fileId });
+
+      return res.json({ status: "ok", data: driveResponse });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
 router.post("/drive/file/add", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
    let { body: fileData } = req;
@@ -445,6 +463,19 @@ router.post("/drive/file/add", async (req, res, next) => {
       await driveFile.save();
 
       return res.json({ status: "ok", data: "File added to project" });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
+router.delete("/drive/file/remove", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let { fileId } = req.body;
+
+   try {
+      await DriveFile.deleteOne({ id: fileId });
+      return res.json({ status: "ok", data: "Removed file from project" });
    } catch (error) {
       console.log(error);
       return next(error);

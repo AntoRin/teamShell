@@ -1,4 +1,4 @@
-import { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
 import SettingsInputHdmiIcon from "@material-ui/icons/SettingsInputHdmi";
 import ListIcon from "@material-ui/icons/List";
@@ -45,10 +45,10 @@ const useStyles = makeStyles({
       flexWrap: "wrap",
    },
    cardRoot: {
-      width: "360px",
-      height: "320px",
+      width: "370px",
+      height: "330px",
       margin: "30px",
-      background: "#555",
+      background: "#999",
    },
 });
 
@@ -176,6 +176,33 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
       }
    }
 
+   async function handleDeleteDriveFile(fileId) {
+      try {
+         let deleteOptions = {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fileId }),
+            credentials: "include",
+         };
+
+         let responseStream = await fetch(
+            `/api/project/drive/google/delete-file`,
+            deleteOptions
+         );
+         let response = await responseStream.json();
+
+         if (response.status === "ok")
+            setActionStatus({
+               info: "Deleted file from drive",
+               type: "success",
+            });
+         else if (response.status === "error") throw response.error;
+      } catch (error) {
+         console.log(error);
+         return;
+      }
+   }
+
    return tab === "yourdrive" ? (
       <div>
          <div className={classes.sideToolbar}>
@@ -216,7 +243,7 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
             <div className={classes.cardElements}>
                {userFiles &&
                   userFiles.map(file => (
-                     <>
+                     <React.Fragment key={file.id}>
                         <Card className={classes.cardRoot}>
                            <CardActionArea>
                               <CardMedia
@@ -271,9 +298,17 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
                               >
                                  Add to project files
                               </Button>
+                              <Button
+                                 size="small"
+                                 color="default"
+                                 variant="outlined"
+                                 onClick={() => handleDeleteDriveFile(file.id)}
+                              >
+                                 Delete File
+                              </Button>
                            </CardActions>
                         </Card>
-                     </>
+                     </React.Fragment>
                   ))}
             </div>
          </div>
