@@ -3,7 +3,7 @@ import { Route, Redirect } from "react-router-dom";
 import io from "socket.io-client";
 import GlobalNav from "./GlobalNav";
 import ChatBox from "../User/ChatBox";
-import CenteredLoader from "./CenteredLoader";
+import ThemeLoader from "./ThemeLoader";
 
 export const SocketInstance = createContext();
 
@@ -63,7 +63,7 @@ function ProtectedRoute({ component: Component, ...props }) {
    }, [Component]);
 
    if (isLoading || !socket) {
-      return <CenteredLoader />;
+      return <ThemeLoader />;
    } else {
       return authenticated ? (
          <SocketInstance.Provider value={socket}>
