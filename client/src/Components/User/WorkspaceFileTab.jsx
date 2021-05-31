@@ -7,13 +7,16 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import { GlobalActionStatus } from "../App";
-import CenteredLoader from "../UtilityComponents/CenteredLoader";
+// import CenteredLoader from "../UtilityComponents/CenteredLoader";
+import ThemeLoader from "../UtilityComponents/ThemeLoader";
 
 const useStyles = makeStyles({
    filesContainer: {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      width: "100%",
+      height: "100%",
    },
    cardRoot: {
       width: "370px",
@@ -23,7 +26,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceFileTab({ activeProject, tab }) {
+function WorkspaceFileTab({ activeProject }) {
    const classes = useStyles();
 
    const [filesData, setFilesData] = useState(null);
@@ -32,11 +35,8 @@ function WorkspaceFileTab({ activeProject, tab }) {
    const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
-      if (tab !== "projectfiles") return;
-
+      let abortFetch = new AbortController();
       async function getProjectFiles() {
-         let abortFetch = new AbortController();
-
          setIsLoading(true);
          try {
             let responseStream = await fetch(
@@ -51,8 +51,6 @@ function WorkspaceFileTab({ activeProject, tab }) {
 
             let response = await responseStream.json();
 
-            console.log(response);
-
             if (response.status === "ok") {
                setFilesData(response.data);
                setIsLoading(false);
@@ -66,7 +64,9 @@ function WorkspaceFileTab({ activeProject, tab }) {
       }
 
       getProjectFiles();
-   }, [tab, activeProject]);
+
+      return () => abortFetch.abort();
+   }, [activeProject]);
 
    async function deleteFileFromProject(fileId) {
       try {
@@ -95,11 +95,11 @@ function WorkspaceFileTab({ activeProject, tab }) {
       }
    }
 
-   return tab === "projectfiles" ? (
+   return (
       <div className={classes.filesContainer}>
          <>
             {isLoading ? (
-               <CenteredLoader color="primary" backdrop={false} />
+               <ThemeLoader />
             ) : filesData ? (
                filesData.map(file => (
                   <Card key={file.id} className={classes.cardRoot}>
@@ -161,7 +161,7 @@ function WorkspaceFileTab({ activeProject, tab }) {
             ) : null}
          </>
       </div>
-   ) : null;
+   );
 }
 
 export default WorkspaceFileTab;

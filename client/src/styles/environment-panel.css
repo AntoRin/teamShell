@@ -1,9 +1,3 @@
-.environment-panel-container {
-   width: 100%;
-   height: 100%;
-   overflow-x: hidden;
-}
-
 .environment-panel-main {
    width: 100%;
    display: flex;

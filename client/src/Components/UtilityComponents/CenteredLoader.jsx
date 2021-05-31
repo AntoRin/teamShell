@@ -6,30 +6,18 @@ const useStyles = makeStyles(theme => ({
    backdrop: {
       zIndex: theme.zIndex.drawer + 1,
       color: "#fff",
-      width: "100p%",
-      height: "100%",
-   },
-   xyCentered: {
       width: "100%",
       height: "100%",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
    },
 }));
 
-function CenteredLoader({ color, backdrop }) {
+function CenteredLoader() {
    const classes = useStyles();
 
-   return backdrop ? (
+   return (
       <Backdrop className={classes.backdrop} open={true}>
-         <CircularProgress color={color} />
+         <CircularProgress color="primary" />
       </Backdrop>
-   ) : (
-      <div className={classes.xyCentered}>
-         <CircularProgress className={classes.xyCentered} color={color} />
-      </div>
    );
 }
 

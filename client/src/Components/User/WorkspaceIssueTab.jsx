@@ -28,7 +28,6 @@ function WorkspaceIssueTab({
    projectDetails,
    setActionStatus,
    isLoading,
-   tab,
 }) {
    const classes = useStyles();
 
@@ -38,7 +37,7 @@ function WorkspaceIssueTab({
       setAccordionExpanded(prev => !prev);
    }
 
-   return tab === "issues" ? (
+   return (
       <div className="environment-panel-main">
          <div className="environment-workspace">
             {activeProject ? (
@@ -88,7 +87,7 @@ function WorkspaceIssueTab({
             </div>
          </div>
       </div>
-   ) : null;
+   );
 }
 
 export default WorkspaceIssueTab;

@@ -1,7 +1,7 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
 import SettingsInputHdmiIcon from "@material-ui/icons/SettingsInputHdmi";
-import ListIcon from "@material-ui/icons/List";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import GeneralConfirmDialog from "../UtilityComponents/GeneralConfirmDialog";
 import Card from "@material-ui/core/Card";
@@ -52,16 +52,46 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceDriveTab({ User, activeProject, tab }) {
+function WorkspaceDriveTab({ User, activeProject }) {
    const classes = useStyles();
 
    const [confirmationRequired, setConfirmationRequired] = useState(false);
    const [userFiles, setUserFiles] = useState(null);
    const [isModalOpen, setIsModalOpen] = useState(false);
+   const [newFilesAvailable, setNewFilesAvailable] = useState(false);
 
    const setActionStatus = useContext(GlobalActionStatus);
 
    const fileInputElement = useRef();
+
+   useEffect(() => {
+      let abortFetch = new AbortController();
+      async function listDriveFiles() {
+         try {
+            let responseStream = await fetch(
+               "/api/project/drive/google/list-files",
+               { signal: abortFetch.signal }
+            );
+
+            if (abortFetch.signal.aborted) return;
+
+            let response = await responseStream.json();
+
+            if (response.status === "ok")
+               setUserFiles(response.data.data.files);
+            else if (response.status === "error") throw response.error;
+         } catch (error) {
+            console.log(error);
+            return;
+         }
+      }
+
+      listDriveFiles();
+
+      if (newFilesAvailable) setNewFilesAvailable(false);
+
+      return () => abortFetch.abort();
+   }, [newFilesAvailable]);
 
    function confirmDriveAuthorization() {
       setConfirmationRequired(true);
@@ -75,27 +105,16 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
       window.location.pathname = "/api/project/drive/google/authorize";
    }
 
+   function refreshFiles() {
+      setNewFilesAvailable(true);
+   }
+
    function openCreateModal() {
       setIsModalOpen(true);
    }
 
    function closeCreateModal() {
       setIsModalOpen(false);
-   }
-
-   async function listDriveFiles() {
-      try {
-         let responseStream = await fetch(
-            "/api/project/drive/google/list-files"
-         );
-         let response = await responseStream.json();
-
-         if (response.status === "ok") setUserFiles(response.data.data.files);
-         else if (response.status === "error") throw response.error;
-      } catch (error) {
-         console.log(error);
-         return;
-      }
    }
 
    async function addToProjectFiles(file) {
@@ -203,7 +222,7 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
       }
    }
 
-   return tab === "yourdrive" ? (
+   return (
       <div>
          <div className={classes.sideToolbar}>
             <div>
@@ -215,8 +234,8 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
             </div>
             <div>
                <Tooltip title="List Drive Files" placement="right">
-                  <IconButton onClick={listDriveFiles}>
-                     <ListIcon fontSize="large" color="primary" />
+                  <IconButton onClick={refreshFiles}>
+                     <RefreshIcon fontSize="large" color="primary" />
                   </IconButton>
                </Tooltip>
             </div>
@@ -322,7 +341,7 @@ function WorkspaceDriveTab({ User, activeProject, tab }) {
             given access."
          />
       </div>
-   ) : null;
+   );
 }
 
 export default WorkspaceDriveTab;

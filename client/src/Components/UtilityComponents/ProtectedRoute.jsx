@@ -63,7 +63,7 @@ function ProtectedRoute({ component: Component, ...props }) {
    }, [Component]);
 
    if (isLoading || !socket) {
-      return <CenteredLoader color="primary" backdrop={true} />;
+      return <CenteredLoader />;
    } else {
       return authenticated ? (
          <SocketInstance.Provider value={socket}>

@@ -16,6 +16,12 @@ import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/environment-panel.css";
 
 const useStyles = makeStyles(theme => ({
+   "environment-panel-container": {
+      width: "100%",
+      height: "100%",
+      minHeight: navHeight => `calc(100vh - ${navHeight}px)`,
+      overflowX: "hidden",
+   },
    root: {
       width: "100%",
       backgroundColor: "#222",
@@ -38,8 +44,8 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function UserWorkspace({ location, User }) {
-   const classes = useStyles();
+function UserWorkspace({ location, User, navHeight }) {
+   const classes = useStyles(navHeight);
 
    const [parentOrg, setParentOrg] = useState(null);
    const [activeProject, setActiveProject] = useState(null);
@@ -120,8 +126,33 @@ function UserWorkspace({ location, User }) {
       setTab(tabName.toLowerCase());
    }
 
+   function WorkspaceTab() {
+      switch (tab) {
+         case "issues":
+            return (
+               <WorkspaceIssueTab
+                  User={User}
+                  activeProject={activeProject}
+                  projectDetails={projectDetails}
+                  setActionStatus={setActionStatus}
+                  isLoading={isLoading}
+               />
+            );
+         case "yourdrive":
+            return (
+               <WorkspaceDriveTab User={User} activeProject={activeProject} />
+            );
+         case "projectfiles":
+            return (
+               <WorkspaceFileTab User={User} activeProject={activeProject} />
+            );
+         default:
+            break;
+      }
+   }
+
    return (
-      <div className="environment-panel-container">
+      <div className={classes["environment-panel-container"]}>
          <Tooltip title="Change project" placement="right" arrow>
             <IconButton
                className={classes.projectSettingsBtn}
@@ -156,24 +187,7 @@ function UserWorkspace({ location, User }) {
                </Button>
             </ButtonGroup>
          </Container>
-         <WorkspaceIssueTab
-            User={User}
-            activeProject={activeProject}
-            projectDetails={projectDetails}
-            setActionStatus={setActionStatus}
-            isLoading={isLoading}
-            tab={tab}
-         />
-         <WorkspaceDriveTab
-            User={User}
-            activeProject={activeProject}
-            tab={tab}
-         />
-         <WorkspaceFileTab
-            User={User}
-            activeProject={activeProject}
-            tab={tab}
-         />
+         <WorkspaceTab />
       </div>
    );
 }

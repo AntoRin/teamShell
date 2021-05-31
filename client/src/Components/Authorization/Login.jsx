@@ -26,11 +26,13 @@ function Login() {
    }
 
    async function handleGithubLogin() {
-      window.location.pathname = "/api/auth/login/github";
+      // window.location.pathname = "/api/auth/login/github";
+      window.location.href = "http://localhost:5000/api/auth/login/github";
    }
 
    async function handleGoogleLogin() {
-      window.location.pathname = "/api/auth/login/google";
+      // window.location.pathname = "/api/auth/login/google";
+      window.location.href = "http://localhost:5000/api/auth/login/google";
    }
 
    async function handleLogin(event) {
