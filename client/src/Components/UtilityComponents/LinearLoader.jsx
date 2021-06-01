@@ -3,12 +3,16 @@ import { makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
    root: {
-      width: "100%",
       "& > * + *": {
          marginTop: theme.spacing(2),
       },
       position: "fixed",
       top: 0,
+      right: 0,
+      left: 0,
+      "& .MuiLinearProgress-bar": {
+         backgroundColor: "rgb(51, 0, 111)",
+      },
    },
 }));
 

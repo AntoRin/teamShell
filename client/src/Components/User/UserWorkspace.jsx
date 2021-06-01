@@ -6,10 +6,13 @@ import AppsIcon from "@material-ui/icons/Apps";
 import Tooltip from "@material-ui/core/Tooltip";
 import { Button, Container, ButtonGroup } from "@material-ui/core";
 import FolderIcon from "@material-ui/icons/Folder";
+import SecurityIcon from "@material-ui/icons/Security";
 import CodeIcon from "@material-ui/icons/Code";
+import GroupAddIcon from "@material-ui/icons/GroupAdd";
 import WorkspaceIssueTab from "./WorkspaceIssueTab";
 import WorkspaceDriveTab from "./WorkspaceDriveTab";
 import WorkspaceFileTab from "./WorkspaceFileTab";
+import WorkspaceCreateRoomTab from "./WorkspaceCreateRoomTab";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import parseQueryStrings from "../../utils/parseQueryStrings";
@@ -138,13 +141,20 @@ function UserWorkspace({ location, User, navHeight }) {
                   isLoading={isLoading}
                />
             );
-         case "yourdrive":
+         case "your-drive":
             return (
                <WorkspaceDriveTab User={User} activeProject={activeProject} />
             );
-         case "projectfiles":
+         case "project-files":
             return (
                <WorkspaceFileTab User={User} activeProject={activeProject} />
+            );
+         case "create-new-room":
+            return (
+               <WorkspaceCreateRoomTab
+                  User={User}
+                  projectDetails={projectDetails}
+               />
             );
          default:
             break;
@@ -173,17 +183,24 @@ function UserWorkspace({ location, User, navHeight }) {
                </Button>
                <Button
                   color="primary"
-                  endIcon={<FolderIcon />}
-                  onClick={() => changeWorkspaceTab("yourdrive")}
+                  endIcon={<SecurityIcon />}
+                  onClick={() => changeWorkspaceTab("your-drive")}
                >
                   Your Drive
                </Button>
                <Button
                   color="primary"
                   endIcon={<FolderIcon />}
-                  onClick={() => changeWorkspaceTab("projectfiles")}
+                  onClick={() => changeWorkspaceTab("project-files")}
                >
                   Project Files
+               </Button>
+               <Button
+                  color="primary"
+                  endIcon={<GroupAddIcon />}
+                  onClick={() => changeWorkspaceTab("create-new-room")}
+               >
+                  New Room
                </Button>
             </ButtonGroup>
          </Container>

@@ -6,7 +6,6 @@ import Divider from "@material-ui/core/Divider";
 import { SocketInstance } from "./ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import NotificationBlock from "./NotificationBlock";
-import ConfirmDialog from "../UtilityComponents/ConfirmDialog";
 import "../../styles/notifications.css";
 
 const useStyles = makeStyles(theme => ({
@@ -39,15 +38,6 @@ function Notifications({
    const classes = useStyles();
 
    const [notifications, setNotifications] = useState([]);
-   const [confirmationRequired, setConfirmationRequired] = useState(false);
-   const [notificationProgress, setNotificationProgress] = useState({
-      pending: true,
-      Hyperlink: null,
-      InfoType: null,
-      additionalInfo: null,
-      confirmTitle: null,
-      confirmMessage: null,
-   });
 
    const socket = useContext(SocketInstance);
    const setActionStatus = useContext(GlobalActionStatus);
@@ -113,9 +103,6 @@ function Notifications({
                            <NotificationBlock
                               key={notification._id}
                               notification={notification}
-                              setConfirmationRequired={setConfirmationRequired}
-                              notificationProgress={notificationProgress}
-                              setNotificationProgress={setNotificationProgress}
                               setActionStatus={setActionStatus}
                            />
                         );
@@ -124,13 +111,6 @@ function Notifications({
                </List>
             </div>
          </ClickAwayListener>
-         <ConfirmDialog
-            setNotificationProgress={setNotificationProgress}
-            confirmationRequired={confirmationRequired}
-            setConfirmationRequired={setConfirmationRequired}
-            title={notificationProgress.confirmTitle}
-            message={notificationProgress.confirmMessage}
-         />
       </>
    ) : null;
 }

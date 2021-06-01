@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Route, Redirect } from "react-router-dom";
+import ThemeLoader from "./ThemeLoader";
 
 function NonUserRoute({ component: Component, ...props }) {
    const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,7 +25,7 @@ function NonUserRoute({ component: Component, ...props }) {
    }, []);
 
    if (isLoading) {
-      return <h1>Loading...</h1>;
+      return <ThemeLoader />;
    } else {
       return !isAuthenticated ? (
          <Route

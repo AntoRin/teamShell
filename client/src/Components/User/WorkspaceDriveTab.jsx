@@ -13,6 +13,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { GlobalActionStatus } from "../App";
 import ContentModal from "../UtilityComponents/ContentModal";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles({
    actionBtn: {
@@ -58,7 +59,8 @@ function WorkspaceDriveTab({ User, activeProject }) {
    const [confirmationRequired, setConfirmationRequired] = useState(false);
    const [userFiles, setUserFiles] = useState(null);
    const [isModalOpen, setIsModalOpen] = useState(false);
-   const [newFilesAvailable, setNewFilesAvailable] = useState(false);
+   const [newFilesAvailable, setNewFilesAvailable] = useState(true);
+   const [isLoading, setIsLoading] = useState(false);
 
    const setActionStatus = useContext(GlobalActionStatus);
 
@@ -67,6 +69,7 @@ function WorkspaceDriveTab({ User, activeProject }) {
    useEffect(() => {
       let abortFetch = new AbortController();
       async function listDriveFiles() {
+         setIsLoading(true);
          try {
             let responseStream = await fetch(
                "/api/project/drive/google/list-files",
@@ -83,12 +86,14 @@ function WorkspaceDriveTab({ User, activeProject }) {
          } catch (error) {
             console.log(error);
             return;
+         } finally {
+            if (!abortFetch.signal.aborted) {
+               setNewFilesAvailable(false);
+               setIsLoading(false);
+            }
          }
       }
-
-      listDriveFiles();
-
-      if (newFilesAvailable) setNewFilesAvailable(false);
+      if (newFilesAvailable) listDriveFiles();
 
       return () => abortFetch.abort();
    }, [newFilesAvailable]);
@@ -330,6 +335,7 @@ function WorkspaceDriveTab({ User, activeProject }) {
                      </React.Fragment>
                   ))}
             </div>
+            {isLoading && <LinearLoader />}
          </div>
          <GeneralConfirmDialog
             confirmationRequired={confirmationRequired}

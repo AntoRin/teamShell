@@ -7,8 +7,7 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import { GlobalActionStatus } from "../App";
-// import CenteredLoader from "../UtilityComponents/CenteredLoader";
-import ThemeLoader from "../UtilityComponents/ThemeLoader";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles({
    filesContainer: {
@@ -26,7 +25,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceFileTab({ activeProject }) {
+function WorkspaceFileTab({ User, activeProject }) {
    const classes = useStyles();
 
    const [filesData, setFilesData] = useState(null);
@@ -98,68 +97,73 @@ function WorkspaceFileTab({ activeProject }) {
    return (
       <div className={classes.filesContainer}>
          <>
-            {isLoading ? (
-               <ThemeLoader />
-            ) : filesData ? (
-               filesData.map(file => (
-                  <Card key={file.id} className={classes.cardRoot}>
-                     <CardActionArea>
-                        <CardMedia
-                           component="img"
-                           alt=""
-                           height="140"
-                           width="auto"
-                           image={file.iconLink}
-                           title=""
-                        />
-                        <CardContent>
-                           <Typography variant="h6" gutterBottom>
-                              {file.creator}
-                           </Typography>
-                           <Typography variant="h5" component="h2" gutterBottom>
-                              {file.name}
-                           </Typography>
-                           <Typography
-                              variant="body2"
-                              color="textSecondary"
-                              component="p"
-                           >
-                              {file.description}
-                           </Typography>
-                        </CardContent>
-                     </CardActionArea>
-                     <CardActions>
-                        <Button
-                           size="small"
-                           color="default"
-                           variant="outlined"
-                           href={file.webContentLink}
-                           download={true}
-                        >
-                           Download
-                        </Button>
-                        <Button
-                           size="small"
-                           color="default"
-                           variant="outlined"
-                           href={file.webViewLink}
-                           target="_blank"
-                        >
-                           Link
-                        </Button>
-                        <Button
-                           size="small"
-                           color="default"
-                           variant="outlined"
-                           onClick={() => deleteFileFromProject(file.id)}
-                        >
-                           Remove file from project
-                        </Button>
-                     </CardActions>
-                  </Card>
-               ))
-            ) : null}
+            {filesData
+               ? filesData.map(file => (
+                    <Card key={file.id} className={classes.cardRoot}>
+                       <CardActionArea>
+                          <CardMedia
+                             component="img"
+                             alt=""
+                             height="140"
+                             width="auto"
+                             image={file.iconLink}
+                             title=""
+                          />
+                          <CardContent>
+                             <Typography variant="h6" gutterBottom>
+                                {file.creator}
+                             </Typography>
+                             <Typography
+                                variant="h5"
+                                component="h2"
+                                gutterBottom
+                             >
+                                {file.name}
+                             </Typography>
+                             <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                component="p"
+                             >
+                                {file.description}
+                             </Typography>
+                          </CardContent>
+                       </CardActionArea>
+                       <CardActions>
+                          <Button
+                             size="small"
+                             color="default"
+                             variant="outlined"
+                             href={file.webContentLink}
+                             download={true}
+                          >
+                             Download
+                          </Button>
+                          <Button
+                             size="small"
+                             color="default"
+                             variant="outlined"
+                             href={file.webViewLink}
+                             target="_blank"
+                          >
+                             Link
+                          </Button>
+                          {User.UniqueUsername === file.creator && (
+                             <Button
+                                size="small"
+                                color="default"
+                                variant="outlined"
+                                onClick={() => deleteFileFromProject(file.id)}
+                             >
+                                Remove file from project
+                             </Button>
+                          )}
+                       </CardActions>
+                    </Card>
+                 ))
+               : null}
          </>
+         {isLoading && <LinearLoader />}
       </div>
    );
 }

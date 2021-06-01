@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import ListItem from "@material-ui/core/ListItem";
@@ -7,6 +7,7 @@ import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import useRequest from "../Hooks/useRequest";
+import NotificationConfirmDialog from "./NotificationConfirmDialog";
 import formatDate from "../../utils/formatDate";
 
 const useStyles = makeStyles(theme => ({
@@ -31,14 +32,12 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function NotificationBlock({
-   notification,
-   setConfirmationRequired,
-   notificationProgress,
-   setNotificationProgress,
-   setActionStatus,
-}) {
+function NotificationBlock({ notification, setActionStatus }) {
    const classes = useStyles();
+
+   const [confirmationRequired, setConfirmationRequired] = useState(false);
+   const [isNotificationPending, setIsNotificationPending] = useState(true);
+   const [confirmData, setConfirmData] = useState({ title: "", message: "" });
 
    const initiatorProfileImage = useRequest(
       `/api/profile/profile-image/${notification.Initiator}`,
@@ -48,172 +47,178 @@ function NotificationBlock({
    const history = useHistory();
 
    useEffect(() => {
-      if (notificationProgress.pending) return;
+      if (isNotificationPending) return;
+
+      let abortFetch = new AbortController();
 
       async function performNotificationAction() {
-         if (notificationProgress.InfoType === "Invitation") {
-            let notificationAction = await fetch(
-               notificationProgress.Hyperlink
-            );
-            if (notificationAction.redirected) {
-               let redirectUrl = new URL(notificationAction.url);
-               history.replace(redirectUrl.pathname);
-               return;
-            }
-
-            let actionData = await notificationAction.json();
-
-            if (actionData.status === "error")
-               setActionStatus({ info: actionData.error, type: "error" });
-         } else if (notificationProgress.InfoType === "Request") {
-            let postOptions = {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
-                  newUser: notificationProgress.additionalInfo.InitiatorName,
-                  requestedProject:
-                     notificationProgress.additionalInfo.target_name,
-               }),
-            };
-            let notificationAction = await fetch(
-               `/api/project/accept/new-user`,
-               postOptions
-            );
-            let responseData = await notificationAction.json();
-            console.log(responseData);
-
-            if (responseData.status === "ok")
-               setActionStatus({
-                  info: "Added user to project",
-                  type: "success",
+         try {
+            if (notification.InfoType === "Invitation") {
+               let notificationAction = await fetch(notification.Hyperlink, {
+                  signal: abortFetch.signal,
                });
-            else setActionStatus({ info: "There was an error", type: "error" });
-         } else {
-            history.push(notificationProgress.Hyperlink);
+
+               if (abortFetch.signal.aborted) return;
+
+               if (notificationAction.redirected) {
+                  let redirectUrl = new URL(notificationAction.url);
+                  history.replace(redirectUrl.pathname);
+                  return;
+               }
+
+               let actionData = await notificationAction.json();
+
+               if (actionData.status === "error")
+                  setActionStatus({ info: actionData.error, type: "error" });
+            } else if (notification.InfoType === "Request") {
+               let postOptions = {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                     newUser: notification.Initiator,
+                     requestedProject: notification.ActivityContent.Keyword,
+                  }),
+                  signal: abortFetch.signal,
+               };
+               let notificationAction = await fetch(
+                  `/api/project/accept/new-user`,
+                  postOptions
+               );
+
+               if (abortFetch.signal.aborted) return;
+
+               let responseData = await notificationAction.json();
+               console.log(responseData);
+
+               if (responseData.status === "ok")
+                  setActionStatus({
+                     info: "Added user to project",
+                     type: "success",
+                  });
+               else
+                  setActionStatus({
+                     info: "There was an error",
+                     type: "error",
+                  });
+            } else {
+               history.push(notification.Hyperlink);
+            }
+         } catch (error) {
+            console.log(error);
+            return;
+         } finally {
+            if (!abortFetch.signal.aborted) setIsNotificationPending(true);
          }
       }
       performNotificationAction();
 
-      setNotificationProgress({
-         pending: true,
-         Hyperlink: null,
-         InfoType: null,
-         additionalInfo: null,
-         confirmTitle: null,
-         confirmMessage: null,
-      });
+      return () => abortFetch.abort();
    }, [
-      notificationProgress,
+      notification,
+      isNotificationPending,
+      setIsNotificationPending,
       history,
       setActionStatus,
-      setNotificationProgress,
    ]);
 
-   function handleNotificationClick(
-      Hyperlink,
-      InfoType,
-      InitiatorName,
-      target_name
-   ) {
+   function handleNotificationClick() {
       let message,
          title,
          requireConfirmation = false;
 
-      switch (InfoType) {
+      switch (notification.InfoType) {
          case "Invitation":
             title = "Invitation";
-            message = `Do you want to join ${target_name}?`;
+            message = `Do you want to join ${notification.ActivityContent.Keyword}?`;
             requireConfirmation = true;
             break;
          case "Request":
             title = "Request";
-            message = `Do you want to accept the user's request to join ${target_name}?`;
+            message = `Do you want to accept the user's request to join ${notification.ActivityContent.Keyword}?`;
             requireConfirmation = true;
             break;
          default:
             requireConfirmation = false;
       }
 
-      setNotificationProgress({
-         pending: requireConfirmation,
-         Hyperlink,
-         InfoType,
-         additionalInfo: { InitiatorName, target_name },
-         confirmTitle: title,
-         confirmMessage: message,
-      });
-
+      setConfirmData({ title, message });
+      setIsNotificationPending(requireConfirmation);
       setConfirmationRequired(requireConfirmation);
    }
 
    return (
-      <div
-         onClick={() =>
-            handleNotificationClick(
-               notification.Hyperlink,
-               notification.InfoType,
-               notification.Initiator,
-               notification.ActivityContent.Keyword
-            )
-         }
-         className="notification-block"
-      >
-         <ListItem alignItems="flex-start">
-            <ListItemAvatar>
-               <Avatar
-                  src={
-                     initiatorProfileImage.data
-                        ? initiatorProfileImage.data.startsWith("https://")
-                           ? initiatorProfileImage.data
-                           : `data:image/jpeg;base64,${initiatorProfileImage.data}`
-                        : "/assets/UserIcon.png"
-                  }
-                  alt=""
-               />
-            </ListItemAvatar>
-            <ListItemText
-               disableTypography={true}
-               primary={notification.InfoType}
-               secondary={
-                  <>
-                     {
-                        <div className="notification-text-content">
-                           <Typography
-                              component="span"
-                              variant="body1"
-                              className={classes.inline}
-                           >
-                              {
-                                 <span
-                                    className={
-                                       classes["notification-initiator"]
-                                    }
-                                 >
-                                    {notification.Initiator}
-                                 </span>
-                              }{" "}
-                              <span>{notification.ActivityContent.Action}</span>{" "}
-                              {
-                                 <span
-                                    className={classes["notification-keyword"]}
-                                 >
-                                    {notification.ActivityContent.Keyword}
-                                 </span>
-                              }
-                              <br />
-                              <span className={classes["notification-spl"]}>
-                                 {notification.Target.Info}
-                              </span>
-                              <br />
-                              <span>{formatDate(notification.createdAt)}</span>
-                           </Typography>
-                        </div>
+      <>
+         <div onClick={handleNotificationClick} className="notification-block">
+            <ListItem alignItems="flex-start">
+               <ListItemAvatar>
+                  <Avatar
+                     src={
+                        initiatorProfileImage.data
+                           ? initiatorProfileImage.data.startsWith("https://")
+                              ? initiatorProfileImage.data
+                              : `data:image/jpeg;base64,${initiatorProfileImage.data}`
+                           : "/assets/UserIcon.png"
                      }
-                  </>
-               }
-            />
-         </ListItem>
-      </div>
+                     alt=""
+                  />
+               </ListItemAvatar>
+               <ListItemText
+                  disableTypography={true}
+                  primary={notification.InfoType}
+                  secondary={
+                     <>
+                        {
+                           <div className="notification-text-content">
+                              <Typography
+                                 component="span"
+                                 variant="body1"
+                                 className={classes.inline}
+                              >
+                                 {
+                                    <span
+                                       className={
+                                          classes["notification-initiator"]
+                                       }
+                                    >
+                                       {notification.Initiator}
+                                    </span>
+                                 }{" "}
+                                 <span>
+                                    {notification.ActivityContent.Action}
+                                 </span>{" "}
+                                 {
+                                    <span
+                                       className={
+                                          classes["notification-keyword"]
+                                       }
+                                    >
+                                       {notification.ActivityContent.Keyword}
+                                    </span>
+                                 }
+                                 <br />
+                                 <span className={classes["notification-spl"]}>
+                                    {notification.Target.Info}
+                                 </span>
+                                 <br />
+                                 <span>
+                                    {formatDate(notification.createdAt)}
+                                 </span>
+                              </Typography>
+                           </div>
+                        }
+                     </>
+                  }
+               />
+            </ListItem>
+         </div>
+         <NotificationConfirmDialog
+            setIsNotificationPending={setIsNotificationPending}
+            confirmationRequired={confirmationRequired}
+            setConfirmationRequired={setConfirmationRequired}
+            title={confirmData.title}
+            message={confirmData.message}
+         />
+      </>
    );
 }
 

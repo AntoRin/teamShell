@@ -474,7 +474,12 @@ router.delete("/drive/file/remove", async (req, res, next) => {
    let { fileId } = req.body;
 
    try {
+      let file = await DriveFile.findOne({ id: fileId });
+      if (file.creator !== UniqueUsername)
+         throw { name: "UnauthorizedRequest" };
+
       await DriveFile.deleteOne({ id: fileId });
+
       return res.json({ status: "ok", data: "Removed file from project" });
    } catch (error) {
       console.log(error);

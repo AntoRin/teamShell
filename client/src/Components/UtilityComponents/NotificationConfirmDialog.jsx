@@ -6,8 +6,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-function ConfirmDialog({
-   setNotificationProgress,
+function NotificationConfirmDialog({
+   setIsNotificationPending,
    confirmationRequired,
    setConfirmationRequired,
    title,
@@ -24,7 +24,7 @@ function ConfirmDialog({
    }
 
    function handleDialogSuccess() {
-      setNotificationProgress(prev => ({ ...prev, pending: false }));
+      setIsNotificationPending(false);
       setConfirmationRequired(false);
    }
 
@@ -52,4 +52,4 @@ function ConfirmDialog({
    );
 }
 
-export default ConfirmDialog;
+export default NotificationConfirmDialog;
