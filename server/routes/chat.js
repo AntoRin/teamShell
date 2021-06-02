@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 const Chat = require("../models/Chat");
+const ProjectChat = require("../models/ProjectChat");
 
 router.get("/chat-history", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
@@ -30,6 +31,23 @@ router.get("/all-messages", async (req, res, next) => {
       return chat
          ? res.json({ status: "ok", data: chat })
          : res.json({ status: "ok", data: [] });
+   } catch (error) {
+      console.log(error);
+      return next(error);
+   }
+});
+
+router.get("/project/:projectName", async (req, res, next) => {
+   let projectName = req.params.projectName;
+
+   try {
+      let chat = await ProjectChat.findOne({ ProjectName: projectName }).lean();
+
+      if (!chat) return res.json({ status: "ok", data: null });
+
+      let messages = chat.Messages;
+
+      return res.json({ status: "ok", data: messages });
    } catch (error) {
       console.log(error);
       return next(error);

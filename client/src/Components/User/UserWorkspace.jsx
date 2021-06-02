@@ -12,7 +12,7 @@ import GroupAddIcon from "@material-ui/icons/GroupAdd";
 import WorkspaceIssueTab from "./WorkspaceIssueTab";
 import WorkspaceDriveTab from "./WorkspaceDriveTab";
 import WorkspaceFileTab from "./WorkspaceFileTab";
-import WorkspaceCreateRoomTab from "./WorkspaceCreateRoomTab";
+import WorkspaceChatTab from "./WorkspaceChatTab";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import parseQueryStrings from "../../utils/parseQueryStrings";
@@ -21,9 +21,8 @@ import "../../styles/environment-panel.css";
 const useStyles = makeStyles(theme => ({
    "environment-panel-container": {
       width: "100%",
-      height: "100%",
-      minHeight: navHeight => `calc(100vh - ${navHeight}px)`,
-      overflowX: "hidden",
+      height: navHeight => `calc(100vh - ${navHeight}px)`,
+      overflow: "hidden",
    },
    root: {
       width: "100%",
@@ -149,12 +148,9 @@ function UserWorkspace({ location, User, navHeight }) {
             return (
                <WorkspaceFileTab User={User} activeProject={activeProject} />
             );
-         case "create-new-room":
+         case "project-chat":
             return (
-               <WorkspaceCreateRoomTab
-                  User={User}
-                  projectDetails={projectDetails}
-               />
+               <WorkspaceChatTab User={User} projectDetails={projectDetails} />
             );
          default:
             break;
@@ -198,9 +194,9 @@ function UserWorkspace({ location, User, navHeight }) {
                <Button
                   color="primary"
                   endIcon={<GroupAddIcon />}
-                  onClick={() => changeWorkspaceTab("create-new-room")}
+                  onClick={() => changeWorkspaceTab("project-chat")}
                >
-                  New Room
+                  Project Chat
                </Button>
             </ButtonGroup>
          </Container>

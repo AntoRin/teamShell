@@ -13,7 +13,6 @@ const organizationRoute = require("./routes/organization");
 const projectRoute = require("./routes/project");
 const issueRoute = require("./routes/issue");
 const chatRoute = require("./routes/chat");
-const projectRoomsRoute = require("./routes/project-rooms");
 
 const errorHandler = require("./utils/errorHandler");
 
@@ -43,7 +42,6 @@ app.use("/api/organization", checkAuth, organizationRoute);
 app.use("/api/project", checkAuth, projectRoute);
 app.use("/api/issue", checkAuth, issueRoute);
 app.use("/api/chat", checkAuth, chatRoute);
-app.use("/api/project-rooms", checkAuth, projectRoomsRoute);
 app.use("*", (req, res) => {
    res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });

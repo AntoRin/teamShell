@@ -26,13 +26,15 @@ function Login() {
    }
 
    async function handleGithubLogin() {
-      // window.location.pathname = "/api/auth/login/github";
-      window.location.href = "http://localhost:5000/api/auth/login/github";
+      if (process.env.NODE_ENV === "production")
+         window.location.pathname = "/api/auth/login/github";
+      else window.location.href = "http://localhost:5000/api/auth/login/github";
    }
 
    async function handleGoogleLogin() {
-      // window.location.pathname = "/api/auth/login/google";
-      window.location.href = "http://localhost:5000/api/auth/login/google";
+      if (process.env.NODE_ENV === "production")
+         window.location.pathname = "/api/auth/login/google";
+      else window.location.href = "http://localhost:5000/api/auth/login/google";
    }
 
    async function handleLogin(event) {
