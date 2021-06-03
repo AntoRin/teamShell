@@ -34,8 +34,8 @@ const useStyles = makeStyles(theme => ({
       color: "red",
       fontFamily: `"Poppins", "sans-serif"`,
    },
-   projectSettingsBtn: {
-      position: "fixed",
+   projectBackBtn: {
+      position: "absolute",
       top: "15%",
       left: "10px",
    },
@@ -161,7 +161,7 @@ function UserWorkspace({ location, User, navHeight }) {
       <div className={classes["environment-panel-container"]}>
          <Tooltip title="Change project" placement="right" arrow>
             <IconButton
-               className={classes.projectSettingsBtn}
+               className={classes.projectBackBtn}
                color="primary"
                onClick={goToEnvironment}
             >

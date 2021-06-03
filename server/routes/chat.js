@@ -47,7 +47,9 @@ router.get("/project/:projectName", async (req, res, next) => {
 
       let messages = chat.Messages;
 
-      return res.json({ status: "ok", data: messages });
+      orderedMessages = messages.reverse();
+
+      return res.json({ status: "ok", data: orderedMessages });
    } catch (error) {
       console.log(error);
       return next(error);

@@ -9,6 +9,7 @@ const User = require("./models/User");
 const Project = require("./models/Project");
 const Issue = require("./models/Issue");
 const Chat = require("./models/Chat");
+const ProjectChat = require("./models/ProjectChat");
 
 function parseCookies(socket, next) {
    socket.on("disconnect", async () => {
@@ -132,6 +133,40 @@ async function initiateListeners(socket, io) {
             .emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
       } else {
          io.to(sender).emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
+      }
+   });
+
+   //Project Chat
+   socket.on("join-project-room", projectName => {
+      socket.join(`project-room-${projectName}`);
+   });
+
+   socket.on("leave-project-room", projectName => {
+      socket.leave(`project-room-${projectName}`);
+   });
+
+   socket.on("new-project-message", async messageData => {
+      try {
+         let { from, content, ProjectName } = messageData;
+
+         if (from !== socket.userName) return;
+
+         let newMessageData = {
+            from,
+            content,
+         };
+
+         let newMessage = await ProjectChat.findOneAndUpdate(
+            { ProjectName },
+            { $push: { Messages: { $each: [newMessageData], $position: 0 } } },
+            { returnOriginal: false, upsert: true }
+         );
+         io.to(`project-room-${ProjectName}`).emit(
+            "new-incoming-message",
+            newMessage.Messages[0]
+         );
+      } catch (error) {
+         console.log(error);
       }
    });
 }

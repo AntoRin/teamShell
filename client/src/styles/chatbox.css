@@ -78,14 +78,14 @@
    width: 40%;
    word-break: break-all;
    background-color: lightseagreen;
-   border: 1px solid lightgreen;
+   border: 1px solid rgb(51, 0, 111);
    padding: 5px;
    flex-direction: column;
    border-radius: 5px;
 }
 
 .message-special {
-   background-color: seagreen;
+   background-color: rgb(108, 98, 140);
 }
 
 .message-author {
