@@ -13,15 +13,15 @@ import WorkspaceIssueTab from "./WorkspaceIssueTab";
 import WorkspaceDriveTab from "./WorkspaceDriveTab";
 import WorkspaceFileTab from "./WorkspaceFileTab";
 import WorkspaceChatTab from "./WorkspaceChatTab";
-import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/environment-panel.css";
+import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles(theme => ({
    "environment-panel-container": {
       width: "100%",
-      height: navHeight => `calc(100vh - ${navHeight}px)`,
+      minHeight: navHeight => `calc(100vh - ${navHeight}px)`,
       overflowX: "hidden",
       overflowY: "scroll",
    },
@@ -52,81 +52,59 @@ function UserWorkspace({ location, User, navHeight }) {
 
    const [parentOrg, setParentOrg] = useState(null);
    const [activeProject, setActiveProject] = useState(null);
-   const [projectDetails, setProjectDetails] = useState({});
-   const [isLoading, setIsLoading] = useState(false);
    const [tab, setTab] = useState("issues");
+   const [projectMembers, setProjectMembers] = useState(null);
+   const [isLoading, setIsLoading] = useState(false);
 
    const history = useHistory();
 
-   const socket = useContext(SocketInstance);
    const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
-      let queryString = location.search;
-      try {
-         if (!queryString) throw new Error("Invalid query string");
-
-         let queries = parseQueryStrings(queryString);
-         if (!queries.organization || !queries.project)
-            throw new Error("Invalid query string");
-
-         setParentOrg(queries.organization);
-         setActiveProject(queries.project);
-      } catch (error) {
-         history.push("/user/environment");
-      }
-   }, [history, location.search]);
-
-   useEffect(() => {
-      if (!activeProject) return;
-
-      let abortFetch = new AbortController();
-
-      async function getProjectDetails() {
+      async function verifyBasicDetails() {
          setIsLoading(true);
+         let queryString = location.search;
          try {
+            if (!queryString) throw new Error("Invalid query string");
+
+            let queries = parseQueryStrings(queryString);
+            if (!queries.organization || !queries.project)
+               throw new Error("Invalid query string");
+
             let responseStream = await fetch(
-               `/api/project/details/${activeProject}`,
-               { credentials: "include", signal: abortFetch.signal }
+               `/api/project/verification-data/${queries.project}`
             );
+            let response = await responseStream.json();
 
-            if (abortFetch.signal.aborted) return;
+            if (response.status === "error") throw response.error;
 
-            let projectData = await responseStream.json();
+            let projectData = response.data;
 
-            if (projectData.status === "ok") {
-               let project = projectData.Project;
+            if (projectData.ParentOrganization !== queries.organization)
+               throw new Error("Invalid query string");
 
-               if (project.ParentOrganization !== parentOrg)
-                  throw new Error("Project not found");
-
-               setProjectDetails(project);
-               setIsLoading(false);
-            } else if (projectData.status === "error") throw projectData.error;
+            setParentOrg(queries.organization);
+            setActiveProject(queries.project);
+            queries.tab && setTab(queries.tab);
+            setProjectMembers(projectData.Members);
+            setIsLoading(false);
          } catch (error) {
-            if (error.name !== "AbortError") {
-               console.log(error);
-               setIsLoading(false);
-               history.push("/user/environment");
-            }
+            history.push("/user/environment");
          }
       }
-      getProjectDetails();
 
-      socket.on("project-data-change", () => getProjectDetails());
-
-      return () => {
-         abortFetch.abort();
-         socket.off("project-data-change");
-      };
-   }, [activeProject, parentOrg, socket, history]);
+      verifyBasicDetails();
+   }, [history, location.search]);
 
    function goToEnvironment() {
       history.push("/user/environment");
    }
 
    function changeWorkspaceTab(tabName) {
-      setTab(tabName.toLowerCase());
+      if (!parentOrg || !activeProject) return;
+      history.push(
+         `/user/workspace?organization=${parentOrg}&project=${activeProject}&tab=${tabName.toLowerCase()}`
+      );
    }
 
    function WorkspaceTab() {
@@ -136,9 +114,7 @@ function UserWorkspace({ location, User, navHeight }) {
                <WorkspaceIssueTab
                   User={User}
                   activeProject={activeProject}
-                  projectDetails={projectDetails}
                   setActionStatus={setActionStatus}
-                  isLoading={isLoading}
                />
             );
          case "your-drive":
@@ -151,10 +127,20 @@ function UserWorkspace({ location, User, navHeight }) {
             );
          case "project-chat":
             return (
-               <WorkspaceChatTab User={User} projectDetails={projectDetails} />
+               <WorkspaceChatTab
+                  User={User}
+                  activeProject={activeProject}
+                  projectMembers={projectMembers}
+               />
             );
          default:
-            break;
+            return (
+               <WorkspaceIssueTab
+                  User={User}
+                  activeProject={activeProject}
+                  setActionStatus={setActionStatus}
+               />
+            );
       }
    }
 
@@ -201,7 +187,7 @@ function UserWorkspace({ location, User, navHeight }) {
                </Button>
             </ButtonGroup>
          </Container>
-         <WorkspaceTab />
+         {isLoading ? <LinearLoader /> : <WorkspaceTab />}
       </div>
    );
 }

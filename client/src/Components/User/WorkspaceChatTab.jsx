@@ -12,18 +12,21 @@ const useStyles = makeStyles({
       display: "grid",
       gridTemplateColumns: "3fr 1fr",
       height: "100%",
+      maxHeight: "80vh",
+      overflowY: "hidden",
    },
    chatContainer: {
       width: "100%",
-      height: "100%",
+      height: "70vh",
       backgroundColor: "rgba(50, 50, 100, 0.1)",
       overflowY: "hidden",
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
+      margin: "25px 10px",
    },
    messages: {
-      maxHeight: "75%",
+      height: "70%",
       width: "100%",
       overflowY: "scroll",
    },
@@ -46,7 +49,7 @@ const useStyles = makeStyles({
       outline: "none",
    },
    projectMemberList: {
-      height: "100%",
+      height: "90%",
       overflowY: "hidden",
       "& .MuiList-root": {
          backgroundColor: "rgb(25, 25, 30)",
@@ -59,7 +62,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceChatTab({ User, projectDetails }) {
+function WorkspaceChatTab({ User, activeProject, projectMembers }) {
    const classes = useStyles();
 
    const [messages, setMessages] = useState([]);
@@ -74,11 +77,10 @@ function WorkspaceChatTab({ User, projectDetails }) {
       async function getMessages() {
          try {
             let responseStream = await fetch(
-               `/api/chat/project/${projectDetails.ProjectName}`,
+               `/api/chat/project/${activeProject}`,
                { signal: abortFetch.signal }
             );
             let response = await responseStream.json();
-
             if (abortFetch.signal.aborted) return;
 
             if (response.data) return setMessages(response.data);
@@ -90,14 +92,13 @@ function WorkspaceChatTab({ User, projectDetails }) {
       getMessages();
 
       return () => abortFetch.abort();
-   }, [projectDetails.ProjectName]);
+   }, [activeProject]);
 
    useEffect(() => {
-      socket.emit("join-project-room", projectDetails.ProjectName);
+      socket.emit("join-project-room", activeProject);
 
-      return () =>
-         socket.emit("leave-project-room", projectDetails.ProjectName);
-   }, [projectDetails.ProjectName, socket]);
+      return () => socket.emit("leave-project-room", activeProject);
+   }, [activeProject, socket]);
 
    useEffect(() => {
       socket.on("new-incoming-message", message => {
@@ -105,7 +106,7 @@ function WorkspaceChatTab({ User, projectDetails }) {
       });
 
       return () => socket.off("new-incoming-message");
-   }, [projectDetails.ProjectName, socket]);
+   }, [activeProject, socket]);
 
    useEffect(() => {
       if (chatRef.current)
@@ -118,7 +119,7 @@ function WorkspaceChatTab({ User, projectDetails }) {
       let messageData = {
          content: newMessageContent,
          from: User.UniqueUsername,
-         ProjectName: projectDetails.ProjectName,
+         ProjectName: activeProject,
       };
       socket.emit(`new-project-message`, messageData);
 
@@ -176,8 +177,8 @@ function WorkspaceChatTab({ User, projectDetails }) {
          </div>
          <div className={classes.projectMemberList}>
             <List>
-               {projectDetails.Members &&
-                  projectDetails.Members.map(member => (
+               {projectMembers &&
+                  projectMembers.map(member => (
                      <React.Fragment key={member}>
                         <ListItem button divider>
                            <ListItemText primary={member} />

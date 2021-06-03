@@ -130,6 +130,27 @@ router.get("/details/:ProjectName", async (req, res, next) => {
    }
 });
 
+router.get("/verification-data/:ProjectName", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
+   let ProjectName = req.params.ProjectName;
+
+   try {
+      let projectDetails = await Project.findOne(
+         { ProjectName },
+         { createdAt: 0, updatedAt: 0, ProjectDescription: 0, IssuesRef: 0 }
+      ).lean();
+
+      if (!projectDetails) throw { name: "UnknownData" };
+
+      if (!projectDetails.Members.includes(UniqueUsername))
+         throw { name: "UnauthorizedRequest" };
+
+      return res.json({ status: "ok", data: projectDetails });
+   } catch (error) {
+      return next(error);
+   }
+});
+
 router.get("/snippet/:ProjectName", async (req, res, next) => {
    let ProjectName = req.params.ProjectName;
 
@@ -145,7 +166,7 @@ router.get("/snippet/:ProjectName", async (req, res, next) => {
          }
       );
 
-      if (!projectDetails) throw { name: UnknownData };
+      if (!projectDetails) throw { name: "UnknownData" };
 
       let projectSnippet = {
          "About Project": projectDetails.ProjectDescription,

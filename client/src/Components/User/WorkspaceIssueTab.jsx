@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -22,16 +24,57 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function WorkspaceIssueTab({
-   User,
-   activeProject,
-   projectDetails,
-   setActionStatus,
-   isLoading,
-}) {
+function WorkspaceIssueTab({ User, activeProject, setActionStatus }) {
    const classes = useStyles();
 
+   const [projectDetails, setProjectDetails] = useState({});
+   const [isLoading, setIsLoading] = useState(false);
    const [accordionExpanded, setAccordionExpanded] = useState(false);
+
+   const socket = useContext(SocketInstance);
+
+   const history = useHistory();
+
+   useEffect(() => {
+      if (!activeProject) return;
+
+      let abortFetch = new AbortController();
+
+      async function getProjectDetails() {
+         setIsLoading(true);
+         try {
+            let responseStream = await fetch(
+               `/api/project/details/${activeProject}`,
+               { credentials: "include", signal: abortFetch.signal }
+            );
+
+            if (abortFetch.signal.aborted) return;
+
+            let projectData = await responseStream.json();
+
+            if (projectData.status === "ok") {
+               let project = projectData.Project;
+
+               setProjectDetails(project);
+               setIsLoading(false);
+            } else if (projectData.status === "error") throw projectData.error;
+         } catch (error) {
+            if (error.name !== "AbortError") {
+               console.log(error);
+               setIsLoading(false);
+               history.push("/user/environment");
+            }
+         }
+      }
+      getProjectDetails();
+
+      socket.on("project-data-change", () => getProjectDetails());
+
+      return () => {
+         abortFetch.abort();
+         socket.off("project-data-change");
+      };
+   }, [activeProject, socket, history]);
 
    function changeAccordionState() {
       setAccordionExpanded(prev => !prev);

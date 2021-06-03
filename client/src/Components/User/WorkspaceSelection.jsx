@@ -29,7 +29,7 @@ function WorkspaceSelection({ User, currentOrg }) {
 
    function goToWorkspace(project) {
       history.push(
-         `/user/workspace?organization=${currentOrg}&project=${project}`
+         `/user/workspace?organization=${currentOrg}&project=${project}&tab=${"issues"}`
       );
    }
 

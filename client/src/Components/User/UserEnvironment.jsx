@@ -137,7 +137,6 @@ function UserEnvironment({ User }) {
                </List>
             </Drawer>
          </>
-         {/* <EnvironmentPanel User={User} currentOrg={currentOrg} /> */}
          <WorkspaceSelection User={User} currentOrg={currentOrg} />
       </div>
    );
