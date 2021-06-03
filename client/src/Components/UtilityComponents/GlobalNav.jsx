@@ -130,13 +130,7 @@ function GlobalNav({
                   <img
                      onClick={openDropdown}
                      id="userProfileImage"
-                     src={
-                        ProfileImage
-                           ? ProfileImage.startsWith("https://")
-                              ? ProfileImage
-                              : `data:image/jpeg;base64,${ProfileImage}`
-                           : "/assets/UserIcon.png"
-                     }
+                     src={ProfileImage}
                      alt=""
                   />
                   <div className="user-drop-down">

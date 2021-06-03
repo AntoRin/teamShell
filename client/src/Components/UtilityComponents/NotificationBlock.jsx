@@ -6,7 +6,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
-import useRequest from "../Hooks/useRequest";
 import NotificationConfirmDialog from "./NotificationConfirmDialog";
 import formatDate from "../../utils/formatDate";
 
@@ -38,11 +37,6 @@ function NotificationBlock({ notification, setActionStatus }) {
    const [confirmationRequired, setConfirmationRequired] = useState(false);
    const [isNotificationPending, setIsNotificationPending] = useState(true);
    const [confirmData, setConfirmData] = useState({ title: "", message: "" });
-
-   const initiatorProfileImage = useRequest(
-      `/api/profile/profile-image/${notification.Initiator}`,
-      JSON.stringify({})
-   );
 
    const history = useHistory();
 
@@ -152,13 +146,7 @@ function NotificationBlock({ notification, setActionStatus }) {
             <ListItem alignItems="flex-start">
                <ListItemAvatar>
                   <Avatar
-                     src={
-                        initiatorProfileImage.data
-                           ? initiatorProfileImage.data.startsWith("https://")
-                              ? initiatorProfileImage.data
-                              : `data:image/jpeg;base64,${initiatorProfileImage.data}`
-                           : "/assets/UserIcon.png"
-                     }
+                     src={`/api/profile/profile-image/${notification.Initiator}`}
                      alt=""
                   />
                </ListItemAvatar>

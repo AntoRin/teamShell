@@ -11,13 +11,7 @@ async function validateRegistration(userInfo) {
       let user = { ..._doc };
 
       if (user) {
-         let profileImage = await ProfileImage.findOne({
-            UserContext: userInfo.UniqueUsername,
-         });
-         if (profileImage) {
-            user.ProfileImage = profileImage.ImageData;
-         }
-
+         user.ProfileImage = `/api/profile/profile-image/${user.UniqueUsername}`;
          return user;
       } else return null;
    } catch (error) {

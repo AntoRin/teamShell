@@ -417,13 +417,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
                <div className="profile-picture-section">
                   <img
                      id="profilePictureBig"
-                     src={
-                        Profile.ProfileImage
-                           ? Profile.ProfileImage.startsWith("https://")
-                              ? Profile.ProfileImage
-                              : `data:image/jpeg;base64,${Profile.ProfileImage}`
-                           : "/assets/UserIcon.png"
-                     }
+                     src={Profile.ProfileImage}
                      alt=""
                   />
                   <div className="profile-picture-caption">

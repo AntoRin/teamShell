@@ -19,7 +19,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import useRequest from "../Hooks/useRequest";
 import { readonly_editor_config } from "../../config/editor_config";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
@@ -78,11 +77,6 @@ function IssueCard({
    const [description, setDescription] = useState("");
    const [anchorEl, setAnchorEl] = useState(null);
    const [userBookmarked, setUserBookmarked] = useState(false);
-
-   const creatorProfileImage = useRequest(
-      `/api/profile/profile-image/${issue.Creator.UniqueUsername}`,
-      JSON.stringify({})
-   );
 
    const editorRef = useRef();
 
@@ -276,13 +270,7 @@ function IssueCard({
                   <Avatar className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
-                        src={
-                           creatorProfileImage.data
-                              ? creatorProfileImage.data.startsWith("https://")
-                                 ? creatorProfileImage.data
-                                 : `data:image/jpeg;base64,${creatorProfileImage.data}`
-                              : "/assets/UserIcon.png"
-                        }
+                        src={`/api/profile/profile-image/${issue.Creator.UniqueUsername}`}
                         alt=""
                      />
                   </Avatar>

@@ -69,19 +69,17 @@ function WorkspaceIssueTab({
                <h1>Create a project to get started</h1>
             )}
             <div className="all-issues-division">
-               {!isLoading
-                  ? projectDetails.Issues &&
-                    projectDetails.Issues.length > 0 &&
-                    projectDetails.Issues.map(issue => (
-                       <IssueCard
-                          key={issue._id}
-                          User={User}
-                          issue={issue}
-                          showContent={false}
-                          setActionStatus={setActionStatus}
-                       />
-                    ))
-                  : null}
+               {projectDetails.Issues &&
+                  projectDetails.Issues.length > 0 &&
+                  projectDetails.Issues.map(issue => (
+                     <IssueCard
+                        key={issue._id}
+                        User={User}
+                        issue={issue}
+                        showContent={false}
+                        setActionStatus={setActionStatus}
+                     />
+                  ))}
             </div>
          </div>
          {isLoading && <LinearLoader />}

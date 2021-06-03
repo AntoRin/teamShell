@@ -22,7 +22,8 @@ const useStyles = makeStyles(theme => ({
    "environment-panel-container": {
       width: "100%",
       height: navHeight => `calc(100vh - ${navHeight}px)`,
-      overflow: "hidden",
+      overflowX: "hidden",
+      overflowY: "scroll",
    },
    root: {
       width: "100%",

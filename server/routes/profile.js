@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const multer = require("multer");
+const stream = require("stream");
 const User = require("../models/User");
 const ProfileImage = require("../models/ProfileImage");
 const { handleNotifications } = require("../utils/notificationHandler");
@@ -64,9 +65,20 @@ router.get("/profile-image/:UniqueUsername", async (req, res, next) => {
          UserContext: requestedUser,
       });
 
-      if (!profileImage) throw { name: "NoDataResponse" };
+      let imageUrl = "/assets/UserIcon.png";
 
-      return res.json({ status: "ok", data: profileImage.ImageData });
+      if (profileImage) {
+         let savedImage = profileImage.ImageData;
+
+         if (savedImage.length > 100) {
+            res.set("Content-Type", "image/png");
+            return res.write(savedImage, "base64", err => {
+               if (err) throw err;
+            });
+         } else if (savedImage.startsWith("https://")) imageUrl = savedImage;
+      }
+
+      return res.redirect(303, imageUrl);
    } catch (error) {
       return next(error);
    }
