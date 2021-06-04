@@ -1,7 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
+import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 
 function MeetRoom({ match, User }) {
    const [roomName, setRoomName] = useState(null);
+   const [verified, setVerified] = useState(false);
+   const [streams, setStreams] = useState([]);
+
+   const socket = useContext(SocketInstance);
+
+   const videoRef = useRef();
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -19,6 +26,7 @@ function MeetRoom({ match, User }) {
             if (response.status === "error") throw response.error;
 
             setRoomName(response.data);
+            setVerified(true);
          } catch (error) {
             console.log(error);
          }
@@ -29,9 +37,65 @@ function MeetRoom({ match, User }) {
       return () => abortFetch.abort();
    }, [match.params.roomId]);
 
+   useEffect(() => {
+      socket.emit("join-meet-room", match.params.roomId);
+
+      return () => socket.emit("leave-meet-room", match.params.roomId);
+   }, [socket, match.params]);
+
+   useEffect(() => {
+      if (!verified) return;
+
+      async function initiateCall() {
+         try {
+            let stream = await new Promise((resolve, reject) => {
+               window.navigator.getUserMedia(
+                  {
+                     audio: true,
+                     video: true,
+                  },
+                  stream => resolve(stream),
+                  error => reject(error)
+               );
+            });
+
+            setStreams(prev => [stream, ...prev]);
+            socket.emit("meet-video-stream", {
+               stream,
+               roomId: match.params.roomId,
+            });
+         } catch (error) {
+            console.log(error);
+         }
+      }
+
+      initiateCall();
+   }, [verified, socket, match.params]);
+
+   useEffect(() => {
+      if (!streams.length > 0) return;
+
+      streams.forEach(stream => {
+         let videoElement = document.createElement("video");
+         videoElement.srcObject = stream;
+         videoRef.current.append(videoElement);
+         videoElement.onloadedmetadata = () => videoElement.play();
+      });
+   }, [streams]);
+
+   useEffect(() => {
+      socket.on("incoming-video-stream", stream => {
+         console.log("Incoming video stream");
+         setStreams(prev => [stream, ...prev]);
+      });
+
+      return () => socket.off("incoming-video-stream");
+   });
+
    return (
       <div>
-         <h5 style={{ wordBreak: "break-all" }}>{match.params.roomId}</h5>
+         <h2>{roomName}</h2>
+         <div ref={videoRef}></div>
       </div>
    );
 }

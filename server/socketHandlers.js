@@ -169,6 +169,19 @@ async function initiateListeners(socket, io) {
          console.log(error);
       }
    });
+
+   //Meet
+   socket.on("join-meet-room", roomId => {
+      socket.join(roomId);
+   });
+
+   socket.on("leave-meet-room", roomId => {
+      socket.leave(roomId);
+   });
+
+   socket.on("meet-video-stream", ({ stream, roomId }) => {
+      socket.to(roomId).emit("incoming-video-stream", stream);
+   });
 }
 
 module.exports = { parseCookies, verifySocketIntegrity, initiateListeners };
