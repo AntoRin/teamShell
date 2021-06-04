@@ -14,6 +14,7 @@ import ProjectHome from "./Project/ProjectHome";
 import UserEnvironment from "./User/UserEnvironment";
 import UserWorkspace from "./User/UserWorkspace";
 import IssueHome from "./Issue/IssueHome";
+import MeetRoom from "./User/MeetRoom";
 import StatusBar from "./UtilityComponents/StatusBar";
 
 export const GlobalActionStatus = createContext();
@@ -71,7 +72,13 @@ function App() {
                   />
                   <ProtectedRoute
                      path="/issue/:IssueID"
+                     exact
                      component={IssueHome}
+                  />
+                  <ProtectedRoute
+                     path="/meet-room/:roomId"
+                     exact
+                     component={MeetRoom}
                   />
                   <ProtectedRoute path="/" component={UserHome} />
                </Switch>

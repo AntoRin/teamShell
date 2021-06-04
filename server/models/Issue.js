@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const { model } = mongoose;
 
 const issueSchema = new Schema(
    {
@@ -28,7 +27,6 @@ const issueSchema = new Schema(
          type: {
             UniqueUsername: { type: String, required: true },
             User_id: { type: String, required: true },
-            ProfileImage: { type: String, required: true },
          },
          required: true,
       },
@@ -38,7 +36,6 @@ const issueSchema = new Schema(
                SolutionCreator: {
                   type: {
                      UniqueUsername: { type: String, required: true },
-                     ProfileImage: { type: String, required: true },
                   },
                   required: true,
                },

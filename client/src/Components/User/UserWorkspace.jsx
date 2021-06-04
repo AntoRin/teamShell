@@ -13,6 +13,7 @@ import WorkspaceIssueTab from "./WorkspaceIssueTab";
 import WorkspaceDriveTab from "./WorkspaceDriveTab";
 import WorkspaceFileTab from "./WorkspaceFileTab";
 import WorkspaceChatTab from "./WorkspaceChatTab";
+import WorkspaceMeetTab from "./WorkspaceMeetTab";
 import { GlobalActionStatus } from "../App";
 import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/environment-panel.css";
@@ -133,6 +134,8 @@ function UserWorkspace({ location, User, navHeight }) {
                   projectMembers={projectMembers}
                />
             );
+         case "meet":
+            return <WorkspaceMeetTab activeProject={activeProject} />;
          default:
             return (
                <WorkspaceIssueTab
@@ -184,6 +187,13 @@ function UserWorkspace({ location, User, navHeight }) {
                   onClick={() => changeWorkspaceTab("project-chat")}
                >
                   Project Chat
+               </Button>
+               <Button
+                  color="primary"
+                  endIcon={<GroupAddIcon />}
+                  onClick={() => changeWorkspaceTab("meet")}
+               >
+                  Meet
                </Button>
             </ButtonGroup>
          </Container>

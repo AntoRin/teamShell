@@ -57,7 +57,6 @@ function IssueEditor({ activeProject, User }) {
             Creator: {
                UniqueUsername: User.UniqueUsername,
                User_id: User._id,
-               ProfileImage: User.ProfileImage,
             },
             initiator: User.UniqueUsername,
             recipient: activeProject,

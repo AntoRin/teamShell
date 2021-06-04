@@ -22,7 +22,6 @@ function SolutionEditor({ issueDetails, User }) {
             SolutionBody: solutionEncoded,
             SolutionCreator: {
                UniqueUsername: User.UniqueUsername,
-               ProfileImage: User.ProfileImage,
             },
             initiator: User.UniqueUsername,
             recipient: issueDetails.ProjectContext,

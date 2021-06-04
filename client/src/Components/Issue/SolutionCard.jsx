@@ -117,7 +117,7 @@ function SolutionCard({ solution, User, issueDetails }) {
                   <Avatar className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
-                        src={solution.SolutionCreator.ProfileImage}
+                        src={`/api/profile/profile-image/${solution.SolutionCreator.UniqueUsername}`}
                         alt=""
                      />
                   </Avatar>
