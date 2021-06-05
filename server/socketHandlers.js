@@ -182,6 +182,11 @@ async function initiateListeners(socket, io) {
    socket.on("meet-video-stream", ({ stream, roomId }) => {
       socket.to(roomId).emit("incoming-video-stream", stream);
    });
+
+   socket.on("voice-message", voiceBlob => {
+      console.log(voiceBlob);
+      io.emit("incoming-voice-message", voiceBlob);
+   });
 }
 
 module.exports = { parseCookies, verifySocketIntegrity, initiateListeners };

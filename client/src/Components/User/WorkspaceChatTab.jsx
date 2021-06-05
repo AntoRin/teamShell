@@ -67,10 +67,12 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
 
    const [messages, setMessages] = useState([]);
    const [newMessageContent, setNewMessageContent] = useState("");
+   const [recordActive, setRecordActive] = useState(false);
 
    const socket = useContext(SocketInstance);
 
    const chatRef = useRef();
+   const voiceRecorderRef = useRef();
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -113,6 +115,28 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
          chatRef.current.scrollTop += chatRef.current.scrollHeight;
    }, [messages]);
 
+   useEffect(() => {
+      socket.on("incoming-voice-message", bin => {
+         let voiceBlob = new Blob([bin]);
+         console.log(voiceBlob);
+
+         let voiceUrl = URL.createObjectURL(voiceBlob);
+
+         let audioElement = document.createElement("audio");
+         audioElement.src = voiceUrl;
+
+         chatRef.current.append(audioElement);
+
+         audioElement.play();
+      });
+
+      return () => socket.off("incoming-voice-message");
+   }, [socket]);
+
+   function handleInputChange(event) {
+      setNewMessageContent(event.target.value);
+   }
+
    function handleNewMessage(event) {
       event.preventDefault();
 
@@ -126,8 +150,49 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
       setNewMessageContent("");
    }
 
-   function handleInputChange(event) {
-      setNewMessageContent(event.target.value);
+   async function recordVoiceMessage() {
+      setRecordActive(true);
+      let voiceChunks = [];
+
+      try {
+         let voiceStream = await new Promise((resolve, reject) => {
+            window.navigator.getUserMedia(
+               { audio: true, video: false },
+               stream => resolve(stream),
+               error => reject(error)
+            );
+         });
+         voiceRecorderRef.current = new window.MediaRecorder(voiceStream);
+
+         voiceRecorderRef.current.ondataavailable = voiceData => {
+            voiceChunks.push(voiceData.data);
+         };
+
+         voiceRecorderRef.current.start();
+
+         let requestData = setInterval(
+            () =>
+               voiceStream.active &&
+               voiceRecorderRef.current.state === "recording" &&
+               voiceRecorderRef.current.requestData()
+         );
+
+         voiceRecorderRef.current.onstop = () => {
+            setRecordActive(false);
+            clearInterval(requestData);
+            voiceStream.getTracks()[0].stop();
+
+            let voiceBlob = new Blob(voiceChunks);
+
+            socket.emit("voice-message", voiceBlob);
+         };
+      } catch (error) {
+         console.log(error);
+      }
+   }
+
+   function stopRecording() {
+      voiceRecorderRef.current.stop();
    }
 
    return (
@@ -171,6 +236,13 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
                   ></textarea>
                   <Button color="primary" variant="outlined" type="submit">
                      Send
+                  </Button>
+                  <Button
+                     color="primary"
+                     variant="outlined"
+                     onClick={recordActive ? stopRecording : recordVoiceMessage}
+                  >
+                     {recordActive ? "Stop" : "Start"}
                   </Button>
                </form>
             </div>
