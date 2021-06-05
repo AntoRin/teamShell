@@ -60,10 +60,10 @@ function MeetRoom({ match, User }) {
             });
 
             setStreams(prev => [stream, ...prev]);
-            socket.emit("meet-video-stream", {
-               stream,
-               roomId: match.params.roomId,
-            });
+            // socket.emit("meet-video-stream", {
+            //    stream,
+            //    roomId: match.params.roomId,
+            // });
          } catch (error) {
             console.log(error);
          }
@@ -80,6 +80,26 @@ function MeetRoom({ match, User }) {
          videoElement.srcObject = stream;
          videoRef.current.append(videoElement);
          videoElement.onloadedmetadata = () => videoElement.play();
+
+         let recorder = new MediaRecorder(stream);
+         let readable = new ReadableStream({
+            start: controller => {
+               recorder.ondataavailable = data => {
+                  controller.enqueue(data.data);
+               };
+            },
+         });
+         recorder.start();
+
+         setInterval(() => recorder.requestData());
+
+         let streamReader = readable.getReader();
+
+         setInterval(async () => {
+            let { value, done } = await streamReader.read();
+            if (done) return;
+            console.log(value);
+         });
       });
    }, [streams]);
 
