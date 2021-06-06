@@ -13,6 +13,7 @@ const projectChatSchema = new Schema(
          type: [
             {
                from: { type: String, required: true },
+               messageType: { type: String, required: true, default: "text" },
                content: { type: String, required: true },
                time: { type: Date, default: Date.now },
             },

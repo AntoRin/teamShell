@@ -115,35 +115,48 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
          chatRef.current.scrollTop += chatRef.current.scrollHeight;
    }, [messages]);
 
-   useEffect(() => {
-      socket.on("incoming-voice-message", bin => {
-         let voiceBlob = new Blob([bin]);
-         console.log(voiceBlob);
+   function playAudioMessage(bin) {
+      try {
+         let raw = window.atob(bin);
+
+         let bytes = new Uint8Array(raw.length);
+
+         for (let i = 0; i < raw.length; i++) {
+            bytes[i] = raw.charCodeAt(i);
+         }
+
+         console.log(bytes.buffer);
+
+         let voiceBlob = new Blob([bytes.buffer], { type: "audio/ogg" });
 
          let voiceUrl = URL.createObjectURL(voiceBlob);
 
          let audioElement = document.createElement("audio");
          audioElement.src = voiceUrl;
-
          chatRef.current.append(audioElement);
-
          audioElement.play();
-      });
-
-      return () => socket.off("incoming-voice-message");
-   }, [socket]);
+      } catch (error) {
+         console.log(error);
+      }
+   }
 
    function handleInputChange(event) {
       setNewMessageContent(event.target.value);
    }
 
-   function handleNewMessage(event) {
-      event.preventDefault();
+   function handleNewMessage(event, messageType = "text", audioBlob = null) {
+      event && event.preventDefault();
+
+      let content;
+
+      if (messageType === "audio") content = audioBlob;
+      else content = newMessageContent;
 
       let messageData = {
-         content: newMessageContent,
+         content,
          from: User.UniqueUsername,
          ProjectName: activeProject,
+         messageType,
       };
       socket.emit(`new-project-message`, messageData);
 
@@ -184,7 +197,7 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
 
             let voiceBlob = new Blob(voiceChunks);
 
-            socket.emit("voice-message", voiceBlob);
+            handleNewMessage(null, "audio", voiceBlob);
          };
       } catch (error) {
          console.log(error);
@@ -219,7 +232,19 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
                            >
                               <div className="message-author">{data.from}</div>
                               <div className="message-content">
-                                 {data.content}
+                                 {data.messageType === "audio" ? (
+                                    <Button
+                                       variant="contained"
+                                       color="primary"
+                                       onClick={() =>
+                                          playAudioMessage(data.content)
+                                       }
+                                    >
+                                       Play
+                                    </Button>
+                                 ) : (
+                                    data.content
+                                 )}
                               </div>
                            </div>
                         </div>

@@ -147,13 +147,18 @@ async function initiateListeners(socket, io) {
 
    socket.on("new-project-message", async messageData => {
       try {
-         let { from, content, ProjectName } = messageData;
+         let { from, content, ProjectName, messageType } = messageData;
 
          if (from !== socket.userName) return;
+
+         if (messageType === "audio") {
+            content = content.toString("base64");
+         }
 
          let newMessageData = {
             from,
             content,
+            messageType,
          };
 
          let newMessage = await ProjectChat.findOneAndUpdate(
@@ -181,11 +186,6 @@ async function initiateListeners(socket, io) {
 
    socket.on("meet-video-stream", ({ stream, roomId }) => {
       socket.to(roomId).emit("incoming-video-stream", stream);
-   });
-
-   socket.on("voice-message", voiceBlob => {
-      console.log(voiceBlob);
-      io.emit("incoming-voice-message", voiceBlob);
    });
 }
 
