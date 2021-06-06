@@ -115,31 +115,6 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
          chatRef.current.scrollTop += chatRef.current.scrollHeight;
    }, [messages]);
 
-   function playAudioMessage(bin) {
-      try {
-         let raw = window.atob(bin);
-
-         let bytes = new Uint8Array(raw.length);
-
-         for (let i = 0; i < raw.length; i++) {
-            bytes[i] = raw.charCodeAt(i);
-         }
-
-         console.log(bytes.buffer);
-
-         let voiceBlob = new Blob([bytes.buffer], { type: "audio/ogg" });
-
-         let voiceUrl = URL.createObjectURL(voiceBlob);
-
-         let audioElement = document.createElement("audio");
-         audioElement.src = voiceUrl;
-         chatRef.current.append(audioElement);
-         audioElement.play();
-      } catch (error) {
-         console.log(error);
-      }
-   }
-
    function handleInputChange(event) {
       setNewMessageContent(event.target.value);
    }
@@ -208,6 +183,24 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
       voiceRecorderRef.current.stop();
    }
 
+   function getAudioDataUrl(bin) {
+      try {
+         let raw = window.atob(bin);
+
+         let bytes = new Uint8Array(raw.length);
+
+         for (let i = 0; i < raw.length; i++) {
+            bytes[i] = raw.charCodeAt(i);
+         }
+         let voiceBlob = new Blob([bytes.buffer], { type: "audio/ogg" });
+         let voiceUrl = URL.createObjectURL(voiceBlob);
+
+         return voiceUrl;
+      } catch (error) {
+         console.log(error);
+      }
+   }
+
    return (
       <div className={classes.chatRoomContainer}>
          <div className={classes.chatContainer}>
@@ -233,15 +226,12 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
                               <div className="message-author">{data.from}</div>
                               <div className="message-content">
                                  {data.messageType === "audio" ? (
-                                    <Button
-                                       variant="contained"
-                                       color="primary"
-                                       onClick={() =>
-                                          playAudioMessage(data.content)
-                                       }
-                                    >
-                                       Play
-                                    </Button>
+                                    <audio controls>
+                                       <source
+                                          src={getAudioDataUrl(data.content)}
+                                          type="audio/ogg"
+                                       />
+                                    </audio>
                                  ) : (
                                     data.content
                                  )}
