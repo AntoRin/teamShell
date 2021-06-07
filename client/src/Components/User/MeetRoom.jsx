@@ -1,10 +1,12 @@
+import { Button } from "@material-ui/core";
 import { useState, useEffect, useRef, useContext } from "react";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
+
+const p2pConfig = { iceServers: [{ urls: "stun:stun1.l.google.com:19302" }] };
 
 function MeetRoom({ match, User }) {
    const [roomName, setRoomName] = useState(null);
    const [verified, setVerified] = useState(false);
-   const [streams, setStreams] = useState([]);
 
    const socket = useContext(SocketInstance);
 
@@ -44,77 +46,118 @@ function MeetRoom({ match, User }) {
    }, [socket, match.params]);
 
    useEffect(() => {
-      if (!verified) return;
+      socket.on("call-offer", async offer => {
+         console.log(offer);
+         let peerConnection = new RTCPeerConnection(p2pConfig);
 
-      async function initiateCall() {
-         try {
-            let stream = await new Promise((resolve, reject) => {
-               window.navigator.getUserMedia(
-                  {
-                     audio: true,
-                     video: true,
-                  },
-                  stream => resolve(stream),
-                  error => reject(error)
-               );
-            });
+         let remoteStream = new MediaStream();
 
-            setStreams(prev => [stream, ...prev]);
-            // socket.emit("meet-video-stream", {
-            //    stream,
-            //    roomId: match.params.roomId,
-            // });
-         } catch (error) {
-            console.log(error);
-         }
-      }
-
-      initiateCall();
-   }, [verified, socket, match.params]);
-
-   useEffect(() => {
-      if (!streams.length > 0) return;
-
-      streams.forEach(stream => {
          let videoElement = document.createElement("video");
-         videoElement.srcObject = stream;
+         videoElement.srcObject = remoteStream;
          videoRef.current.append(videoElement);
          videoElement.onloadedmetadata = () => videoElement.play();
 
-         let recorder = new MediaRecorder(stream);
-         let readable = new ReadableStream({
-            start: controller => {
-               recorder.ondataavailable = data => {
-                  controller.enqueue(data.data);
-               };
-            },
-         });
-         recorder.start();
+         peerConnection.ontrack = ({ track }) => {
+            console.log(track);
+            remoteStream.addTrack(track);
+         };
 
-         setInterval(() => recorder.requestData());
+         await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(offer)
+         );
 
-         let streamReader = readable.getReader();
+         let answer = await peerConnection.createAnswer();
 
-         setInterval(async () => {
-            let { value, done } = await streamReader.read();
-            if (done) return;
-            console.log(value);
-         });
+         await peerConnection.setLocalDescription(answer);
+         socket.emit("call-answer", { answer, roomId: match.params.roomId });
+
+         peerConnection.onicecandidate = ice => {
+            if (ice.candidate)
+               socket.emit("new-ice-candidate", {
+                  iceCandidate: ice.candidate,
+                  roomId: match.params.roomId,
+               });
+         };
+         socket.on(
+            "new-ice-candidate",
+            async iceCandidate =>
+               await peerConnection.addIceCandidate(iceCandidate)
+         );
+         peerConnection.onconnectionstatechange = event => {
+            if (peerConnection.connectionState === "connected")
+               console.log("Real-time connection to peer established!!!!!");
+         };
       });
-   }, [streams]);
 
-   useEffect(() => {
-      socket.on("incoming-video-stream", stream => {
-         console.log("Incoming video stream");
-         setStreams(prev => [stream, ...prev]);
-      });
+      return () => socket.off("call-offer");
+   }, [socket, match.params]);
 
-      return () => socket.off("incoming-video-stream");
-   });
+   async function initiateCall() {
+      if (!verified) return;
+
+      try {
+         let stream = await new Promise((resolve, reject) => {
+            window.navigator.getUserMedia(
+               {
+                  audio: true,
+                  video: true,
+               },
+               stream => resolve(stream),
+               error => reject(error)
+            );
+         });
+
+         let videoElement = document.createElement("video");
+         videoElement.srcObject = stream;
+         videoElement.autoplay = true;
+
+         videoRef.current.append(videoElement);
+
+         let peerConnection = new RTCPeerConnection(p2pConfig);
+
+         stream.getTracks().forEach(track => peerConnection.addTrack(track));
+
+         socket.on("call-answer", async callAnswer => {
+            console.log(callAnswer);
+            await peerConnection.setRemoteDescription(
+               new RTCSessionDescription(callAnswer)
+            );
+         });
+
+         let offer = await peerConnection.createOffer();
+         await peerConnection.setLocalDescription(offer);
+
+         socket.emit("call-offer", { offer, roomId: match.params.roomId });
+
+         peerConnection.onicecandidate = ice => {
+            if (ice.candidate)
+               socket.emit("new-ice-candidate", {
+                  iceCandidate: ice.candidate,
+                  roomId: match.params.roomId,
+               });
+         };
+
+         socket.on(
+            "new-ice-candidate",
+            async iceCandidate =>
+               await peerConnection.addIceCandidate(iceCandidate)
+         );
+
+         peerConnection.onconnectionstatechange = event => {
+            if (peerConnection.connectionState === "connected")
+               console.log("Real-time connection to peer established!!!!!");
+         };
+      } catch (error) {
+         console.log(error);
+      }
+   }
 
    return (
       <div>
          <h2>{roomName}</h2>
+         <Button variant="contained" color="primary" onClick={initiateCall}>
+            Initiate Call
+         </Button>
          <div ref={videoRef}></div>
       </div>
    );

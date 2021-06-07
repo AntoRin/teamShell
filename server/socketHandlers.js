@@ -176,17 +176,21 @@ async function initiateListeners(socket, io) {
    });
 
    //Meet
-   socket.on("join-meet-room", roomId => {
-      socket.join(roomId);
-   });
+   socket.on("join-meet-room", roomId => socket.join(roomId));
 
-   socket.on("leave-meet-room", roomId => {
-      socket.leave(roomId);
-   });
+   socket.on("leave-meet-room", roomId => socket.leave(roomId));
 
-   socket.on("meet-video-stream", ({ stream, roomId }) => {
-      socket.to(roomId).emit("incoming-video-stream", stream);
-   });
+   socket.on("call-offer", ({ offer, roomId }) =>
+      socket.to(roomId).emit("call-offer", offer)
+   );
+
+   socket.on("call-answer", ({ answer, roomId }) =>
+      socket.to(roomId).emit("call-answer", answer)
+   );
+
+   socket.on("new-ice-candidate", ({ iceCandidate, roomId }) =>
+      socket.to(roomId).emit("new-ice-candidate", iceCandidate)
+   );
 }
 
 module.exports = { parseCookies, verifySocketIntegrity, initiateListeners };
