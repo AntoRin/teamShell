@@ -43,7 +43,7 @@ router.get("/verify-room", async (req, res, next) => {
       if (!project.Members.includes(UniqueUsername))
          throw { name: "UnauthorizedRequest" };
 
-      return res.json({ status: "ok", data: roomName });
+      return res.json({ status: "ok", data: { roomName, creator } });
    } catch (error) {
       return next(error);
    }

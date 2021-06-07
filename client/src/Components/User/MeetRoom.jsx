@@ -1,16 +1,33 @@
-import { Button } from "@material-ui/core";
 import { useState, useEffect, useRef, useContext } from "react";
+import { makeStyles } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import ContentModal from "../UtilityComponents/ContentModal";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
+
+const useStyles = makeStyles({
+   localVideo: {
+      position: "absolute",
+      bottom: "5px",
+      right: "5px",
+      height: "300px",
+      width: "300px",
+   },
+});
 
 const p2pConfig = { iceServers: [{ urls: "stun:stun1.l.google.com:19302" }] };
 
 function MeetRoom({ match, User }) {
+   const classes = useStyles();
+
    const [roomName, setRoomName] = useState(null);
    const [verified, setVerified] = useState(false);
+   const [isRoomCreator, setIsRoomCreator] = useState(false);
+   const [confirmRequired, setConfirmRequired] = useState(false);
 
    const socket = useContext(SocketInstance);
 
    const videoRef = useRef();
+   const localVideoElementRef = useRef();
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -27,7 +44,16 @@ function MeetRoom({ match, User }) {
 
             if (response.status === "error") throw response.error;
 
-            setRoomName(response.data);
+            setRoomName(response.data.roomName);
+
+            if (User.UniqueUsername === response.data.creator) {
+               setIsRoomCreator(true);
+               setConfirmRequired(false);
+            } else {
+               setIsRoomCreator(false);
+               setConfirmRequired(true);
+            }
+
             setVerified(true);
          } catch (error) {
             console.log(error);
@@ -37,7 +63,7 @@ function MeetRoom({ match, User }) {
       verifyRoom();
 
       return () => abortFetch.abort();
-   }, [match.params.roomId]);
+   }, [match.params.roomId, User]);
 
    useEffect(() => {
       socket.emit("join-meet-room", match.params.roomId);
@@ -46,57 +72,95 @@ function MeetRoom({ match, User }) {
    }, [socket, match.params]);
 
    useEffect(() => {
-      socket.on("call-offer", async offer => {
-         console.log(offer);
-         let peerConnection = new RTCPeerConnection(p2pConfig);
+      if (!verified || !isRoomCreator) return;
 
-         let remoteStream = new MediaStream();
+      async function setUpRoom() {
+         try {
+            let localStream = await new Promise((resolve, reject) => {
+               window.navigator.getUserMedia(
+                  {
+                     audio: true,
+                     video: true,
+                  },
+                  stream => resolve(stream),
+                  error => reject(error)
+               );
+            });
 
-         let videoElement = document.createElement("video");
-         videoElement.srcObject = remoteStream;
-         videoRef.current.append(videoElement);
-         videoElement.onloadedmetadata = () => videoElement.play();
+            localVideoElementRef.current.srcObject = localStream;
 
-         peerConnection.ontrack = ({ track }) => {
-            console.log(track);
-            remoteStream.addTrack(track);
-         };
+            localVideoElementRef.current.onloadedmetadata = () =>
+               localVideoElementRef.current.play();
 
-         await peerConnection.setRemoteDescription(
-            new RTCSessionDescription(offer)
-         );
+            let peerConnection = new RTCPeerConnection(p2pConfig);
 
-         let answer = await peerConnection.createAnswer();
+            socket.on("call-offer", async offer => {
+               let prevStreamId = null;
+               peerConnection.ontrack = ({ streams: [remoteStream] }) => {
+                  console.log(prevStreamId);
+                  if (prevStreamId === remoteStream.id) return;
 
-         await peerConnection.setLocalDescription(answer);
-         socket.emit("call-answer", { answer, roomId: match.params.roomId });
+                  let remoteVideoElement = document.createElement("video");
+                  remoteVideoElement.srcObject = remoteStream;
+                  videoRef.current.append(remoteVideoElement);
+                  remoteVideoElement.onloadedmetadata = () =>
+                     remoteVideoElement.play();
 
-         peerConnection.onicecandidate = ice => {
-            if (ice.candidate)
-               socket.emit("new-ice-candidate", {
-                  iceCandidate: ice.candidate,
+                  prevStreamId = remoteStream.id;
+               };
+
+               localStream
+                  .getTracks()
+                  .forEach(track =>
+                     peerConnection.addTrack(track, localStream)
+                  );
+
+               await peerConnection.setRemoteDescription(
+                  new RTCSessionDescription(offer)
+               );
+
+               let answer = await peerConnection.createAnswer();
+
+               await peerConnection.setLocalDescription(answer);
+               socket.emit("call-answer", {
+                  answer,
                   roomId: match.params.roomId,
                });
-         };
-         socket.on(
-            "new-ice-candidate",
-            async iceCandidate =>
-               await peerConnection.addIceCandidate(iceCandidate)
-         );
-         peerConnection.onconnectionstatechange = event => {
-            if (peerConnection.connectionState === "connected")
-               console.log("Real-time connection to peer established!!!!!");
-         };
-      });
+
+               peerConnection.onicecandidate = ice => {
+                  if (ice.candidate)
+                     socket.emit("new-ice-candidate", {
+                        iceCandidate: ice.candidate,
+                        roomId: match.params.roomId,
+                     });
+               };
+               socket.on(
+                  "new-ice-candidate",
+                  async iceCandidate =>
+                     await peerConnection.addIceCandidate(iceCandidate)
+               );
+               peerConnection.onconnectionstatechange = event => {
+                  if (peerConnection.connectionState === "connected")
+                     console.log(
+                        "Real-time connection to peer established!!!!!"
+                     );
+               };
+            });
+         } catch (error) {
+            console.log(error);
+         }
+      }
+
+      setUpRoom();
 
       return () => socket.off("call-offer");
-   }, [socket, match.params]);
+   }, [socket, match.params, isRoomCreator, verified]);
 
-   async function initiateCall() {
+   async function joinCall() {
       if (!verified) return;
 
       try {
-         let stream = await new Promise((resolve, reject) => {
+         let localStream = await new Promise((resolve, reject) => {
             window.navigator.getUserMedia(
                {
                   audio: true,
@@ -107,18 +171,32 @@ function MeetRoom({ match, User }) {
             );
          });
 
-         let videoElement = document.createElement("video");
-         videoElement.srcObject = stream;
-         videoElement.autoplay = true;
+         localVideoElementRef.current.srcObject = localStream;
 
-         videoRef.current.append(videoElement);
+         localVideoElementRef.current.onloadedmetadata = () =>
+            localVideoElementRef.current.play();
 
          let peerConnection = new RTCPeerConnection(p2pConfig);
 
-         stream.getTracks().forEach(track => peerConnection.addTrack(track));
+         localStream
+            .getTracks()
+            .forEach(track => peerConnection.addTrack(track, localStream));
+
+         let prevStreamId = null;
+         peerConnection.ontrack = ({ streams: [remoteStream] }) => {
+            console.log(prevStreamId);
+            if (prevStreamId === remoteStream.id) return;
+
+            let remoteVideoElement = document.createElement("video");
+            remoteVideoElement.srcObject = remoteStream;
+            videoRef.current.append(remoteVideoElement);
+            remoteVideoElement.onloadedmetadata = () =>
+               remoteVideoElement.play();
+
+            prevStreamId = remoteStream.id;
+         };
 
          socket.on("call-answer", async callAnswer => {
-            console.log(callAnswer);
             await peerConnection.setRemoteDescription(
                new RTCSessionDescription(callAnswer)
             );
@@ -152,13 +230,27 @@ function MeetRoom({ match, User }) {
       }
    }
 
+   function closeConfirmModal() {
+      setConfirmRequired(false);
+   }
+
    return (
       <div>
          <h2>{roomName}</h2>
-         <Button variant="contained" color="primary" onClick={initiateCall}>
-            Initiate Call
-         </Button>
+         <ContentModal
+            isModalOpen={confirmRequired}
+            handleModalClose={closeConfirmModal}
+         >
+            <Button variant="contained" color="primary" onClick={joinCall}>
+               Join Call
+            </Button>
+         </ContentModal>
          <div ref={videoRef}></div>
+         <video
+            className={classes.localVideo}
+            muted={true}
+            ref={localVideoElementRef}
+         ></video>
       </div>
    );
 }
