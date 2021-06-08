@@ -180,16 +180,34 @@ async function initiateListeners(socket, io) {
 
    socket.on("leave-meet-room", roomId => socket.leave(roomId));
 
+   socket.on("new-peer-joined", ({ peerName, roomId }) =>
+      socket.to(roomId).emit("new-peer", peerName)
+   );
+
    socket.on("call-offer", ({ offer, roomId }) =>
       socket.to(roomId).emit("call-offer", offer)
+   );
+
+   socket.on("call-offer-specific-peer", ({ offer, roomId, peerName }) =>
+      socket.to(roomId).emit(`call-offer-${peerName}`, offer)
    );
 
    socket.on("call-answer", ({ answer, roomId }) =>
       socket.to(roomId).emit("call-answer", answer)
    );
 
+   socket.on("call-answer-specific-peer", ({ answer, roomId, userName }) =>
+      socket.to(roomId).emit(`call-answer-${userName}`, answer)
+   );
+
    socket.on("new-ice-candidate", ({ iceCandidate, roomId }) =>
       socket.to(roomId).emit("new-ice-candidate", iceCandidate)
+   );
+
+   socket.on(
+      "new-ice-candidate-for-specific-peer",
+      ({ iceCandidate, roomId, peerName }) =>
+         socket.to(roomId).emit(`new-ice-candidate-${peerName}`, iceCandidate)
    );
 }
 
