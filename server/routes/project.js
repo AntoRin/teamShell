@@ -298,7 +298,7 @@ router.post(
       let { initiator, recipient, metaData } = req.body;
 
       try {
-         if (UniqueUsername !== initiator.UniqueUsername)
+         if (UniqueUsername !== initiator)
             throw { name: "UnauthorizedRequest" };
 
          let project = await Project.findOne({
