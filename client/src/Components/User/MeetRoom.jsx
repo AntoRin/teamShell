@@ -21,7 +21,6 @@ function MeetRoom({ match, User }) {
 
    const [roomName, setRoomName] = useState(null);
    const [verified, setVerified] = useState(false);
-   const [isRoomCreator, setIsRoomCreator] = useState(false);
    const [confirmRequired, setConfirmRequired] = useState(true);
 
    const socket = useContext(SocketInstance);
@@ -45,13 +44,6 @@ function MeetRoom({ match, User }) {
             if (response.status === "error") throw response.error;
 
             setRoomName(response.data.roomName);
-
-            if (User.UniqueUsername === response.data.creator) {
-               setIsRoomCreator(true);
-            } else {
-               setIsRoomCreator(false);
-            }
-
             setVerified(true);
          } catch (error) {
             console.log(error);
@@ -70,8 +62,8 @@ function MeetRoom({ match, User }) {
    }, [socket, match.params, User]);
 
    useEffect(() => {
-      return () => socket.off("call-offer");
-   }, [socket]);
+      return () => socket.off(`call-offer-${User.UniqueUsername}`);
+   }, [socket, User.UniqueUsername]);
 
    function initiateCall() {
       if (!verified) return;
