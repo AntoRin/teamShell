@@ -1,15 +1,13 @@
 import { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import { makeStyles } from "@material-ui/core";
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import Typography from "@material-ui/core/Typography";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { makeStyles, Tooltip } from "@material-ui/core";
+import Fab from "@material-ui/core/Fab";
+import CreateIcon from "@material-ui/icons/Create";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import IssueEditor from "./IssueEditor";
 import IssueCard from "./IssueCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
+import ContentModal from "../UtilityComponents/ContentModal";
 
 const useStyles = makeStyles(theme => ({
    root: {
@@ -22,6 +20,11 @@ const useStyles = makeStyles(theme => ({
       color: "red",
       fontFamily: `"Poppins", "sans-serif"`,
    },
+   newIssueToggle: {
+      position: "fixed",
+      bottom: "5%",
+      right: "5%",
+   },
 }));
 
 function WorkspaceIssueTab({ tab, User, activeProject, setActionStatus }) {
@@ -29,7 +32,7 @@ function WorkspaceIssueTab({ tab, User, activeProject, setActionStatus }) {
 
    const [projectDetails, setProjectDetails] = useState({});
    const [isLoading, setIsLoading] = useState(false);
-   const [accordionExpanded, setAccordionExpanded] = useState(false);
+   const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
 
    const socket = useContext(SocketInstance);
 
@@ -76,41 +79,40 @@ function WorkspaceIssueTab({ tab, User, activeProject, setActionStatus }) {
       };
    }, [activeProject, socket, history, tab]);
 
-   function changeAccordionState() {
-      setAccordionExpanded(prev => !prev);
+   function openEditorModal() {
+      setIsEditorModalOpen(true);
+   }
+
+   function closeEditorModal() {
+      setIsEditorModalOpen(false);
    }
 
    return tab === "issues" ? (
       <div className="environment-panel-main">
          <div className="environment-workspace">
             {activeProject ? (
-               <div className="new-issue-division">
-                  <Accordion
-                     TransitionProps={{ unmountOnExit: true }}
-                     className={classes.root}
-                     expanded={accordionExpanded}
-                     onChange={changeAccordionState}
-                  >
-                     <AccordionSummary
-                        expandIcon={
-                           <ExpandMoreIcon className={classes.arrowIcon} />
-                        }
-                     >
-                        <Typography className={classes.heading}>
-                           Create a new issue
-                        </Typography>
-                     </AccordionSummary>
-                     <AccordionDetails>
-                        <IssueEditor
-                           activeProject={activeProject}
-                           User={User}
-                        />
-                     </AccordionDetails>
-                  </Accordion>
-               </div>
+               <Tooltip
+                  className={classes.newIssueToggle}
+                  title="Create a new issue"
+                  placement="left"
+               >
+                  <Fab color="primary" onClick={openEditorModal}>
+                     <CreateIcon fontSize="large" />
+                  </Fab>
+               </Tooltip>
             ) : (
                <h1>Create a project to get started</h1>
             )}
+            <ContentModal
+               isModalOpen={isEditorModalOpen}
+               handleModalClose={closeEditorModal}
+            >
+               <IssueEditor
+                  activeProject={activeProject}
+                  User={User}
+                  done={closeEditorModal}
+               />
+            </ContentModal>
             <div className="all-issues-division">
                {projectDetails.Issues &&
                   projectDetails.Issues.length > 0 &&

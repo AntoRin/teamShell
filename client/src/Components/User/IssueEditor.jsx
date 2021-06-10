@@ -22,7 +22,7 @@ const useStyles = makeStyles({
    },
 });
 
-function IssueEditor({ activeProject, User }) {
+function IssueEditor({ activeProject, User, done }) {
    const classes = useStyles();
    const [issueTitle, setIssueTitle] = useState("");
 
@@ -78,10 +78,11 @@ function IssueEditor({ activeProject, User }) {
          let newIssueSubmit = await fetch("/api/issue/create", postOptions);
          let newIssueResponse = await newIssueSubmit.json();
 
-         if (newIssueResponse.status === "ok") {
-            setIssueTitle("");
-            editorRef.current.editor.core.setContents("");
-         }
+         if (newIssueResponse.status === "error") throw newIssueResponse.error;
+
+         setIssueTitle("");
+         editorRef.current.editor.core.setContents("");
+         done();
       } catch (error) {
          console.log(error);
       }

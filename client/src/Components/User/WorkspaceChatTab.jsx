@@ -1,22 +1,21 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { makeStyles } from "@material-ui/core";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Button from "@material-ui/core/Button";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import "../../styles/chatbox.css";
 
 const useStyles = makeStyles({
    chatRoomContainer: {
-      display: "grid",
-      gridTemplateColumns: "3fr 1fr",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
       height: "100%",
       maxHeight: "80vh",
       overflowY: "hidden",
    },
    chatContainer: {
-      width: "100%",
+      width: "80%",
       height: "70vh",
       backgroundColor: "rgba(50, 50, 100, 0.1)",
       overflowY: "hidden",
@@ -26,13 +25,13 @@ const useStyles = makeStyles({
       margin: "25px 10px",
    },
    messages: {
-      height: "70%",
+      height: "80%",
       width: "100%",
       overflowY: "scroll",
    },
    chatInput: {
       width: "100%",
-      height: "30%",
+      height: "20%",
       borderTop: "1px solid lightblue",
       margin: "10px 0",
       paddingTop: "15px",
@@ -263,18 +262,6 @@ function WorkspaceChatTab({ tab, User, activeProject, projectMembers }) {
                   </Button>
                </form>
             </div>
-         </div>
-         <div className={classes.projectMemberList}>
-            <List>
-               {projectMembers &&
-                  projectMembers.map(member => (
-                     <React.Fragment key={member}>
-                        <ListItem button divider>
-                           <ListItemText primary={member} />
-                        </ListItem>
-                     </React.Fragment>
-                  ))}
-            </List>
          </div>
       </div>
    ) : null;
