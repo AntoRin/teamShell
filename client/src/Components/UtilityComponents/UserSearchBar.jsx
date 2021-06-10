@@ -9,21 +9,38 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
    const [searchResults, setSearchResults] = useState([]);
 
    useEffect(() => {
-      if (!textSearch) return;
+      if (!textSearch) {
+         setSearchResults([]);
+         return;
+      }
 
+      let abortFetch = new AbortController();
       async function getSearchResults() {
-         let query = textSearch;
-         let searchStream = await fetch(`/api/profile/search?user=${query}`, {
-            credentials: "include",
-         });
-         let resultData = await searchStream.json();
+         try {
+            let query = textSearch;
+            let searchStream = await fetch(
+               `/api/profile/search?user=${query}`,
+               {
+                  credentials: "include",
+                  signal: abortFetch.signal,
+               }
+            );
 
-         resultData.data
-            ? setSearchResults(resultData.data)
-            : setSearchResults([]);
+            if (abortFetch.signal.aborted) return;
+
+            let resultData = await searchStream.json();
+
+            resultData.data
+               ? setSearchResults(resultData.data)
+               : setSearchResults([]);
+         } catch (error) {
+            console.log(error);
+         }
       }
 
       getSearchResults();
+
+      return () => abortFetch.abort();
    }, [textSearch]);
 
    function handleSearchChange(event) {
@@ -52,7 +69,7 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
             {searchResults.length > 0 && (
                <div className="search-results-list">
                   {searchResults.map(result => {
-                     return (
+                     return result !== null ? (
                         <div key={result} className="search-list-element">
                            <Link to={`/user/profile/${result}`}>{result}</Link>
                            <SmsSharpIcon
@@ -61,7 +78,7 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
                               onClick={event => initiateChatWithUser(result)}
                            />
                         </div>
-                     );
+                     ) : null;
                   })}
                </div>
             )}
