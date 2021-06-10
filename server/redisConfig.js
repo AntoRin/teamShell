@@ -11,6 +11,8 @@ const redisHmgetAsync = promisify(redisClient.hmget).bind(redisClient);
 const redisHmsetAsync = promisify(redisClient.hmset).bind(redisClient);
 const redisLpushAsync = promisify(redisClient.lpush).bind(redisClient);
 const redisLpopAsync = promisify(redisClient.lpop).bind(redisClient);
+const redisLRangeAsync = promisify(redisClient.lrange).bind(redisClient);
+const redisExpireAsync = promisify(redisClient.expire).bind(redisClient);
 const redisDelAsync = promisify(redisClient.del).bind(redisClient);
 
 redisClient.on("connect", () =>
@@ -25,5 +27,7 @@ module.exports = {
    redisHmsetAsync,
    redisLpushAsync,
    redisLpopAsync,
+   redisLRangeAsync,
+   redisExpireAsync,
    redisDelAsync,
 };

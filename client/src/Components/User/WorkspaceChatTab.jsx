@@ -10,19 +10,16 @@ const useStyles = makeStyles({
       justifyContent: "center",
       alignItems: "center",
       width: "100%",
-      height: "100%",
-      maxHeight: "80vh",
+      height: navHeight => `calc(100vh - ${navHeight}px)`,
       overflowY: "hidden",
    },
    chatContainer: {
-      width: "80%",
-      height: "70vh",
-      backgroundColor: "rgba(50, 50, 100, 0.1)",
+      width: "85%",
+      height: "90%",
+      backgroundColor: "#222",
+      padding: "15px",
       overflowY: "hidden",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      margin: "25px 10px",
+      boxShadow: "1px 1px 4px black",
    },
    messages: {
       height: "80%",
@@ -32,7 +29,7 @@ const useStyles = makeStyles({
    chatInput: {
       width: "100%",
       height: "20%",
-      borderTop: "1px solid lightblue",
+      borderTop: "1px solid rgb(51, 0, 111)",
       margin: "10px 0",
       paddingTop: "15px",
    },
@@ -46,23 +43,13 @@ const useStyles = makeStyles({
       resize: "none",
       width: "75%",
       outline: "none",
-   },
-   projectMemberList: {
-      height: "90%",
-      overflowY: "hidden",
-      "& .MuiList-root": {
-         backgroundColor: "rgb(25, 25, 30)",
-         height: "100%",
-         overflowY: "scroll",
-      },
-      margin: "25px 10px",
-      borderLeft: "1px solid silver",
-      boxShadow: "2px 2px 1px #111",
+      fontSize: "1.1rem",
+      backgroundColor: "rgb(128, 98, 100)",
    },
 });
 
-function WorkspaceChatTab({ tab, User, activeProject, projectMembers }) {
-   const classes = useStyles();
+function WorkspaceChatTab({ tab, User, activeProject, navHeight }) {
+   const classes = useStyles(navHeight);
 
    const [messages, setMessages] = useState([]);
    const [newMessageContent, setNewMessageContent] = useState("");

@@ -212,6 +212,7 @@ function UserWorkspace({ location, User, navHeight }) {
                   User={User}
                   activeProject={activeProject}
                   projectMembers={projectMembers}
+                  navHeight={navHeight}
                />
                <WorkspaceMeetTab tab={tab} activeProject={activeProject} />
             </>

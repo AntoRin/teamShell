@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
-import StorageIcon from "@material-ui/icons/Storage";
+import CommentSharpIcon from "@material-ui/icons/CommentSharp";
 import { Button } from "@material-ui/core";
 import DeveloperModeIcon from "@material-ui/icons/DeveloperMode";
 import Notifications from "./Notifications";
@@ -114,7 +114,7 @@ function GlobalNav({
                   />
                </div>
                <div className="message-section">
-                  <StorageIcon
+                  <CommentSharpIcon
                      fontSize="large"
                      className="nav-icon"
                      onClick={toggleMessageHistory}
