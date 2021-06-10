@@ -13,6 +13,7 @@ const useStyles = makeStyles(theme => ({
       "& .MuiLinearProgress-bar": {
          backgroundColor: "rgb(51, 0, 111)",
       },
+      zIndex: "999",
    },
 }));
 

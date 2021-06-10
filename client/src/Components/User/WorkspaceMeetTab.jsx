@@ -13,7 +13,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceMeetTab({ activeProject }) {
+function WorkspaceMeetTab({ tab, activeProject }) {
    const classes = useStyles();
 
    const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,7 +60,7 @@ function WorkspaceMeetTab({ activeProject }) {
       }
    }
 
-   return (
+   return tab === "meet" ? (
       <div>
          <Button variant="contained" color="primary" onClick={openModal}>
             Create new meeting room
@@ -87,7 +87,7 @@ function WorkspaceMeetTab({ activeProject }) {
             </form>
          </ContentModal>
       </div>
-   );
+   ) : null;
 }
 
 export default WorkspaceMeetTab;

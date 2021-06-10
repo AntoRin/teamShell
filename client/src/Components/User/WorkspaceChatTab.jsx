@@ -62,7 +62,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceChatTab({ User, activeProject, projectMembers }) {
+function WorkspaceChatTab({ tab, User, activeProject, projectMembers }) {
    const classes = useStyles();
 
    const [messages, setMessages] = useState([]);
@@ -75,6 +75,8 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
    const voiceRecorderRef = useRef();
 
    useEffect(() => {
+      if (tab !== "project-chat") return;
+
       let abortFetch = new AbortController();
       async function getMessages() {
          try {
@@ -94,26 +96,29 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
       getMessages();
 
       return () => abortFetch.abort();
-   }, [activeProject]);
+   }, [activeProject, tab]);
 
    useEffect(() => {
+      if (tab !== "project-chat") return;
       socket.emit("join-project-room", activeProject);
 
       return () => socket.emit("leave-project-room", activeProject);
-   }, [activeProject, socket]);
+   }, [activeProject, socket, tab]);
 
    useEffect(() => {
+      if (tab !== "project-chat") return;
       socket.on("new-incoming-message", message => {
          setMessages(prev => [...prev, message]);
       });
 
       return () => socket.off("new-incoming-message");
-   }, [activeProject, socket]);
+   }, [activeProject, socket, tab]);
 
    useEffect(() => {
+      if (tab !== "project-chat") return;
       if (chatRef.current)
          chatRef.current.scrollTop += chatRef.current.scrollHeight;
-   }, [messages]);
+   }, [messages, tab]);
 
    function handleInputChange(event) {
       setNewMessageContent(event.target.value);
@@ -143,12 +148,9 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
       let voiceChunks = [];
 
       try {
-         let voiceStream = await new Promise((resolve, reject) => {
-            window.navigator.getUserMedia(
-               { audio: true, video: false },
-               stream => resolve(stream),
-               error => reject(error)
-            );
+         let voiceStream = await window.navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false,
          });
          voiceRecorderRef.current = new window.MediaRecorder(voiceStream);
 
@@ -201,7 +203,7 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
       }
    }
 
-   return (
+   return tab === "project-chat" ? (
       <div className={classes.chatRoomContainer}>
          <div className={classes.chatContainer}>
             <div className={classes.messages} ref={chatRef}>
@@ -275,7 +277,7 @@ function WorkspaceChatTab({ User, activeProject, projectMembers }) {
             </List>
          </div>
       </div>
-   );
+   ) : null;
 }
 
 export default WorkspaceChatTab;

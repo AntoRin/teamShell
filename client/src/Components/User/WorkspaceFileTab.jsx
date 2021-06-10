@@ -25,7 +25,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceFileTab({ User, activeProject }) {
+function WorkspaceFileTab({ tab, User, activeProject }) {
    const classes = useStyles();
 
    const [filesData, setFilesData] = useState(null);
@@ -34,6 +34,8 @@ function WorkspaceFileTab({ User, activeProject }) {
    const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
+      if (tab !== "project-files") return;
+
       let abortFetch = new AbortController();
       async function getProjectFiles() {
          setIsLoading(true);
@@ -65,7 +67,7 @@ function WorkspaceFileTab({ User, activeProject }) {
       getProjectFiles();
 
       return () => abortFetch.abort();
-   }, [activeProject]);
+   }, [activeProject, tab]);
 
    async function deleteFileFromProject(fileId) {
       try {
@@ -94,7 +96,7 @@ function WorkspaceFileTab({ User, activeProject }) {
       }
    }
 
-   return (
+   return tab === "project-files" ? (
       <div className={classes.filesContainer}>
          <>
             {filesData
@@ -165,7 +167,7 @@ function WorkspaceFileTab({ User, activeProject }) {
          </>
          {isLoading && <LinearLoader />}
       </div>
-   );
+   ) : null;
 }
 
 export default WorkspaceFileTab;

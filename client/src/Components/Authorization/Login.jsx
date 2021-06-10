@@ -40,32 +40,37 @@ function Login() {
    async function handleLogin(event) {
       event.preventDefault();
 
-      setIsLoading(true);
+      try {
+         setIsLoading(true);
 
-      let body = {
-         Email: inputs.userId,
-         Password: inputs.password,
-      };
+         let body = {
+            Email: inputs.userId,
+            Password: inputs.password,
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         redirect: "manual",
-         credentials: "include",
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            redirect: "manual",
+            credentials: "include",
+         };
 
-      let loginRequest = await fetch("/api/auth/login", postOptions);
-      if (loginRequest.type === "opaqueredirect") {
+         let loginRequest = await fetch("/api/auth/login", postOptions);
+
+         if (loginRequest.type === "opaqueredirect") {
+            setIsLoading(false);
+            history.replace("/user/home");
+            return;
+         }
+
+         let loginData = await loginRequest.json();
+
+         if (loginData.status === "error") throw loginData.error;
+      } catch (error) {
+         setActionStatus({ info: error, type: "error" });
          setIsLoading(false);
-         window.location.href = "/user/home";
-         return;
       }
-
-      let loginData = await loginRequest.json();
-      if (loginData.status === "error")
-         setActionStatus({ info: loginData.error, type: "error" });
-      setIsLoading(false);
    }
 
    return (

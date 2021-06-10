@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function WorkspaceIssueTab({ User, activeProject, setActionStatus }) {
+function WorkspaceIssueTab({ tab, User, activeProject, setActionStatus }) {
    const classes = useStyles();
 
    const [projectDetails, setProjectDetails] = useState({});
@@ -36,7 +36,7 @@ function WorkspaceIssueTab({ User, activeProject, setActionStatus }) {
    const history = useHistory();
 
    useEffect(() => {
-      if (!activeProject) return;
+      if (!activeProject || tab !== "issues") return;
 
       let abortFetch = new AbortController();
 
@@ -74,13 +74,13 @@ function WorkspaceIssueTab({ User, activeProject, setActionStatus }) {
          abortFetch.abort();
          socket.off("project-data-change");
       };
-   }, [activeProject, socket, history]);
+   }, [activeProject, socket, history, tab]);
 
    function changeAccordionState() {
       setAccordionExpanded(prev => !prev);
    }
 
-   return (
+   return tab === "issues" ? (
       <div className="environment-panel-main">
          <div className="environment-workspace">
             {activeProject ? (
@@ -127,7 +127,7 @@ function WorkspaceIssueTab({ User, activeProject, setActionStatus }) {
          </div>
          {isLoading && <LinearLoader />}
       </div>
-   );
+   ) : null;
 }
 
 export default WorkspaceIssueTab;

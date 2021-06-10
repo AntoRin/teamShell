@@ -53,7 +53,7 @@ const useStyles = makeStyles({
    },
 });
 
-function WorkspaceDriveTab({ User, activeProject }) {
+function WorkspaceDriveTab({ tab, User, activeProject }) {
    const classes = useStyles();
 
    const [confirmationRequired, setConfirmationRequired] = useState(false);
@@ -67,6 +67,8 @@ function WorkspaceDriveTab({ User, activeProject }) {
    const fileInputElement = useRef();
 
    useEffect(() => {
+      if (tab !== "your-drive") return;
+
       let abortFetch = new AbortController();
       async function listDriveFiles() {
          setIsLoading(true);
@@ -96,7 +98,7 @@ function WorkspaceDriveTab({ User, activeProject }) {
       if (newFilesAvailable) listDriveFiles();
 
       return () => abortFetch.abort();
-   }, [newFilesAvailable]);
+   }, [newFilesAvailable, tab]);
 
    function confirmDriveAuthorization() {
       setConfirmationRequired(true);
@@ -227,7 +229,7 @@ function WorkspaceDriveTab({ User, activeProject }) {
       }
    }
 
-   return (
+   return tab === "your-drive" ? (
       <div>
          <div className={classes.sideToolbar}>
             <div>
@@ -347,7 +349,7 @@ function WorkspaceDriveTab({ User, activeProject }) {
             given access."
          />
       </div>
-   );
+   ) : null;
 }
 
 export default WorkspaceDriveTab;

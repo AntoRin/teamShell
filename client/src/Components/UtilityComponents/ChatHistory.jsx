@@ -58,8 +58,8 @@ function ChatHistory({
       setChatHistoryState(true);
    }
 
-   function initiateChat(event) {
-      setChatSettings({ open: true, recipient: event.target.textContent });
+   function initiateChat(recipient) {
+      setChatSettings({ open: true, recipient });
       closeMessageHistory();
    }
 
@@ -89,14 +89,14 @@ function ChatHistory({
                         button
                         divider
                         key={chat.ChatID}
-                        onClick={initiateChat}
+                        onClick={() => initiateChat(thisChatHistory)}
                      >
                         <ListItemText primary={thisChatHistory} />
                      </ListItem>
                   );
                })
             ) : (
-               <CenteredLoader color="primary" backdrop={false} />
+               <CenteredLoader color="primary" />
             )}
          </List>
       </SwipeableDrawer>

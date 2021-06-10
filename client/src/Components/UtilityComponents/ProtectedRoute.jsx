@@ -11,7 +11,7 @@ function ProtectedRoute({ component: Component, ...props }) {
    const [User, setUser] = useState({});
    const [authenticated, setAuthenticated] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
-   const [socket, setSocket] = useState("");
+   const [socket, setSocket] = useState(null);
    const [chatSettings, setChatSettings] = useState({
       open: false,
       recipient: null,
@@ -29,7 +29,7 @@ function ProtectedRoute({ component: Component, ...props }) {
 
    useEffect(() => {
       return () => {
-         if (socket.connected) socket.disconnect();
+         if (socket && socket.connected) socket.disconnect();
       };
    }, [socket]);
 

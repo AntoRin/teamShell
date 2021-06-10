@@ -108,45 +108,6 @@ function UserWorkspace({ location, User, navHeight }) {
       );
    }
 
-   function WorkspaceTab() {
-      switch (tab) {
-         case "issues":
-            return (
-               <WorkspaceIssueTab
-                  User={User}
-                  activeProject={activeProject}
-                  setActionStatus={setActionStatus}
-               />
-            );
-         case "your-drive":
-            return (
-               <WorkspaceDriveTab User={User} activeProject={activeProject} />
-            );
-         case "project-files":
-            return (
-               <WorkspaceFileTab User={User} activeProject={activeProject} />
-            );
-         case "project-chat":
-            return (
-               <WorkspaceChatTab
-                  User={User}
-                  activeProject={activeProject}
-                  projectMembers={projectMembers}
-               />
-            );
-         case "meet":
-            return <WorkspaceMeetTab activeProject={activeProject} />;
-         default:
-            return (
-               <WorkspaceIssueTab
-                  User={User}
-                  activeProject={activeProject}
-                  setActionStatus={setActionStatus}
-               />
-            );
-      }
-   }
-
    return (
       <div className={classes["environment-panel-container"]}>
          <Tooltip title="Change project" placement="right" arrow>
@@ -197,7 +158,35 @@ function UserWorkspace({ location, User, navHeight }) {
                </Button>
             </ButtonGroup>
          </Container>
-         {isLoading ? <LinearLoader /> : <WorkspaceTab />}
+         {isLoading ? (
+            <LinearLoader />
+         ) : (
+            <>
+               <WorkspaceIssueTab
+                  tab={tab}
+                  User={User}
+                  activeProject={activeProject}
+                  setActionStatus={setActionStatus}
+               />
+               <WorkspaceDriveTab
+                  tab={tab}
+                  User={User}
+                  activeProject={activeProject}
+               />
+               <WorkspaceFileTab
+                  tab={tab}
+                  User={User}
+                  activeProject={activeProject}
+               />
+               <WorkspaceChatTab
+                  tab={tab}
+                  User={User}
+                  activeProject={activeProject}
+                  projectMembers={projectMembers}
+               />
+               <WorkspaceMeetTab tab={tab} activeProject={activeProject} />
+            </>
+         )}
       </div>
    );
 }
