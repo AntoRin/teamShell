@@ -10,11 +10,14 @@ import OrgSettingsModal from "./OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles(theme => ({
-   root: props => ({
+   orgHomeContainer: {
+      marginTop: navHeight => navHeight,
+   },
+   root: navHeight => ({
       flexGrow: 1,
       backgroundColor: "rgb(18, 18, 23)",
       display: "flex",
-      minHeight: `calc(100vh - ${props.navHeight}px)`,
+      minHeight: `calc(100vh - ${navHeight}px)`,
       overflowY: "scroll",
       overflowX: "hidden",
       fontFamily: `"Roboto", sans-serif`,
@@ -45,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function OrganizationHome({ match, User, navHeight }) {
-   const classes = useStyles({ navHeight });
+   const classes = useStyles(navHeight);
 
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [Organization, setOrganization] = useState({});
@@ -102,7 +105,7 @@ function OrganizationHome({ match, User, navHeight }) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <>
+         <div className={classes.orgHomeContainer}>
             <div className={classes.crumbs}>
                <>
                   <Typography
@@ -162,7 +165,7 @@ function OrganizationHome({ match, User, navHeight }) {
                isSettingsOpen={isSettingsOpen}
                setIsSettingsOpen={setIsSettingsOpen}
             />
-         </>
+         </div>
       ) : (
          <h1>There was an error</h1>
       );

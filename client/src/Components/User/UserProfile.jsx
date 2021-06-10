@@ -1,15 +1,23 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { makeStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import { Button } from "@material-ui/core";
-import { ButtonGroup } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import DetailCard from "./DetailCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/user-profile.css";
 
-function UserProfile({ location, match, User, setChatSettings }) {
+const useStyles = makeStyles({
+   profileContainer: {
+      marginTop: navHeight => navHeight + 10,
+   },
+});
+
+function UserProfile({ location, match, User, setChatSettings, navHeight }) {
+   const classes = useStyles(navHeight);
    const [Profile, setProfile] = useState({});
    const [owner, setOwner] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
@@ -370,7 +378,7 @@ function UserProfile({ location, match, User, setChatSettings }) {
       return <LinearLoader />;
    } else {
       return isValid ? (
-         <div className="profile-container">
+         <div className={classes.profileContainer}>
             <div className="profile-tabs">
                <div className="user-tab tab-link">
                   <Link

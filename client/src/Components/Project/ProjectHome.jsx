@@ -13,11 +13,14 @@ import ProjectSettingsModal from "./ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles(theme => ({
-   root: props => ({
+   projectHomeConainer: {
+      marginTop: navHeight => navHeight,
+   },
+   root: navHeight => ({
       flexGrow: 1,
       backgroundColor: "rgb(18, 18, 23)",
       display: "flex",
-      minHeight: `calc(100vh - ${props.navHeight}px)`,
+      minHeight: `calc(100vh - ${navHeight}px)`,
       overflowY: "scroll",
       overflowX: "hidden",
       fontFamily: `"Roboto", sans-serif`,
@@ -48,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ProjectHome({ match, User, navHeight }) {
-   const classes = useStyles({ navHeight });
+   const classes = useStyles(navHeight);
 
    const [isLoading, setIsLoading] = useState(true);
    const [isAuthorized, setIsAuthorized] = useState(false);
@@ -162,7 +165,7 @@ function ProjectHome({ match, User, navHeight }) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <>
+         <div className={classes.projectHomeConainer}>
             <div className={classes.crumbs}>
                <Breadcrumbs separator={<NavigateNextIcon color="primary" />}>
                   <Link
@@ -235,7 +238,7 @@ function ProjectHome({ match, User, navHeight }) {
                   setIsSettingsOpen={setIsSettingsOpen}
                />
             </div>
-         </>
+         </div>
       ) : (
          <h1>There was an error</h1>
       );

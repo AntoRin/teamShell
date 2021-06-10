@@ -1,10 +1,19 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { makeStyles } from "@material-ui/core";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import "../../styles/user-home.css";
 import { Button } from "@material-ui/core";
 
-function UserHome({ User }) {
+const useStyles = makeStyles({
+   homeContainer: {
+      marginTop: navHeight => navHeight,
+   },
+});
+
+function UserHome({ User, navHeight }) {
+   const classes = useStyles(navHeight);
+
    const [activePanelOrg, setActivePanelOrg] = useState(
       User.Organizations.length > 0
          ? User.Organizations[0].OrganizationName
@@ -79,7 +88,7 @@ function UserHome({ User }) {
    }
 
    return (
-      <div className="home-container">
+      <div className={classes.homeContainer}>
          <div className="home-main">
             <div className="user-details">
                <div className="details-section">

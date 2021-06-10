@@ -4,11 +4,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import IconButton from "@material-ui/core/IconButton";
 import AppsIcon from "@material-ui/icons/Apps";
 import Tooltip from "@material-ui/core/Tooltip";
-import { Button, Container, ButtonGroup } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
 import FolderIcon from "@material-ui/icons/Folder";
 import SecurityIcon from "@material-ui/icons/Security";
 import CodeIcon from "@material-ui/icons/Code";
 import GroupAddIcon from "@material-ui/icons/GroupAdd";
+import VideocamIcon from "@material-ui/icons/Videocam";
 import WorkspaceIssueTab from "./WorkspaceIssueTab";
 import WorkspaceDriveTab from "./WorkspaceDriveTab";
 import WorkspaceFileTab from "./WorkspaceFileTab";
@@ -23,6 +24,7 @@ const useStyles = makeStyles(theme => ({
    "environment-panel-container": {
       width: "100%",
       minHeight: navHeight => `calc(100vh - ${navHeight}px)`,
+      marginTop: navHeight => navHeight,
       overflowX: "hidden",
       overflowY: "scroll",
    },
@@ -36,15 +38,27 @@ const useStyles = makeStyles(theme => ({
       color: "red",
       fontFamily: `"Poppins", "sans-serif"`,
    },
-   projectBackBtn: {
-      position: "absolute",
-      top: "15%",
-      left: "10px",
-   },
    workspaceNav: {
+      position: "fixed",
+      top: navHeight => navHeight,
+      left: 0,
+      width: "50px",
+      height: navHeight => `calc(100vh - ${navHeight}px)`,
+      background: "rgb(22, 22, 35)",
+      boxShadow: "2px 0 2px #111",
+   },
+   navAlign: {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      flexDirection: "column",
+   },
+   icons: {
+      color: "rgb(108, 98, 190)",
+   },
+   activeIcon: {
+      color: "lightblue",
+      borderBottom: "1px solid white",
    },
 }));
 
@@ -110,53 +124,68 @@ function UserWorkspace({ location, User, navHeight }) {
 
    return (
       <div className={classes["environment-panel-container"]}>
-         <Tooltip title="Change project" placement="right" arrow>
-            <IconButton
-               className={classes.projectBackBtn}
-               color="primary"
-               onClick={goToEnvironment}
-            >
-               <AppsIcon fontSize="large" />
-            </IconButton>
-         </Tooltip>
          <Container className={classes.workspaceNav}>
-            <ButtonGroup>
-               <Button
-                  color="primary"
-                  endIcon={<CodeIcon />}
-                  onClick={() => changeWorkspaceTab("issues")}
-               >
-                  Issues
-               </Button>
-               <Button
-                  color="primary"
-                  endIcon={<SecurityIcon />}
-                  onClick={() => changeWorkspaceTab("your-drive")}
-               >
-                  Your Drive
-               </Button>
-               <Button
-                  color="primary"
-                  endIcon={<FolderIcon />}
-                  onClick={() => changeWorkspaceTab("project-files")}
-               >
-                  Project Files
-               </Button>
-               <Button
-                  color="primary"
-                  endIcon={<GroupAddIcon />}
-                  onClick={() => changeWorkspaceTab("project-chat")}
-               >
-                  Project Chat
-               </Button>
-               <Button
-                  color="primary"
-                  endIcon={<GroupAddIcon />}
-                  onClick={() => changeWorkspaceTab("meet")}
-               >
-                  Meet
-               </Button>
-            </ButtonGroup>
+            <div className={classes.navAlign}>
+               <Tooltip placement="right" title="Issues">
+                  <IconButton onClick={() => changeWorkspaceTab("issues")}>
+                     <CodeIcon
+                        fontSize="large"
+                        className={`${classes.icons} ${
+                           tab === "issues" && classes.activeIcon
+                        }`}
+                     />
+                  </IconButton>
+               </Tooltip>
+               <Tooltip placement="right" title="Your Drive">
+                  <IconButton onClick={() => changeWorkspaceTab("your-drive")}>
+                     <SecurityIcon
+                        fontSize="large"
+                        className={`${classes.icons} ${
+                           tab === "your-drive" && classes.activeIcon
+                        }`}
+                     />
+                  </IconButton>
+               </Tooltip>
+               <Tooltip placement="right" title="Project Files">
+                  <IconButton
+                     onClick={() => changeWorkspaceTab("project-files")}
+                  >
+                     <FolderIcon
+                        fontSize="large"
+                        className={`${classes.icons} ${
+                           tab === "project-files" && classes.activeIcon
+                        }`}
+                     />
+                  </IconButton>
+               </Tooltip>
+               <Tooltip placement="right" title="Project Chat">
+                  <IconButton
+                     onClick={() => changeWorkspaceTab("project-chat")}
+                  >
+                     <GroupAddIcon
+                        fontSize="large"
+                        className={`${classes.icons} ${
+                           tab === "project-chat" && classes.activeIcon
+                        }`}
+                     />
+                  </IconButton>
+               </Tooltip>
+               <Tooltip placement="right" title="Meet">
+                  <IconButton onClick={() => changeWorkspaceTab("meet")}>
+                     <VideocamIcon
+                        fontSize="large"
+                        className={`${classes.icons} ${
+                           tab === "meet" && classes.activeIcon
+                        }`}
+                     />
+                  </IconButton>
+               </Tooltip>
+               <Tooltip title="Change project" placement="right" arrow>
+                  <IconButton onClick={goToEnvironment}>
+                     <AppsIcon fontSize="large" className={classes.icons} />
+                  </IconButton>
+               </Tooltip>
+            </div>
          </Container>
          {isLoading ? (
             <LinearLoader />

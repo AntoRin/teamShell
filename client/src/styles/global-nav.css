@@ -8,6 +8,9 @@
    background-color: #222;
    position: relative;
    box-shadow: 2px 2px 5x #111;
+   position: fixed;
+   top: 0;
+   z-index: 10;
 }
 
 .general-nav-section {

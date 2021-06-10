@@ -9,10 +9,12 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-// import EnvironmentPanel from "./EnvironmentPanel";
 import WorkspaceSelection from "./WorkspaceSelection";
 
 const useStyles = makeStyles(theme => ({
+   environmentContainer: {
+      marginTop: navHeight => navHeight,
+   },
    configurationToggle: {
       cursor: "pointer",
       display: "flex",
@@ -35,8 +37,8 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function UserEnvironment({ User }) {
-   const classes = useStyles();
+function UserEnvironment({ User, navHeight }) {
+   const classes = useStyles(navHeight);
 
    const [currentOrg, setCurrentOrg] = useState(
       User.Organizations.length > 0
@@ -85,7 +87,7 @@ function UserEnvironment({ User }) {
    }
 
    return (
-      <div>
+      <div className={classes.environmentContainer}>
          <>
             <div className={classes.configurationToggle}>
                <Tooltip

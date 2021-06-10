@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import SettingsInputHdmiIcon from "@material-ui/icons/SettingsInputHdmi";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
@@ -11,6 +11,8 @@ import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import BottomNavigation from "@material-ui/core/BottomNavigation";
+import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import { GlobalActionStatus } from "../App";
 import ContentModal from "../UtilityComponents/ContentModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -25,12 +27,6 @@ const useStyles = makeStyles({
       position: "fixed",
       bottom: "5%",
       left: "10px",
-   },
-   sideToolbar: {
-      position: "fixed",
-      bottom: "5%",
-      left: "10px",
-      margin: "15px 5px",
    },
    driveContainer: {
       display: "flex",
@@ -50,6 +46,18 @@ const useStyles = makeStyles({
       height: "330px",
       margin: "30px",
       background: "#999",
+   },
+   tabToolBar: {
+      width: 500,
+      position: "fixed",
+      bottom: "10px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "lightblue",
+      "& .MuiBottomNavigationAction-label": {
+         color: "black",
+         fontWeight: "700",
+      },
    },
 });
 
@@ -231,29 +239,23 @@ function WorkspaceDriveTab({ tab, User, activeProject }) {
 
    return tab === "your-drive" ? (
       <div>
-         <div className={classes.sideToolbar}>
-            <div>
-               <Tooltip title="Upload a new file to Drive" placement="right">
-                  <IconButton onClick={openCreateModal}>
-                     <CloudUploadIcon fontSize="large" color="primary" />
-                  </IconButton>
-               </Tooltip>
-            </div>
-            <div>
-               <Tooltip title="List Drive Files" placement="right">
-                  <IconButton onClick={refreshFiles}>
-                     <RefreshIcon fontSize="large" color="primary" />
-                  </IconButton>
-               </Tooltip>
-            </div>
-            <div>
-               <Tooltip title="Authorize Google Drive" placement="right">
-                  <IconButton onClick={confirmDriveAuthorization}>
-                     <SettingsInputHdmiIcon fontSize="large" color="primary" />
-                  </IconButton>
-               </Tooltip>
-            </div>
-         </div>
+         <BottomNavigation showLabels className={classes.tabToolBar}>
+            <BottomNavigationAction
+               label="Upload file to drive"
+               icon={<CloudUploadIcon />}
+               onClick={openCreateModal}
+            />
+            <BottomNavigationAction
+               label="List Drive Files"
+               icon={<RefreshIcon />}
+               onClick={refreshFiles}
+            />
+            <BottomNavigationAction
+               label="Authorize Google Drive"
+               icon={<SettingsInputHdmiIcon />}
+               onClick={confirmDriveAuthorization}
+            />
+         </BottomNavigation>
          <ContentModal
             isModalOpen={isModalOpen}
             handleModalClose={closeCreateModal}
