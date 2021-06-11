@@ -138,7 +138,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
          </div>
          <div ref={chatRef} className="chat-messages-display">
             {isLoading ? (
-               <CenteredLoader color="primary" />
+               <CenteredLoader absolutelyPositioned={true} />
             ) : (
                allChat.length > 0 &&
                allChat.map((data, index) => {

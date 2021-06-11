@@ -39,6 +39,7 @@ function Login() {
 
    async function handleLogin(event) {
       event.preventDefault();
+      if (isLoading) return;
 
       try {
          setIsLoading(true);
@@ -75,7 +76,7 @@ function Login() {
 
    return (
       <div className="form-container">
-         {isLoading && <CenteredLoader color="primary" backdrop={true} />}
+         {isLoading && <CenteredLoader />}
          <div className="form-card">
             <form onSubmit={handleLogin} id="userDetailsForm">
                <div className="form-elements">

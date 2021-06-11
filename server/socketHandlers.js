@@ -178,7 +178,10 @@ async function initiateListeners(socket, io) {
    //Meet
    socket.on("join-meet-room", roomId => socket.join(roomId));
 
-   socket.on("leave-meet-room", roomId => socket.leave(roomId));
+   socket.on("leave-meet-room", (roomId, peerName) => {
+      socket.to(roomId).emit(`peer-${peerName}-left`);
+      socket.leave(roomId);
+   });
 
    socket.on("new-peer-joined", ({ peerName, roomId }) =>
       socket.to(roomId).emit("new-peer", peerName)

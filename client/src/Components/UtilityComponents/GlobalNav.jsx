@@ -45,7 +45,8 @@ function GlobalNav({
             );
 
             let responseData = await responseStream.json();
-            console.log(responseData);
+
+            if (responseData.status === "error") throw responseData.error;
          } catch (error) {
             console.log(error);
             return;

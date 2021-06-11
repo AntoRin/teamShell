@@ -17,13 +17,21 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function ContentModal({ isModalOpen, handleModalClose, children }) {
+function ContentModal({
+   isModalOpen,
+   handleModalClose,
+   disableClickAway = false,
+   disableEscapeClose = false,
+   children,
+}) {
    const classes = useStyles();
    return (
       <Modal
          aria-labelledby="transition-modal-title"
          aria-describedby="transition-modal-description"
          className={classes.modal}
+         disableEscapeKeyDown={disableEscapeClose}
+         disableBackdropClick={disableClickAway}
          open={isModalOpen}
          onClose={handleModalClose}
          closeAfterTransition

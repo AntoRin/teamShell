@@ -25,7 +25,7 @@
    display: flex;
    justify-content: center;
    flex-direction: column;
-   background-color: rgb(51, 0, 111, 0.2);
+   background-color: rgb(89, 9, 185);
    color: white;
 }
 
@@ -72,12 +72,12 @@
 
 #submitBtn {
    padding: 5px 12px;
-   background-color: #367588;
-   color: white;
+   background-color: #a3fff0;
+   color: rgb(51, 0, 111);
    font-size: 1rem;
    letter-spacing: 1px;
    font-weight: 700;
-   font-family: "Poppins", sans-serif;
+   font-family: "Roboto", sans-serif;
    outline: none;
    border: none;
    border-radius: 7px;
@@ -92,7 +92,7 @@
 
 .entry-redirect a {
    margin-left: 10px;
-   color: blue;
+   color: rgb(161, 255, 255);
    text-decoration: none;
    border-bottom: 1px solid white;
 }

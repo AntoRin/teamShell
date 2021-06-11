@@ -9,15 +9,28 @@ const useStyles = makeStyles(theme => ({
       width: "100%",
       height: "100%",
    },
+   centered: {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+   },
+   loader: {
+      color: "rgb(89, 9, 185)",
+   },
 }));
 
-function CenteredLoader() {
+function CenteredLoader({ absolutelyPositioned = false }) {
    const classes = useStyles();
 
-   return (
+   return !absolutelyPositioned ? (
       <Backdrop className={classes.backdrop} open={true}>
          <CircularProgress color="primary" />
       </Backdrop>
+   ) : (
+      <div className={classes.centered}>
+         <CircularProgress className={classes.loader} />
+      </div>
    );
 }
 
