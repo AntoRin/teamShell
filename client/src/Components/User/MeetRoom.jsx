@@ -130,7 +130,7 @@ function MeetRoom({ match, User, navHeight }) {
                         remoteVideoElement.play();
 
                      peerConnection.onconnectionstatechange = () => {
-                        if (peerConnection.connectionState === "disconnected") {
+                        if (peerConnection.connectionState === "failed") {
                            console.log(`Connection severed with ${callerName}`);
                            remoteVideoElement.remove();
                         }
@@ -182,10 +182,10 @@ function MeetRoom({ match, User, navHeight }) {
                   );
                   peerConnection.onconnectionstatechange = event => {
                      if (peerConnection.connectionState === "connected") {
-                        socket.removeAllListeners(
+                        socket.off(
                            `call-answer-${User.UniqueUsername}-${callerName}`
                         );
-                        socket.removeAllListeners(
+                        socket.off(
                            `new-ice-candidate-${User.UniqueUsername}-${callerName}`
                         );
                         peerConnection.removeEventListener(
@@ -244,7 +244,7 @@ function MeetRoom({ match, User, navHeight }) {
                      remoteVideoElement.play();
 
                   peerConnection.onconnectionstatechange = () => {
-                     if (peerConnection.connectionState === "disconnected") {
+                     if (peerConnection.connectionState === "failed") {
                         console.log(`Connection severed with ${peerName}`);
                         remoteVideoElement.remove();
                      }
@@ -307,10 +307,10 @@ function MeetRoom({ match, User, navHeight }) {
 
                peerConnection.onconnectionstatechange = () => {
                   if (peerConnection.connectionState === "connected") {
-                     socket.removeAllListeners(
+                     socket.off(
                         `call-answer-${peerName}-${User.UniqueUsername}`
                      );
-                     socket.removeAllListeners(
+                     socket.off(
                         `new-ice-candidate-${peerName}-${User.UniqueUsername}`
                      );
                      peerConnection.removeEventListener(
