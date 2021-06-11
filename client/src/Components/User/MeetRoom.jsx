@@ -129,8 +129,15 @@ function MeetRoom({ match, User, navHeight }) {
                      remoteVideoElement.onloadedmetadata = () =>
                         remoteVideoElement.play();
 
+                     peerConnection.onconnectionstatechange = () => {
+                        if (peerConnection.connectionState === "disconnected") {
+                           console.log(`Connection severed with ${callerName}`);
+                           remoteVideoElement.remove();
+                        }
+                        socket.off(`peer-${callerName}-left`);
+                     };
+
                      socket.on(`peer-${callerName}-left`, () => {
-                        console.log("removing dom video element");
                         remoteVideoElement.remove();
                         socket.off(`peer-${callerName}-left`);
                      });
@@ -175,10 +182,10 @@ function MeetRoom({ match, User, navHeight }) {
                   );
                   peerConnection.onconnectionstatechange = event => {
                      if (peerConnection.connectionState === "connected") {
-                        socket.off(
+                        socket.removeAllListeners(
                            `call-answer-${User.UniqueUsername}-${callerName}`
                         );
-                        socket.off(
+                        socket.removeAllListeners(
                            `new-ice-candidate-${User.UniqueUsername}-${callerName}`
                         );
                         peerConnection.removeEventListener(
@@ -236,6 +243,14 @@ function MeetRoom({ match, User, navHeight }) {
                   remoteVideoElement.onloadedmetadata = () =>
                      remoteVideoElement.play();
 
+                  peerConnection.onconnectionstatechange = () => {
+                     if (peerConnection.connectionState === "disconnected") {
+                        console.log(`Connection severed with ${peerName}`);
+                        remoteVideoElement.remove();
+                     }
+                     socket.off(`peer-${peerName}-left`);
+                  };
+
                   socket.on(`peer-${peerName}-left`, () => {
                      console.log("removing dom video element");
                      remoteVideoElement.remove();
@@ -290,12 +305,12 @@ function MeetRoom({ match, User, navHeight }) {
                   }
                );
 
-               peerConnection.onconnectionstatechange = event => {
+               peerConnection.onconnectionstatechange = () => {
                   if (peerConnection.connectionState === "connected") {
-                     socket.off(
+                     socket.removeAllListeners(
                         `call-answer-${peerName}-${User.UniqueUsername}`
                      );
-                     socket.off(
+                     socket.removeAllListeners(
                         `new-ice-candidate-${peerName}-${User.UniqueUsername}`
                      );
                      peerConnection.removeEventListener(
