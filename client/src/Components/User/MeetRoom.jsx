@@ -14,8 +14,18 @@ const useStyles = makeStyles({
       position: "absolute",
       bottom: "5px",
       right: "5px",
-      height: "300px",
-      width: "300px",
+      height: "200px",
+      width: "200px",
+   },
+   streamsContainer: {
+      display: "grid",
+      gridTemplateColumns: "repeat(4, 1fr)",
+      gridAutoRows: "300px",
+      gap: "20px",
+      "& video": {
+         width: "100%",
+         height: "100%",
+      },
    },
    joinRoom: {
       position: "relative",
@@ -361,7 +371,7 @@ function MeetRoom({ match, User, navHeight }) {
                {isLoading && <CenteredLoader absolutelyPositioned />}
             </div>
          </ContentModal>
-         <div ref={videoRef}></div>
+         <div className={classes.streamsContainer} ref={videoRef}></div>
          <video
             className={classes.localVideo}
             muted={true}

@@ -1,5 +1,7 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import { Button, makeStyles } from "@material-ui/core";
+import Avatar from "@material-ui/core/Avatar";
+import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import MinimizeIcon from "@material-ui/icons/Minimize";
 import SendIcon from "@material-ui/icons/Send";
@@ -10,6 +12,9 @@ import "../../styles/chatbox.css";
 const useStyles = makeStyles({
    toolIcon: {
       cursor: "pointer",
+   },
+   mg: {
+      margin: "10px",
    },
    chatLoader: {
       width: "100%",
@@ -126,14 +131,19 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
       <div className="chatbox-container">
          <div className="chatbox-header">
             <div className="chatbox-recipient-banner">
+               <Avatar
+                  src={`/api/profile/profile-image/${chatSettings.recipient}`}
+                  alt=""
+               />
                <h4>{chatSettings.recipient}</h4>
             </div>
             <div className="chatbox-controls">
-               <MinimizeIcon
-                  className={classes.toolIcon}
-                  onClick={toggleWindowMinimize}
-               />
-               <CloseIcon className={classes.toolIcon} onClick={closeChat} />
+               <IconButton onClick={toggleWindowMinimize}>
+                  <MinimizeIcon className={classes.toolIcon} size="large" />
+               </IconButton>
+               <IconButton onClick={closeChat}>
+                  <CloseIcon className={classes.toolIcon} size="large" />
+               </IconButton>
             </div>
          </div>
          <div ref={chatRef} className="chat-messages-display">
@@ -175,6 +185,7 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
                      type="text"
                      id="chatInput"
                      autoComplete="off"
+                     required
                   />
                   <Button type="submit">
                      <SendIcon color="primary" />
@@ -185,7 +196,12 @@ function ChatBox({ User, chatSettings, setChatSettings }) {
       </div>
    ) : (
       <div className="chatbox-min-controls" onClick={toggleWindowMinimize}>
-         <CloseIcon className={classes.toolIcon} onClick={closeChat} />
+         <IconButton onClick={closeChat}>
+            <CloseIcon
+               className={classes.toolIcon + " " + classes.mg}
+               size="large"
+            />
+         </IconButton>
       </div>
    );
 }
