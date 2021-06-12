@@ -10,6 +10,8 @@ const Project = require("../models/Project");
 
 const router = Router();
 
+const AppError = require("../utils/AppError");
+
 const ROOM_PREFIX = "MeetRoom:";
 
 router.post("/create-room", async (req, res, next) => {
@@ -19,10 +21,10 @@ router.post("/create-room", async (req, res, next) => {
    try {
       let project = await Project.findOne({ ProjectName: projectName }).lean();
 
-      if (!project) throw { name: "UnknownData" };
+      if (!project) throw new AppError("BadRequestError");
 
       if (!project.Members.includes(UniqueUsername))
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
 
       let roomId = jwt.sign(
          { projectName, roomName, creator: UniqueUsername },
@@ -56,10 +58,10 @@ router.get("/verify-room", async (req, res, next) => {
       );
       let project = await Project.findOne({ ProjectName: projectName }).lean();
 
-      if (!project) throw { name: "UnknownData" };
+      if (!project) throw new AppError("BadRequestError");
 
       if (!project.Members.includes(UniqueUsername))
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
 
       return res.json({ status: "ok", data: { roomName, creator } });
    } catch (error) {
@@ -78,7 +80,7 @@ router.get("/active-rooms/:projectName", async (req, res, next) => {
          -1
       );
 
-      if (!projectMeetRooms) throw { name: "UnknownData" };
+      if (!projectMeetRooms) throw new AppError("BadRequestError");
 
       return res.json({ status: "ok", data: projectMeetRooms });
    } catch (error) {

@@ -23,11 +23,11 @@ function errorHandler(error, req, res, next) {
          return res
             .status(401)
             .json({ status: "error", error: "You need to be logged in" });
-      case "AuthFailure":
+      case "AuthenticationError":
          return res
             .status(401)
             .json({ status: "error", error: "Invalid credentials" });
-      case "UnknownData":
+      case "BadRequestError":
          return res.status(400).json({
             status: "error",
             error: "Bad request, relevant data not found",
@@ -38,37 +38,37 @@ function errorHandler(error, req, res, next) {
             .json({ status: "error", error: "Resource not found" });
       case "NoDataResponse":
          return res.status(204).json({ status: "ok", data: null });
-      case "UserNotFound":
+      case "UserNotFoundError":
          return res
             .status(400)
             .json({ status: "error", error: "User not found" });
-      case "UnauthorizedRequest":
+      case "UnauthorizedRequestError":
          return res.status(401).json({
             status: "error",
             error: "You're not authorized to make that request",
          });
-      case "UploadFailure":
+      case "UploadFailureError":
          return res.status(409).json({
             status: "error",
             error: "There was a problem with your upload",
          });
-      case "SilentEnd":
+      case "NoActionRequiredError":
          return res.status(200).end();
       case "ServerError":
          return res
             .status(500)
             .json({ status: "error", error: "Internal server error" });
-      case "OrganizationAuthFail":
+      case "OrganizationAuthFailError":
          return res.status(401).json({
             status: "error",
             error: "You are not part of the Organization",
          });
-      case "OrgInvitationRebound":
+      case "OrgInvitationReboundError":
          return res.status(400).json({
             status: "error",
             error: "User is already a part of the organization",
          });
-      case "ProjectInvitationRebound":
+      case "ProjectInvitationReboundError":
          return res
             .status(400)
             .json({ status: "error", error: "User is already in the project" });

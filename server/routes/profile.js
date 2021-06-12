@@ -5,6 +5,8 @@ const User = require("../models/User");
 const ProfileImage = require("../models/ProfileImage");
 const { handleNotifications } = require("../utils/notificationHandler");
 
+const AppError = require("../utils/AppError");
+
 const router = Router();
 
 const upload = multer({
@@ -32,7 +34,7 @@ router.get("/details/:UniqueUsername", async (req, res, next) => {
          { Password: 0, updatedAt: 0, Notifications: 0, __v: 0 }
       );
 
-      if (!queryResult) throw { name: "UserNotFound" };
+      if (!queryResult) throw new AppError("UserNotFoundError");
 
       let { _doc } = queryResult;
       let user;
@@ -51,7 +53,7 @@ router.get("/details/:UniqueUsername", async (req, res, next) => {
       if (profileImage) user.ProfileImage = profileImage.ImageData;
 
       if (user) return res.json({ status: "ok", user });
-      else throw { name: "UnknownData" };
+      else throw new AppError("BadRequestError");
    } catch (error) {
       return next(error);
    }
@@ -101,7 +103,7 @@ router.post("/uploads/profile-image", imageParser, async (req, res, next) => {
    try {
       let file = req.file;
 
-      if (!file) throw { name: "UploadFailure" };
+      if (!file) throw new AppError("UploadFailureError");
 
       let buffer = file.buffer;
 
@@ -124,7 +126,7 @@ router.get("/notifications", async (req, res, next) => {
 
    try {
       let user = await User.findOne({ UniqueUsername, Email }).lean();
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
       let { Notifications } = user;
       return res.json({ status: "ok", data: { Notifications } });
    } catch (error) {

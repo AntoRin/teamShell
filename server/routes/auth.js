@@ -16,6 +16,8 @@ const googleClient = new google.auth.OAuth2({
    redirectUri: "http://localhost:5000/api/auth/login/google/callback",
 });
 
+const AppError = require("../utils/AppError");
+
 router.post("/register", async (req, res, next) => {
    try {
       let { UniqueUsername, Username, Email, Password } = req.body;
@@ -44,10 +46,10 @@ router.post("/login", async (req, res, next) => {
       let present = await User.findOne({ Email });
 
       if (!present || present.AccountType !== "Email")
-         throw { name: "AuthFailure" };
+         throw new AppError("AuthenticationError");
 
       let verified = await bcrypt.compare(Password, present.Password);
-      if (!verified) throw { name: "AuthFailure" };
+      if (!verified) throw new AppError("AuthenticationError");
       let token = jwt.sign(
          { UniqueUsername: present.UniqueUsername, Email },
          process.env.JWT_SECRET
@@ -58,6 +60,7 @@ router.post("/login", async (req, res, next) => {
          })
          .redirect("/user/home");
    } catch (error) {
+      console.log(error);
       next(error);
    }
 });
@@ -113,7 +116,7 @@ router.get("/login/github/callback", async (req, res, next) => {
       let present = await validateRegistration(userInfo);
 
       if (present && present.AccountType !== "GitHub")
-         throw { name: "AuthFailure" };
+         throw new AppError("AuthenticationError");
 
       let loginToken = jwt.sign(
          { UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email },
@@ -205,7 +208,7 @@ router.get("/login/google/callback", async (req, res, next) => {
       let present = await validateRegistration({ UniqueUsername, Email });
 
       if (present && present.AccountType !== "Google")
-         throw { name: "AuthFailure" };
+         throw new AppError("AuthenticationError");
 
       let loginToken = jwt.sign(
          { UniqueUsername, Email },
@@ -257,7 +260,7 @@ router.get("/verify", async (req, res, next) => {
    try {
       let { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET);
       let present = await validateRegistration({ UniqueUsername, Email });
-      if (!present) throw { name: "AuthFailure" };
+      if (!present) throw new AppError("AuthenticationError");
 
       return res.json({ status: "ok", User: present });
    } catch (error) {

@@ -143,8 +143,8 @@ function MeetRoom({ match, User, navHeight }) {
                         if (peerConnection.connectionState === "failed") {
                            console.log(`Connection severed with ${callerName}`);
                            remoteVideoElement.remove();
+                           socket.off(`peer-${callerName}-left`);
                         }
-                        socket.off(`peer-${callerName}-left`);
                      };
 
                      socket.on(`peer-${callerName}-left`, () => {
@@ -257,8 +257,8 @@ function MeetRoom({ match, User, navHeight }) {
                      if (peerConnection.connectionState === "failed") {
                         console.log(`Connection severed with ${peerName}`);
                         remoteVideoElement.remove();
+                        socket.off(`peer-${peerName}-left`);
                      }
-                     socket.off(`peer-${peerName}-left`);
                   };
 
                   socket.on(`peer-${peerName}-left`, () => {

@@ -10,6 +10,8 @@ const User = require("../models/User");
 const DriveFile = require("../models/DriveFile");
 const { handleNotifications } = require("../utils/notificationHandler");
 
+const AppError = require("../utils/AppError");
+
 const router = Router();
 
 const googleClient = new google.auth.OAuth2({
@@ -43,7 +45,7 @@ router.post("/create", async (req, res, next) => {
          Members: [UniqueUsername],
       });
 
-      if (!ParentOrganization) throw { name: "UnauthorizedRequest" };
+      if (!ParentOrganization) throw new AppError("UnauthorizedRequestError");
 
       let newProjectData = await project.save();
       await Organization.updateOne(
@@ -122,7 +124,7 @@ router.get("/details/:ProjectName", async (req, res, next) => {
       if (parentOrg.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Project: project });
       } else {
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
       }
    } catch (error) {
       console.log(error);
@@ -140,10 +142,10 @@ router.get("/verification-data/:ProjectName", async (req, res, next) => {
          { createdAt: 0, updatedAt: 0, ProjectDescription: 0, IssuesRef: 0 }
       ).lean();
 
-      if (!projectDetails) throw { name: "UnknownData" };
+      if (!projectDetails) throw new AppError("BadRequestError");
 
       if (!projectDetails.Members.includes(UniqueUsername))
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
 
       return res.json({ status: "ok", data: projectDetails });
    } catch (error) {
@@ -166,7 +168,7 @@ router.get("/snippet/:ProjectName", async (req, res, next) => {
          }
       );
 
-      if (!projectDetails) throw { name: "UnknownData" };
+      if (!projectDetails) throw new AppError("BadRequestError");
 
       let projectSnippet = {
          "About Project": projectDetails.ProjectDescription,
@@ -204,13 +206,13 @@ router.post("/accept/new-user", async (req, res, next) => {
    try {
       let project = await Project.findOne({ ProjectName: requestedProject });
 
-      if (!project) throw { name: "UnknownData" };
+      if (!project) throw new AppError("BadRequestError");
 
       if (!project.Creator === UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
 
       if (project.Members.includes(newUser))
-         throw { name: "ProjectInvitationRebound" };
+         throw new AppError("ProjectInvitationReboundError");
 
       let updatedProject = await Project.findOneAndUpdate(
          { ProjectName: requestedProject },
@@ -246,7 +248,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
 
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
       let { _id, ProjectName } = jwt.verify(
          userSecret,
          process.env.ORG_JWT_SECRET
@@ -254,14 +256,14 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
       if (_id === user._id.toString()) {
          let checkIsMember = await Project.findOne({ ProjectName });
          if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw { name: "ProjectInvitationRebound" };
+            throw new AppError("ProjectInvitationReboundError");
 
          let parentOrg = await Organization.findOne({
             OrganizationName: checkIsMember.ParentOrganization,
          });
 
          if (!parentOrg.Members.includes(user.UniqueUsername))
-            throw { name: "OrganizationAuthFail" };
+            throw new AppError("OrganizationAuthFailError");
 
          let project = await Project.findOneAndUpdate(
             { ProjectName },
@@ -284,7 +286,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
             `/project/${project.ParentOrganization}/${project.ProjectName}`
          );
       } else {
-         throw { name: "AuthFailure" };
+         throw new AppError("AuthenticationError");
       }
    } catch (error) {
       return next(error);
@@ -299,15 +301,15 @@ router.post(
 
       try {
          if (UniqueUsername !== initiator)
-            throw { name: "UnauthorizedRequest" };
+            throw new AppError("UnauthorizedRequestError");
 
          let project = await Project.findOne({
             ProjectName: metaData.target_name,
          });
-         if (!project) throw { name: "UnknownData" };
+         if (!project) throw new AppError("BadRequestError");
 
          if (project.Members.includes(UniqueUsername))
-            throw { name: "ProjectInvitationRebound" };
+            throw new AppError("ProjectInvitationReboundError");
 
          if (!project.InviteOnly) {
             await Project.findOneAndUpdate(
@@ -415,7 +417,7 @@ router.post("/drive/google/create-file", fileParser, async (req, res, next) => {
 
       let file = req.file;
 
-      if (!file) throw { name: UploadFailure };
+      if (!file) throw new AppError("UploadFailureError");
 
       let tempStream = new stream.PassThrough();
 
@@ -477,7 +479,7 @@ router.post("/drive/file/add", async (req, res, next) => {
       let userInProject = user.Projects.find(
          project => project.ProjectName === fileData.project
       );
-      if (!userInProject) throw { name: "UnauthorizedRequest" };
+      if (!userInProject) throw new AppError("UnauthorizedRequestError");
 
       let driveFile = new DriveFile(fileData);
 
@@ -497,7 +499,7 @@ router.delete("/drive/file/remove", async (req, res, next) => {
    try {
       let file = await DriveFile.findOne({ id: fileId });
       if (file.creator !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
 
       await DriveFile.deleteOne({ id: fileId });
 
@@ -518,7 +520,7 @@ router.get("/drive/files/get/:ProjectName", async (req, res, next) => {
          project => project.ProjectName === requestedProject
       );
 
-      if (!userInProject) throw { name: "UnauthorizedRequest" };
+      if (!userInProject) throw new AppError("UnauthorizedRequestError");
 
       let files = await DriveFile.find({ project: requestedProject })
          .lean()

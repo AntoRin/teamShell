@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Issue = require("../models/Issue");
 
+const AppError = require("./AppError");
+
 async function handleNotifications(req, res, next) {
    let { initiator, recipient, metaData } = req.body;
 
@@ -18,7 +20,7 @@ async function handleNotifications(req, res, next) {
       switch (metaData.notification_type) {
          case "Invitation": {
             let user = await User.findOne({ UniqueUsername: recipient });
-            if (!user) throw { name: "UnauthorizedRequest" };
+            if (!user) throw new AppError("UnauthorizedRequestError");
 
             let jwtPayloadName, routeBaseName;
 
@@ -29,7 +31,7 @@ async function handleNotifications(req, res, next) {
                jwtPayloadName = "ProjectName";
                routeBaseName = "project";
             } else {
-               throw { name: "ServerError" };
+               throw new AppError("ServerError");
             }
 
             let userSecret = jwt.sign(
@@ -89,9 +91,10 @@ async function handleNotifications(req, res, next) {
             return res.json({ status: "ok", data: "" });
          case "NewSolutionLike": {
             let user = await User.findOne({ UniqueUsername: recipient });
-            if (!user) throw { name: "UnauthorizedRequest" };
+            if (!user) throw new AppError("UnauthorizedRequestError");
 
-            if (user.UniqueUsername === initiator) throw { name: "SilentEnd" };
+            if (user.UniqueUsername === initiator)
+               throw new AppError("NoActionRequiredError");
 
             let Hyperlink, notificationSnippet;
 

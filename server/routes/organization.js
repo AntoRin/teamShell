@@ -5,6 +5,8 @@ const { Router } = require("express");
 const { handleNotifications } = require("../utils/notificationHandler");
 const router = Router();
 
+const AppError = require("../utils/AppError");
+
 router.post("/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let { OrganizationName, Description } = req.body;
@@ -48,11 +50,11 @@ router.get("/details/:OrganizationName", async (req, res, next) => {
 
    try {
       let org = await Organization.findOne({ OrganizationName });
-      if (org === null) throw { name: "UnknownData" };
+      if (org === null) throw new AppError("BadRequestError");
       if (org.Members.includes(UniqueUsername)) {
          return res.json({ status: "ok", Organization: org });
       } else {
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
       }
    } catch (error) {
       return next(error);
@@ -66,9 +68,9 @@ router.post("/edit", async (req, res, next) => {
    try {
       let organization = await Organization.findOne({ OrganizationName: Org });
 
-      if (!organization) throw { name: "UnknownData" };
+      if (!organization) throw new AppError("BadRequestError");
       if (organization.Creator !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
 
       await Organization.updateOne({ OrganizationName: Org }, { Description });
       return res.json({ status: "ok", data: "" });
@@ -86,7 +88,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
 
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
       let { _id, OrganizationName } = jwt.verify(
          userSecret,
          process.env.ORG_JWT_SECRET
@@ -94,7 +96,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
       if (_id === user._id.toString()) {
          let checkIsMember = await Organization.findOne({ OrganizationName });
          if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw { name: "OrgInvitationRebound" };
+            throw new AppError("OrgInvitationReboundError");
          let Org = await Organization.findOneAndUpdate(
             { OrganizationName },
             { $push: { Members: user.UniqueUsername } }
@@ -113,7 +115,7 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
          );
          return res.redirect(`/organization/${OrganizationName}`);
       } else {
-         throw { name: "AuthFailure" };
+         throw new AppError("AuthenticationError");
       }
    } catch (error) {
       return next(error);

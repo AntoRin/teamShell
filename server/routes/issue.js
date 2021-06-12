@@ -6,22 +6,24 @@ const Issue = require("../models/Issue");
 const { handleNotifications } = require("../utils/notificationHandler");
 const router = Router();
 
+const AppError = require("../utils/AppError");
+
 router.get("/details/:IssueID", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
    let _id = req.params.IssueID;
    try {
       let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
       let issue = await Issue.findOne({ _id });
 
-      if (!issue) throw { name: "UnknownData" };
+      if (!issue) throw new AppError("BadRequestError");
 
       let projectMember = user.Projects.find(project => {
          return project._id.toString() === issue.Project_id;
       });
 
-      if (!projectMember) throw { name: "UnauthorizedRequest" };
+      if (!projectMember) throw new AppError("UnauthorizedRequestError");
 
       return res.json({ status: "ok", data: issue });
    } catch (error) {
@@ -37,7 +39,7 @@ router.get("/snippet/:IssueID", async (req, res, next) => {
    try {
       let user = await User.findOne({ UniqueUsername, Email });
 
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
       let issueDetails = await Issue.findOne(
          { _id },
@@ -49,13 +51,13 @@ router.get("/snippet/:IssueID", async (req, res, next) => {
          }
       );
 
-      if (!issueDetails) throw { name: "UnknownData" };
+      if (!issueDetails) throw new AppError("BadRequestError");
 
       let projectMember = user.Projects.find(project => {
          return project._id.toString() === issueDetails.Project_id;
       });
 
-      if (!projectMember) throw { name: "UnauthorizedRequest" };
+      if (!projectMember) throw new AppError("UnauthorizedRequestError");
 
       let issueSnippet = {
          ID: issueDetails._id,
@@ -95,7 +97,7 @@ router.post(
 
       try {
          if (Creator.UniqueUsername !== UniqueUsername)
-            throw { name: "UnauthorizedRequest" };
+            throw new AppError("UnauthorizedRequestError");
 
          let newIssue = new Issue(issue);
 
@@ -144,15 +146,15 @@ router.put("/bookmark", async (req, res, next) => {
 
    try {
       if (User_UniqueUsername !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
       let user = await User.findOne({ UniqueUsername, _id: User_id });
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
       let bookmarked = user.Issues.Bookmarked.find(
          bookmark => bookmark._id.toString() === Issue_id_object.toString()
       );
 
-      if (bookmarked) throw { name: "SilentEnd" };
+      if (bookmarked) throw new AppError("NoActionRequiredError");
 
       await User.updateOne(
          { _id: User_id, UniqueUsername },
@@ -172,15 +174,15 @@ router.put("/bookmark/remove", async (req, res, next) => {
 
    try {
       if (User_UniqueUsername !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
       let user = await User.findOne({ UniqueUsername, _id: User_id });
-      if (!user) throw { name: "UnauthorizedRequest" };
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
       let bookmarked = user.Issues.Bookmarked.find(
          bookmark => bookmark._id.toString() === Issue_id_object.toString()
       );
 
-      if (!bookmarked) throw { name: "SilentEnd" };
+      if (!bookmarked) throw new AppError("NoActionRequiredError");
       await User.updateOne(
          { _id: User_id, UniqueUsername },
          { $pull: { "Issues.Bookmarked": { _id: Issue_id_object } } }
@@ -198,8 +200,8 @@ router.put("/close", async (req, res, next) => {
    try {
       let issue = await Issue.findOne({ _id: Issue_id });
       if (issue.Creator.UniqueUsername !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
-      if (!issue.Active) throw { name: "SilentEnd" };
+         throw new AppError("UnauthorizedRequestError");
+      if (!issue.Active) throw new AppError("NoActionRequiredError");
       await Issue.updateOne({ _id: Issue_id }, { $set: { Active: false } });
       return res.json({ status: "ok", data: "Issue closed" });
    } catch (error) {
@@ -214,8 +216,8 @@ router.put("/reopen", async (req, res, next) => {
    try {
       let issue = await Issue.findOne({ _id: Issue_id });
       if (issue.Creator.UniqueUsername !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
-      if (issue.Active) throw { name: "SilentEnd" };
+         throw new AppError("UnauthorizedRequestError");
+      if (issue.Active) throw new AppError("NoActionRequiredError");
       await Issue.updateOne({ _id: Issue_id }, { $set: { Active: true } });
       return res.json({ status: "ok", data: "Issue closed" });
    } catch (error) {
@@ -231,7 +233,7 @@ router.delete("/delete", async (req, res, next) => {
    try {
       let issue = await Issue.findOne({ _id: Issue_id });
       if (issue.Creator.UniqueUsername !== UniqueUsername)
-         throw { name: "UnauthorizedRequest" };
+         throw new AppError("UnauthorizedRequestError");
       await Issue.deleteOne({ _id: issue_id_object });
       await Project.updateOne(
          { _id: Project_id },
@@ -265,7 +267,7 @@ router.post(
 
       try {
          if (UniqueUsername !== SolutionCreator.UniqueUsername)
-            throw { name: "UnauthorizedRequest" };
+            throw new AppError("UnauthorizedRequestError");
 
          let updatedIssue = await Issue.findOneAndUpdate(
             { _id: Issue_id },
