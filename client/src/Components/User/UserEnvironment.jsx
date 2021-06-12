@@ -49,9 +49,7 @@ function UserEnvironment({ User, navHeight }) {
    const [configurationDrawer, setConfigurationDrawer] = useState(false);
 
    useEffect(() => {
-      let preference = window.localStorage.getItem(
-         "environment_organization_context"
-      );
+      let preference = window.localStorage.getItem("organization_context");
       if (preference) {
          let userOrg = User.Organizations.find(
             org => org.OrganizationName === preference
@@ -62,10 +60,7 @@ function UserEnvironment({ User, navHeight }) {
 
    useEffect(() => {
       if (currentOrg !== null)
-         window.localStorage.setItem(
-            "environment_organization_context",
-            currentOrg
-         );
+         window.localStorage.setItem("organization_context", currentOrg);
    }, [currentOrg]);
 
    function toggleConfigurationDrawer(open) {

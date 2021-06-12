@@ -1,13 +1,36 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
+import Typography from "@material-ui/core/Typography";
 import AddBoxIcon from "@material-ui/icons/AddBox";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 import "../../styles/user-home.css";
 import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles({
    homeContainer: {
       marginTop: navHeight => navHeight,
+   },
+   listContainer: {
+      width: "100%",
+      backgroundColor: "rgb(67, 64, 100)",
+   },
+   listElement: {
+      "&.Mui-selected": {
+         backgroundColor: "rgb(111, 59, 255)",
+      },
+      "&.MuiListItem-button:hover": {
+         backgroundColor: "rgb(126, 114, 236)",
+      },
+   },
+   accordion: {
+      backgroundColor: "rgb(67, 64, 100)",
    },
 });
 
@@ -23,7 +46,7 @@ function UserHome({ User, navHeight }) {
    const history = useHistory();
 
    useEffect(() => {
-      let preference = window.localStorage.getItem("home_organization_context");
+      let preference = window.localStorage.getItem("organization_context");
       if (preference) {
          let userOrg = User.Organizations.find(
             org => org.OrganizationName === preference
@@ -33,7 +56,7 @@ function UserHome({ User, navHeight }) {
    }, [User.Organizations]);
 
    useEffect(() => {
-      window.localStorage.setItem("home_organization_context", activePanelOrg);
+      window.localStorage.setItem("organization_context", activePanelOrg);
    }, [activePanelOrg]);
 
    function changePanelOrg(orgName) {
@@ -92,44 +115,55 @@ function UserHome({ User, navHeight }) {
          <div className="home-main">
             <div className="user-details">
                <div className="details-section">
-                  <h3 className="member-list-header">Organizations</h3>
-                  {User.Organizations.length > 0 ? (
-                     User.Organizations.map(org => {
-                        return (
-                           <div
-                              onClick={() =>
-                                 changePanelOrg(org.OrganizationName)
-                              }
-                              onDoubleClick={() =>
-                                 goToOrg(org.OrganizationName)
-                              }
-                              className={`member-list-item ${
-                                 activePanelOrg === org.OrganizationName
-                                    ? "active-member"
-                                    : ""
-                              }`}
-                              key={org._id}
+                  <Accordion className={classes.accordion} square>
+                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="h6">Organizations</Typography>
+                     </AccordionSummary>
+                     <AccordionDetails>
+                        <List className={classes.listContainer}>
+                           {User.Organizations.length > 0 ? (
+                              User.Organizations.map(org => {
+                                 return (
+                                    <ListItem
+                                       key={org._id}
+                                       className={classes.listElement}
+                                       button
+                                       divider
+                                       selected={
+                                          activePanelOrg ===
+                                          org.OrganizationName
+                                       }
+                                       onClick={() =>
+                                          changePanelOrg(org.OrganizationName)
+                                       }
+                                       onDoubleClick={() =>
+                                          goToOrg(org.OrganizationName)
+                                       }
+                                    >
+                                       <ListItemText
+                                          primary={org.OrganizationName}
+                                       />
+                                    </ListItem>
+                                 );
+                              })
+                           ) : (
+                              <div className="member-list-item">
+                                 You are not part of any organization
+                              </div>
+                           )}
+                           <Button
+                              color="primary"
+                              variant="contained"
+                              fullWidth={true}
+                              size="large"
+                              onClick={createNewOrganization}
+                              endIcon={<AddBoxIcon />}
                            >
-                              {org.OrganizationName}
-                           </div>
-                        );
-                     })
-                  ) : (
-                     <div className="member-list-item">
-                        You are not part of any organization
-                     </div>
-                  )}
-                  <div className="create-org-btn">
-                     <Button
-                        color="primary"
-                        variant="outlined"
-                        fullWidth={true}
-                        onClick={createNewOrganization}
-                        endIcon={<AddBoxIcon />}
-                     >
-                        New Organization
-                     </Button>
-                  </div>
+                              New Organization
+                           </Button>
+                        </List>
+                     </AccordionDetails>
+                  </Accordion>
                </div>
                <div className="details-section">
                   <h3 className="member-list-header">Projects</h3>
