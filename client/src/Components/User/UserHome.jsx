@@ -36,16 +36,16 @@ function UserHome({ User, navHeight }) {
       window.localStorage.setItem("home_organization_context", activePanelOrg);
    }, [activePanelOrg]);
 
-   function changePanelOrg(event) {
-      setActivePanelOrg(event.target.innerHTML);
+   function changePanelOrg(orgName) {
+      setActivePanelOrg(orgName);
    }
 
-   function goToOrg(event) {
-      history.push(`/organization/${event.target.innerHTML}`);
+   function goToOrg(orgName) {
+      history.push(`/organization/${orgName}`);
    }
 
-   function goToProject(event) {
-      history.push(`/project/${activePanelOrg}/${event.target.innerHTML}`);
+   function goToProject(projectName) {
+      history.push(`/project/${activePanelOrg}/${projectName}`);
    }
 
    function createNewOrganization() {
@@ -71,13 +71,13 @@ function UserHome({ User, navHeight }) {
             </div>
          );
 
-      let projectTitles = User.Projects.map((project, index) => {
+      let projectTitles = User.Projects.map(project => {
          return (
             project.ParentOrganization === activePanelOrg && (
                <div
-                  key={index}
+                  key={project._id}
                   className="member-list-item"
-                  onClick={goToProject}
+                  onClick={() => goToProject(project.ProjectName)}
                >
                   {project.ProjectName}
                </div>
@@ -94,17 +94,21 @@ function UserHome({ User, navHeight }) {
                <div className="details-section">
                   <h3 className="member-list-header">Organizations</h3>
                   {User.Organizations.length > 0 ? (
-                     User.Organizations.map((org, index) => {
+                     User.Organizations.map(org => {
                         return (
                            <div
-                              onClick={changePanelOrg}
-                              onDoubleClick={goToOrg}
+                              onClick={() =>
+                                 changePanelOrg(org.OrganizationName)
+                              }
+                              onDoubleClick={() =>
+                                 goToOrg(org.OrganizationName)
+                              }
                               className={`member-list-item ${
                                  activePanelOrg === org.OrganizationName
                                     ? "active-member"
                                     : ""
                               }`}
-                              key={index}
+                              key={org._id}
                            >
                               {org.OrganizationName}
                            </div>
