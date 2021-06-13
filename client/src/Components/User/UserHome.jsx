@@ -1,36 +1,83 @@
 import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
+import IconButton from "@material-ui/core/IconButton";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
+import AddToPhotosSharpIcon from "@material-ui/icons/AddToPhotosSharp";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import GeneralConfirmDialog from "../UtilityComponents/GeneralConfirmDialog";
 import "../../styles/user-home.css";
-import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles({
    homeContainer: {
       marginTop: navHeight => navHeight,
+      height: navHeight => `calc(100vh - ${navHeight}px)`,
    },
-   listContainer: {
+   orgAccordion: {
+      backgroundColor: "rgb(50, 46, 83)",
+      "& h6": {
+         color: "white",
+         fontWeight: "500",
+         fontSize: "1.3rem",
+      },
+      "& span": {
+         color: "white",
+         fontWeight: "500",
+         fontSize: "1.1rem",
+      },
+      "& .MuiAccordionSummary-root": {
+         backgroundColor: "rgb(89, 9, 185)",
+         borderBottom: "1px solid #fafafa",
+      },
+   },
+   orgListContainer: {
       width: "100%",
-      backgroundColor: "rgb(67, 64, 100)",
    },
-   listElement: {
+   orgListElement: {
       "&.Mui-selected": {
-         backgroundColor: "rgb(111, 59, 255)",
+         backgroundColor: "rgb(100, 70, 202)",
       },
       "&.MuiListItem-button:hover": {
          backgroundColor: "rgb(126, 114, 236)",
       },
    },
-   accordion: {
-      backgroundColor: "rgb(67, 64, 100)",
+   projectListContainer: {
+      marginTop: "25px",
+      padding: "5px",
+      backgroundColor: "rgb(50, 46, 83)",
+      "&	.MuiListItem-divider": {
+         borderBottom: "1px solid rgb(51, 0, 111)",
+      },
+      "& .MuiListItem-button:hover": {
+         backgroundColor: "rgb(95, 77, 253)",
+      },
+      "&	.MuiListItem-selected": {
+         borderBottom: "1px solid rgb(119, 59, 187)",
+      },
+   },
+   button: {
+      backgroundColor: "rgb(21, 0, 46)",
+      color: "white",
+      "&:hover": {
+         backgroundColor: "black",
+      },
+   },
+   projectTitle: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderBottom: "1px solid #fafafa",
+   },
+   icon: {
+      color: "rgb(180, 170, 255)",
    },
 });
 
@@ -42,6 +89,10 @@ function UserHome({ User, navHeight }) {
          ? User.Organizations[0].OrganizationName
          : ""
    );
+   const [confirmDialog, setConfirmDialog] = useState({
+      isRequired: false,
+      confirmationFor: null,
+   });
 
    const history = useHistory();
 
@@ -58,6 +109,20 @@ function UserHome({ User, navHeight }) {
    useEffect(() => {
       window.localStorage.setItem("organization_context", activePanelOrg);
    }, [activePanelOrg]);
+
+   function requireConfirmation(orgName) {
+      setConfirmDialog({
+         isRequired: true,
+         confirmationFor: orgName,
+      });
+   }
+
+   function closeConfirmDialog() {
+      setConfirmDialog({
+         isRequired: false,
+         confirmationFor: null,
+      });
+   }
 
    function changePanelOrg(orgName) {
       setActivePanelOrg(orgName);
@@ -80,33 +145,17 @@ function UserHome({ User, navHeight }) {
    }
 
    function currentProjects() {
-      if (User.Projects.length < 1)
-         return <div className="member-list-item">No projects yet</div>;
+      if (User.Projects.length < 1) return ["No projects yet"];
 
       let thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === activePanelOrg
       );
 
-      if (!thisOrgProjects)
-         return (
-            <div className="member-list-item">
-               No project in this organization
-            </div>
-         );
+      if (!thisOrgProjects) return ["No project in this organization"];
 
-      let projectTitles = User.Projects.map(project => {
-         return (
-            project.ParentOrganization === activePanelOrg && (
-               <div
-                  key={project._id}
-                  className="member-list-item"
-                  onClick={() => goToProject(project.ProjectName)}
-               >
-                  {project.ProjectName}
-               </div>
-            )
-         );
-      });
+      let projectTitles = User.Projects.filter(
+         project => project.ParentOrganization === activePanelOrg && project
+      );
       return projectTitles;
    }
 
@@ -115,18 +164,18 @@ function UserHome({ User, navHeight }) {
          <div className="home-main">
             <div className="user-details">
                <div className="details-section">
-                  <Accordion className={classes.accordion} square>
+                  <Accordion className={classes.orgAccordion} square>
                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography variant="h6">Organizations</Typography>
                      </AccordionSummary>
                      <AccordionDetails>
-                        <List className={classes.listContainer}>
+                        <List className={classes.orgListContainer}>
                            {User.Organizations.length > 0 ? (
                               User.Organizations.map(org => {
                                  return (
                                     <ListItem
                                        key={org._id}
-                                       className={classes.listElement}
+                                       className={classes.orgListElement}
                                        button
                                        divider
                                        selected={
@@ -134,7 +183,9 @@ function UserHome({ User, navHeight }) {
                                           org.OrganizationName
                                        }
                                        onClick={() =>
-                                          changePanelOrg(org.OrganizationName)
+                                          requireConfirmation(
+                                             org.OrganizationName
+                                          )
                                        }
                                        onDoubleClick={() =>
                                           goToOrg(org.OrganizationName)
@@ -151,40 +202,70 @@ function UserHome({ User, navHeight }) {
                                  You are not part of any organization
                               </div>
                            )}
-                           <Button
-                              color="primary"
-                              variant="contained"
-                              fullWidth={true}
-                              size="large"
-                              onClick={createNewOrganization}
-                              endIcon={<AddBoxIcon />}
-                           >
-                              New Organization
-                           </Button>
+                           <ListItem disableGutters>
+                              <ListItemText
+                                 primary="Create"
+                                 primaryTypographyProps={{
+                                    variant: "caption",
+                                 }}
+                                 secondary="New Organization"
+                                 secondaryTypographyProps={{
+                                    color: "secondary",
+                                    variant: "caption",
+                                 }}
+                              />
+                              <ListItemIcon onClick={createNewOrganization}>
+                                 <IconButton className={classes.icon}>
+                                    <AddBoxIcon fontSize="large" />
+                                 </IconButton>
+                              </ListItemIcon>
+                           </ListItem>
                         </List>
                      </AccordionDetails>
                   </Accordion>
                </div>
                <div className="details-section">
-                  <h3 className="member-list-header">Projects</h3>
-                  {currentProjects()}
-                  <div className="create-project-btn">
-                     <Button
-                        color="primary"
-                        variant="outlined"
-                        fullWidth={true}
-                        onClick={createNewProject}
-                        endIcon={<AddBoxIcon />}
-                     >
-                        New Project
-                     </Button>
-                  </div>
+                  <List
+                     className={classes.projectListContainer}
+                     subheader={
+                        <div className={classes.projectTitle}>
+                           <Typography variant="h6">Projects</Typography>
+                           <IconButton
+                              className={classes.icon}
+                              onClick={createNewProject}
+                           >
+                              <AddToPhotosSharpIcon fontSize="large" />
+                           </IconButton>
+                        </div>
+                     }
+                  >
+                     {currentProjects().map(project => (
+                        <ListItem
+                           key={project._id}
+                           button
+                           divider
+                           onClick={() => goToProject(project.ProjectName)}
+                        >
+                           <ListItemText primary={project.ProjectName} />
+                        </ListItem>
+                     ))}
+                  </List>
                </div>
             </div>
             <div className="home-workspace">
                <h1 style={{ color: "gray" }}>No work progress to show😴</h1>
             </div>
          </div>
+         <GeneralConfirmDialog
+            confirmationRequired={confirmDialog.isRequired}
+            handleConfirmationSuccess={() => {
+               changePanelOrg(confirmDialog.confirmationFor);
+               setConfirmDialog({ isRequired: false, confirmationFor: null });
+            }}
+            handleConfirmationFailure={closeConfirmDialog}
+            title="Do you want to switch organizations?"
+            body=""
+         />
       </div>
    );
 }
