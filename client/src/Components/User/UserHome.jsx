@@ -183,6 +183,8 @@ function UserHome({ User, navHeight }) {
                                           org.OrganizationName
                                        }
                                        onClick={() =>
+                                          activePanelOrg !==
+                                             org.OrganizationName &&
                                           requireConfirmation(
                                              org.OrganizationName
                                           )

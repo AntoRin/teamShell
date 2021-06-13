@@ -4,7 +4,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import IconButton from "@material-ui/core/IconButton";
 import SettingsIcon from "@material-ui/icons/Settings";
-import { Button, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import OrgTabPanel from "./OrgTabPanel";
 import OrgSettingsModal from "./OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -99,8 +99,6 @@ function OrganizationHome({ match, User, navHeight }) {
       setIsSettingsOpen(prev => !prev);
    }
 
-   function handleJoinRequest() {}
-
    if (isLoading) {
       return <LinearLoader />;
    } else {
@@ -116,13 +114,6 @@ function OrganizationHome({ match, User, navHeight }) {
                      {Organization.OrganizationName}
                   </Typography>
                </>
-               <Button
-                  color="secondary"
-                  variant="outlined"
-                  onClick={handleJoinRequest}
-               >
-                  Join
-               </Button>
             </div>
             <div className={classes.root}>
                <Tabs

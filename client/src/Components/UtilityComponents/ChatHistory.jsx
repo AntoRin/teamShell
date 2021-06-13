@@ -3,7 +3,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
+import Avatar from "@material-ui/core/Avatar";
 import UserSearchBar from "./UserSearchBar";
 import CenteredLoader from "./CenteredLoader";
 import "../../styles/chat-history.css";
@@ -91,6 +93,12 @@ function ChatHistory({
                         key={chat.ChatID}
                         onClick={() => initiateChat(thisChatHistory)}
                      >
+                        <ListItemAvatar>
+                           <Avatar
+                              src={`/api/profile/profile-image/${thisChatHistory}`}
+                              alt=""
+                           />
+                        </ListItemAvatar>
                         <ListItemText primary={thisChatHistory} />
                      </ListItem>
                   );
