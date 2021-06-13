@@ -34,7 +34,7 @@ const useStyles = makeStyles({
          fontSize: "1.1rem",
       },
       "& .MuiAccordionSummary-root": {
-         backgroundColor: "rgb(89, 9, 185)",
+         backgroundColor: "#2a2b38",
          borderBottom: "1px solid #fafafa",
       },
    },
@@ -75,6 +75,7 @@ const useStyles = makeStyles({
       justifyContent: "space-between",
       alignItems: "center",
       borderBottom: "1px solid #fafafa",
+      width: "100%",
    },
    icon: {
       color: "rgb(180, 170, 255)",
@@ -145,13 +146,14 @@ function UserHome({ User, navHeight }) {
    }
 
    function currentProjects() {
-      if (User.Projects.length < 1) return ["No projects yet"];
+      if (User.Projects.length < 1) return [{ ProjectName: "No projects yet" }];
 
       let thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === activePanelOrg
       );
 
-      if (!thisOrgProjects) return ["No project in this organization"];
+      if (!thisOrgProjects)
+         return [{ ProjectName: "No project in this organization" }];
 
       let projectTitles = User.Projects.filter(
          project => project.ParentOrganization === activePanelOrg && project
@@ -241,9 +243,9 @@ function UserHome({ User, navHeight }) {
                         </div>
                      }
                   >
-                     {currentProjects().map(project => (
+                     {currentProjects().map((project, index) => (
                         <ListItem
-                           key={project._id}
+                           key={project._id || index}
                            button
                            divider
                            onClick={() => goToProject(project.ProjectName)}

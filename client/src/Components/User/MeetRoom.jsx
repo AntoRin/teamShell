@@ -20,11 +20,21 @@ const useStyles = makeStyles({
    streamsContainer: {
       display: "grid",
       gridTemplateColumns: "repeat(4, 1fr)",
-      gridAutoRows: "300px",
+      gridAutoRows: "400px",
       gap: "20px",
+      "& > div": {
+         height: "100%",
+         "& > div": {
+            height: "10%",
+            backgroundColor: "rgb(89, 9, 185)",
+            fontSize: "1.5rem",
+            color: "#fff",
+            textAlign: "center",
+         },
+      },
       "& video": {
          width: "100%",
-         height: "100%",
+         height: "95%",
       },
    },
    joinRoom: {
@@ -48,6 +58,7 @@ function MeetRoom({ match, User, navHeight }) {
    const videoRef = useRef();
    const localStreamRef = useRef();
    const localVideoElementRef = useRef();
+   const connectedPeersRef = useRef([]);
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -96,6 +107,37 @@ function MeetRoom({ match, User, navHeight }) {
       };
    }, [socket, User.UniqueUsername]);
 
+   function removePeerFromList(peerName) {
+      let peerIdx = connectedPeersRef.current.indexOf(peerName);
+      console.log(peerName, peerIdx);
+
+      connectedPeersRef.current.splice(peerIdx, 1);
+   }
+
+   function createVideoElement(videoStream, caption) {
+      if (connectedPeersRef.current.includes(caption)) return null;
+
+      connectedPeersRef.current = [...connectedPeersRef.current, caption];
+
+      console.log(connectedPeersRef.current);
+
+      let videoContainerElement = document.createElement("div");
+      let remoteVideoElement = document.createElement("video");
+      let captionElement = document.createElement("div");
+
+      captionElement.textContent = caption;
+      remoteVideoElement.srcObject = videoStream;
+
+      videoContainerElement.append(remoteVideoElement);
+      videoContainerElement.append(captionElement);
+
+      videoRef.current.append(videoContainerElement);
+
+      remoteVideoElement.onloadedmetadata = () => remoteVideoElement.play();
+
+      return videoContainerElement;
+   }
+
    function initiateCall() {
       if (!verified) return;
 
@@ -113,14 +155,12 @@ function MeetRoom({ match, User, navHeight }) {
       try {
          let localStream = localStreamRef.current;
 
-         localVideoElementRef.current.srcObject = localStream;
-         localVideoElementRef.current.onloadedmetadata = () =>
-            localVideoElementRef.current.play();
-
          socket.on(
             `call-offer-${User.UniqueUsername}`,
             async (offer, callerName) => {
                try {
+                  if (connectedPeersRef.current.includes(callerName)) return;
+
                   let peerConnection = new RTCPeerConnection(p2pConfig);
 
                   localStream
@@ -133,23 +173,26 @@ function MeetRoom({ match, User, navHeight }) {
                   peerConnection.ontrack = ({ streams: [remoteStream] }) => {
                      if (prevStreamId === remoteStream.id) return;
 
-                     let remoteVideoElement = document.createElement("video");
-                     remoteVideoElement.srcObject = remoteStream;
-                     videoRef.current.append(remoteVideoElement);
-                     remoteVideoElement.onloadedmetadata = () =>
-                        remoteVideoElement.play();
+                     let videoContainerElement = createVideoElement(
+                        remoteStream,
+                        callerName
+                     );
 
                      peerConnection.onconnectionstatechange = () => {
                         if (peerConnection.connectionState === "failed") {
                            console.log(`Connection severed with ${callerName}`);
-                           remoteVideoElement.remove();
+                           videoContainerElement &&
+                              videoContainerElement.remove();
                            socket.off(`peer-${callerName}-left`);
+
+                           removePeerFromList(callerName);
                         }
                      };
 
                      socket.on(`peer-${callerName}-left`, () => {
-                        remoteVideoElement.remove();
+                        videoContainerElement && videoContainerElement.remove();
                         socket.off(`peer-${callerName}-left`);
+                        removePeerFromList(callerName);
                      });
 
                      prevStreamId = remoteStream.id;
@@ -190,7 +233,7 @@ function MeetRoom({ match, User, navHeight }) {
                         }
                      }
                   );
-                  peerConnection.onconnectionstatechange = event => {
+                  peerConnection.onconnectionstatechange = () => {
                      if (peerConnection.connectionState === "connected") {
                         socket.off(
                            `call-answer-${User.UniqueUsername}-${callerName}`
@@ -229,9 +272,18 @@ function MeetRoom({ match, User, navHeight }) {
          });
          localStreamRef.current = localStream;
 
+         localVideoElementRef.current.srcObject = localStream;
+         localVideoElementRef.current.onloadedmetadata = () =>
+            localVideoElementRef.current.play();
+
          socket.on("new-peer", async peerName => {
+            if (
+               connectedPeersRef.current.includes(peerName) ||
+               peerName === User.UniqueUsername
+            )
+               return;
+
             console.log("new peer");
-            if (peerName === User.UniqueUsername) return;
 
             try {
                let peerConnection = new RTCPeerConnection(p2pConfig);
@@ -246,25 +298,27 @@ function MeetRoom({ match, User, navHeight }) {
                peerConnection.ontrack = ({ streams: [remoteStream] }) => {
                   if (prevStreamId === remoteStream.id) return;
 
-                  let remoteVideoElement = document.createElement("video");
-                  remoteVideoElement.srcObject = remoteStream;
-                  videoRef.current.append(remoteVideoElement);
-
-                  remoteVideoElement.onloadedmetadata = () =>
-                     remoteVideoElement.play();
+                  let videoContainerElement = createVideoElement(
+                     remoteStream,
+                     peerName
+                  );
 
                   peerConnection.onconnectionstatechange = () => {
                      if (peerConnection.connectionState === "failed") {
                         console.log(`Connection severed with ${peerName}`);
-                        remoteVideoElement.remove();
+                        videoContainerElement && videoContainerElement.remove();
                         socket.off(`peer-${peerName}-left`);
+
+                        removePeerFromList(peerName);
                      }
                   };
 
                   socket.on(`peer-${peerName}-left`, () => {
                      console.log("removing dom video element");
-                     remoteVideoElement.remove();
+                     videoContainerElement && videoContainerElement.remove();
                      socket.off(`peer-${peerName}-left`);
+
+                     removePeerFromList(peerName);
                   });
 
                   prevStreamId = remoteStream.id;

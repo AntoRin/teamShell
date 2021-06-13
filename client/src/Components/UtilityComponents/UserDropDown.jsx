@@ -1,7 +1,11 @@
 import { useHistory } from "react-router-dom";
-import { ListItemIcon, makeStyles } from "@material-ui/core";
-import { List, ListItem, ListItemText } from "@material-ui/core";
-import AccountBoxIcon from "@material-ui/icons/AccountBox";
+import { makeStyles } from "@material-ui/core";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import Avatar from "@material-ui/core/Avatar";
 import EcoIcon from "@material-ui/icons/Eco";
 import CodeIcon from "@material-ui/icons/Code";
 import SettingsApplicationsOutlinedIcon from "@material-ui/icons/SettingsApplicationsOutlined";
@@ -58,17 +62,24 @@ function UserDropDown({ isOpen, setIsDropdownOpen, UniqueUsername }) {
             <List>
                <ListItem
                   className={classes.listElement}
-                  dense={true}
+                  dense={false}
                   button={true}
                   divider={true}
                   onClick={() => goToLink(`/user/profile/${UniqueUsername}`)}
                >
-                  <ListItemIcon>
-                     <AccountBoxIcon className={classes.icons} />
-                  </ListItemIcon>
+                  <ListItemAvatar>
+                     <Avatar
+                        src={`/api/profile/profile-image/${UniqueUsername}`}
+                        alt=""
+                        variant="rounded"
+                     />
+                  </ListItemAvatar>
                   <ListItemText
-                     primary="Profile"
-                     primaryTypographyProps={listTextProps}
+                     primary={UniqueUsername}
+                     primaryTypographyProps={{
+                        ...listTextProps,
+                        color: "secondary",
+                     }}
                   />
                </ListItem>
                <ListItem
