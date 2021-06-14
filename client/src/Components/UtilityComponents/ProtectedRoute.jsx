@@ -20,7 +20,7 @@ function ProtectedRoute({ component: Component, ...props }) {
 
    useEffect(() => {
       setSocket(
-         io("http://localhost:5000", {
+         io({
             withCredentials: true,
             reconnectionAttempts: 5,
          })
@@ -35,10 +35,10 @@ function ProtectedRoute({ component: Component, ...props }) {
 
    useEffect(() => {
       let abortFetch = new AbortController();
+
       async function verifyUser() {
          try {
             let auth = await fetch("/api/auth/verify", {
-               credentials: "include",
                signal: abortFetch.signal,
             });
 

@@ -49,7 +49,7 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
                   setIsLoading(true);
                   let userDataStream = await fetch(
                      `/api/profile/details/${match.params.UniqueUsername}`,
-                     { credentials: "include", signal: abortFetch.signal }
+                     { signal: abortFetch.signal }
                   );
 
                   if (abortFetch.signal.aborted) return;
@@ -67,7 +67,7 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
             } else {
                let userDataStream = await fetch(
                   `/api/profile/details/${match.params.UniqueUsername}`,
-                  { credentials: "include", signal: abortFetch.signal }
+                  { signal: abortFetch.signal }
                );
 
                if (abortFetch.signal.aborted) return;
@@ -119,52 +119,63 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
 
    async function handleImageUpload(event) {
       event.preventDefault();
-      let form = event.target;
-      let image = fileInputElement.current.files[0];
-      let imageData = new FormData(form);
-      imageData.append("profileImage", image);
 
-      let postOptions = {
-         method: "POST",
-         body: imageData,
-         credentials: "include",
-      };
+      try {
+         let form = event.target;
+         let image = fileInputElement.current.files[0];
+         let imageData = new FormData(form);
+         imageData.append("profileImage", image);
 
-      let uploadStream = await fetch(
-         "/api/profile/uploads/profile-image",
-         postOptions
-      );
+         let postOptions = {
+            method: "POST",
+            body: imageData,
+         };
 
-      let uploadResponse = await uploadStream.json();
+         let uploadStream = await fetch(
+            "/api/profile/uploads/profile-image",
+            postOptions
+         );
 
-      uploadResponse.status === "ok"
-         ? setActionStatus({ type: "success", info: "Profile Image updated" })
-         : setActionStatus({ type: "error", info: uploadResponse.error });
+         let uploadResponse = await uploadStream.json();
+
+         uploadResponse.status === "ok"
+            ? setActionStatus({
+                 type: "success",
+                 info: "Profile Image updated",
+              })
+            : setActionStatus({ type: "error", info: uploadResponse.error });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    async function handleProfileUpdate(event) {
       event.preventDefault();
-      let newBio = bioElement.current.value;
-      let newName = usernameElement.current.value;
-      let body = { Bio: newBio, Username: newName };
 
-      let updateOptions = {
-         method: "PUT",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-      let updateRequest = await fetch("/api/profile/edit", updateOptions);
-      let updateResponse = await updateRequest.json();
-      updateResponse.status === "ok"
-         ? setActionStatus({
-              type: "success",
-              info: "Profile successfully updated",
-           })
-         : setActionStatus({
-              type: "error",
-              info: "There was an error updating your profile",
-           });
+      try {
+         let newBio = bioElement.current.value;
+         let newName = usernameElement.current.value;
+         let body = { Bio: newBio, Username: newName };
+
+         let updateOptions = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
+         let updateRequest = await fetch("/api/profile/edit", updateOptions);
+         let updateResponse = await updateRequest.json();
+         updateResponse.status === "ok"
+            ? setActionStatus({
+                 type: "success",
+                 info: "Profile successfully updated",
+              })
+            : setActionStatus({
+                 type: "error",
+                 info: "There was an error updating your profile",
+              });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    function initiateChat() {
@@ -425,7 +436,7 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
                <div className="profile-picture-section">
                   <img
                      id="profilePictureBig"
-                     src={Profile.ProfileImage}
+                     src={`/api/profile/profile-image/${Profile.UniqueUsername}`}
                      alt=""
                   />
                   <div className="profile-picture-caption">

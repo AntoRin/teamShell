@@ -10,12 +10,7 @@ import ChatHistory from "./ChatHistory";
 import UserDropDown from "./UserDropDown";
 import "../../styles/global-nav.css";
 
-function GlobalNav({
-   ProfileImage,
-   UniqueUsername,
-   setChatSettings,
-   setNavHeight,
-}) {
+function GlobalNav({ UniqueUsername, setChatSettings, setNavHeight }) {
    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
    const [activeNotifications, setActiveNotifications] = useState(false);
@@ -39,7 +34,6 @@ function GlobalNav({
             let responseStream = await fetch(
                "/api/profile/notifications/seen",
                {
-                  credentials: "include",
                   signal: abortFetch.signal,
                }
             );
@@ -131,7 +125,7 @@ function GlobalNav({
                   <img
                      onClick={openDropdown}
                      id="userProfileImage"
-                     src={ProfileImage}
+                     src={`/api/profile/profile-image/${UniqueUsername}`}
                      alt=""
                   />
                   <div className="user-drop-down">

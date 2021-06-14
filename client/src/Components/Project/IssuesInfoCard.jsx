@@ -57,15 +57,17 @@ function IssuesInfoCard({ Issue }) {
 
             if (abortFetch.signal.aborted) return;
 
+            if (responseData.status === "error") throw responseData.error;
+
             if (responseData.status === "ok") {
                setIssueInfo(responseData.data);
                setIsLoading(false);
-            } else {
+            }
+         } catch (error) {
+            if (error.name !== "AbortError") {
                setIssueInfo(null);
                setIsLoading(false);
             }
-         } catch (error) {
-            console.log(error);
          }
       }
 

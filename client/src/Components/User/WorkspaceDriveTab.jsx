@@ -58,6 +58,9 @@ const useStyles = makeStyles({
          color: "black",
          fontWeight: "700",
       },
+      "&.MuiBottomNavigation-root": {
+         zIndex: "10",
+      },
    },
 });
 
@@ -133,45 +136,51 @@ function WorkspaceDriveTab({ tab, User, activeProject }) {
    }
 
    async function addToProjectFiles(file) {
-      let body = {
-         creator: User.UniqueUsername,
-         project: activeProject,
-         name: file.name,
-         id: file.id,
-         description: file.description,
-         mimeType: file.mimeType,
-         iconLink: file.iconLink,
-         thumbnailLink: file.thumbnailLink,
-         webContentLink: file.webContentLink,
-         webViewLink: file.webViewLink,
-         createdTime: file.createdTime,
-      };
-
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
-
       try {
-         let responseStream = await fetch(
-            "/api/project/drive/file/add",
-            postOptions
-         );
-         let response = await responseStream.json();
+         let body = {
+            creator: User.UniqueUsername,
+            project: activeProject,
+            name: file.name,
+            id: file.id,
+            description: file.description,
+            mimeType: file.mimeType,
+            iconLink: file.iconLink,
+            thumbnailLink: file.thumbnailLink,
+            webContentLink: file.webContentLink,
+            webViewLink: file.webViewLink,
+            createdTime: file.createdTime,
+         };
 
-         if (response.status === "ok")
-            setActionStatus({ info: "File added to project", type: "success" });
-         else if (response.status === "error") throw response.error;
-      } catch (error) {
-         if (error.name !== "AbortError") {
-            setActionStatus({
-               info: "There was an error adding file to project",
-               type: "error",
-            });
-            return;
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
+
+         try {
+            let responseStream = await fetch(
+               "/api/project/drive/file/add",
+               postOptions
+            );
+            let response = await responseStream.json();
+
+            if (response.status === "ok")
+               setActionStatus({
+                  info: "File added to project",
+                  type: "success",
+               });
+            else if (response.status === "error") throw response.error;
+         } catch (error) {
+            if (error.name !== "AbortError") {
+               setActionStatus({
+                  info: "There was an error adding file to project",
+                  type: "error",
+               });
+               return;
+            }
          }
+      } catch (error) {
+         console.log(error);
       }
    }
 
@@ -187,7 +196,6 @@ function WorkspaceDriveTab({ tab, User, activeProject }) {
          let postOptions = {
             method: "POST",
             body: formData,
-            credentials: "include",
          };
 
          let responseStream = await fetch(
@@ -216,7 +224,6 @@ function WorkspaceDriveTab({ tab, User, activeProject }) {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ fileId }),
-            credentials: "include",
          };
 
          let responseStream = await fetch(

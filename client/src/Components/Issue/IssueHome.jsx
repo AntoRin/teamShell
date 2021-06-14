@@ -34,7 +34,7 @@ function IssueHome({ match, User }) {
          try {
             let rawData = await fetch(
                `/api/issue/details/${match.params.IssueID}`,
-               { credentials: "include", signal: abortFetch.signal }
+               { signal: abortFetch.signal }
             );
 
             if (abortFetch.signal.aborted) return;

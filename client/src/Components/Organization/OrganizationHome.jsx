@@ -63,7 +63,6 @@ function OrganizationHome({ match, User, navHeight }) {
             let orgRequest = await fetch(
                `/api/organization/details/${match.params.OrganizationName}`,
                {
-                  credentials: "include",
                   signal: abortFetch.signal,
                }
             );

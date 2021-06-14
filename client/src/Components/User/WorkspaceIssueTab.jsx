@@ -48,7 +48,7 @@ function WorkspaceIssueTab({ tab, User, activeProject, setActionStatus }) {
          try {
             let responseStream = await fetch(
                `/api/project/details/${activeProject}`,
-               { credentials: "include", signal: abortFetch.signal }
+               { signal: abortFetch.signal }
             );
 
             if (abortFetch.signal.aborted) return;

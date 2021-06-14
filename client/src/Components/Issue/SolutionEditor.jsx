@@ -37,7 +37,6 @@ function SolutionEditor({ issueDetails, User }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
-            credentials: "include",
          };
 
          let newSolution = await fetch(

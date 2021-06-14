@@ -23,26 +23,29 @@ function CreateOrganization() {
 
    async function handleOrgCreation(event) {
       event.preventDefault();
-      let body = {
-         OrganizationName: inputs.newCreateName,
-         Description: inputs.newCreationDescription,
-      };
+      try {
+         let body = {
+            OrganizationName: inputs.newCreateName,
+            Description: inputs.newCreationDescription,
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
 
-      let createOrgRequest = await fetch(
-         "/api/organization/create",
-         postOptions
-      );
-      let createOrgResponse = await createOrgRequest.json();
+         let createOrgRequest = await fetch(
+            "/api/organization/create",
+            postOptions
+         );
+         let createOrgResponse = await createOrgRequest.json();
 
-      if (createOrgResponse.status === "ok")
-         history.push(`/organization/${inputs.newCreateName}`);
+         if (createOrgResponse.status === "ok")
+            history.push(`/organization/${inputs.newCreateName}`);
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    return (

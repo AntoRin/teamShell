@@ -76,6 +76,8 @@ function UserWorkspace({ location, User, navHeight }) {
    const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
+      let abortFetch = new AbortController();
+
       async function verifyBasicDetails() {
          setIsLoading(true);
          let queryString = location.search;
@@ -87,8 +89,12 @@ function UserWorkspace({ location, User, navHeight }) {
                throw new Error("Invalid query string");
 
             let responseStream = await fetch(
-               `/api/project/verification-data/${queries.project}`
+               `/api/project/verification-data/${queries.project}`,
+               { signal: abortFetch.signal }
             );
+
+            if (abortFetch.signal.aborted) return;
+
             let response = await responseStream.json();
 
             if (response.status === "error") throw response.error;
@@ -109,6 +115,8 @@ function UserWorkspace({ location, User, navHeight }) {
       }
 
       verifyBasicDetails();
+
+      return () => abortFetch.abort();
    }, [history, location.search]);
 
    function goToEnvironment() {

@@ -72,7 +72,6 @@ function IssueEditor({ activeProject, User, done }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
-            credentials: "include",
          };
 
          let newIssueSubmit = await fetch("/api/issue/create", postOptions);

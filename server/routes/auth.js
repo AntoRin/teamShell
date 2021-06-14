@@ -58,7 +58,7 @@ router.post("/login", async (req, res, next) => {
          .cookie("token", token, {
             httpOnly: true,
          })
-         .redirect("/user/home");
+         .json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
       next(error);

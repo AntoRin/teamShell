@@ -53,21 +53,15 @@ function Login() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
-            redirect: "manual",
-            credentials: "include",
          };
 
-         let loginRequest = await fetch("/api/auth/login", postOptions);
+         let loginResponseStream = await fetch("/api/auth/login", postOptions);
+         let responseData = await loginResponseStream.json();
 
-         if (loginRequest.type === "opaqueredirect") {
-            setIsLoading(false);
-            history.replace("/user/home");
-            return;
-         }
+         if (responseData.status === "error") throw responseData.error;
 
-         let loginData = await loginRequest.json();
-
-         if (loginData.status === "error") throw loginData.error;
+         setIsLoading(false);
+         return history.replace("/user/home");
       } catch (error) {
          setActionStatus({ info: error, type: "error" });
          setIsLoading(false);

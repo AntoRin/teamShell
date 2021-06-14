@@ -7,21 +7,32 @@ function NonUserRoute({ component: Component, ...props }) {
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
-      async function verifyAuthentication() {
-         let verify = await fetch("/api/auth/verify", {
-            credentials: "include",
-         });
-         let verification = await verify.json();
+      let abortFetch = new AbortController();
 
-         if (verification.status === "ok") {
-            setIsAuthenticated(true);
-            setIsLoading(false);
-         } else {
-            setIsAuthenticated(false);
-            setIsLoading(false);
+      async function verifyAuthentication() {
+         try {
+            let verify = await fetch("/api/auth/verify", {
+               signal: abortFetch.signal,
+            });
+
+            if (abortFetch.signal.aborted) return;
+
+            let verification = await verify.json();
+
+            if (verification.status === "ok") {
+               setIsAuthenticated(true);
+               setIsLoading(false);
+            } else {
+               setIsAuthenticated(false);
+               setIsLoading(false);
+            }
+         } catch (error) {
+            console.log(error);
          }
       }
       verifyAuthentication();
+
+      return () => abortFetch.abort();
    }, []);
 
    if (isLoading) {

@@ -62,69 +62,78 @@ function ProjectSettingsModal({
    async function updateProjectSettings(event) {
       event.preventDefault();
 
-      let body = {
-         ProjectName: Project.ProjectName,
-         ProjectDescription: newDescription,
-         InviteOnly: inviteOnly,
-      };
+      try {
+         let body = {
+            ProjectName: Project.ProjectName,
+            ProjectDescription: newDescription,
+            InviteOnly: inviteOnly,
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
 
-      let update = await fetch("/api/project/edit", postOptions);
-      let updateResponse = await update.json();
+         let update = await fetch("/api/project/edit", postOptions);
+         let updateResponse = await update.json();
 
-      if (updateResponse.status === "ok") {
-         setActionStatus({ info: "Successfully updated", type: "success" });
-      } else {
-         setActionStatus({ info: "There was an error", type: "error" });
+         if (updateResponse.status === "ok") {
+            setActionStatus({ info: "Successfully updated", type: "success" });
+         } else {
+            setActionStatus({ info: "There was an error", type: "error" });
+         }
+      } catch (error) {
+         console.log(error);
       }
    }
 
    async function addUserToProject(event) {
       event.preventDefault();
 
-      if (Project.Members.includes(newUser)) {
-         setActionStatus({ info: "User already present", type: "info" });
-         return;
-      }
+      try {
+         if (Project.Members.includes(newUser)) {
+            setActionStatus({ info: "User already present", type: "info" });
+            return;
+         }
 
-      let invitationData = {
-         initiator: User.UniqueUsername,
-         recipient: newUser,
-         metaData: {
-            notification_type: "Invitation",
-            target_category: "Project",
-            target_name: Project.ProjectName,
-            target_info: `Project with ${Project.Members.length} member(s)`,
-         },
-      };
+         let invitationData = {
+            initiator: User.UniqueUsername,
+            recipient: newUser,
+            metaData: {
+               notification_type: "Invitation",
+               target_category: "Project",
+               target_name: Project.ProjectName,
+               target_info: `Project with ${Project.Members.length} member(s)`,
+            },
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(invitationData),
-         credentials: "include",
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(invitationData),
+         };
 
-      let invitationStream = await fetch(
-         "/api/project/invite/new-user",
-         postOptions
-      );
+         let invitationStream = await fetch(
+            "/api/project/invite/new-user",
+            postOptions
+         );
 
-      let invitationResponse = await invitationStream.json();
+         let invitationResponse = await invitationStream.json();
 
-      if (invitationResponse.status === "ok") {
-         setActionStatus({ info: "Invitation sent to user", type: "success" });
-         return;
-      }
-      if (invitationResponse.status === "error") {
-         setActionStatus({ info: "User not found", type: "error" });
-         return;
+         if (invitationResponse.status === "ok") {
+            setActionStatus({
+               info: "Invitation sent to user",
+               type: "success",
+            });
+            return;
+         }
+         if (invitationResponse.status === "error") {
+            setActionStatus({ info: "User not found", type: "error" });
+            return;
+         }
+      } catch (error) {
+         console.log(error);
       }
    }
 

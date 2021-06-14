@@ -93,7 +93,6 @@ function SolutionCard({ solution, User, issueDetails }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
-            credentials: "include",
          };
 
          let liked = solution.LikedBy.some(like => {

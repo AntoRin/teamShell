@@ -26,26 +26,32 @@ function Register() {
    async function handleRegister(event) {
       event.preventDefault();
 
-      let body = {
-         UniqueUsername: inputs.uniqueUsername,
-         Username: inputs.username,
-         Email: inputs.email,
-         Password: inputs.password,
-      };
+      try {
+         let body = {
+            UniqueUsername: inputs.uniqueUsername,
+            Username: inputs.username,
+            Email: inputs.email,
+            Password: inputs.password,
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
 
-      let registerDataStream = await fetch("/api/auth/register", postOptions);
-      let registerResponse = await registerDataStream.json();
-      if (registerResponse.status === "ok") history.push("/login");
+         let registerDataStream = await fetch(
+            "/api/auth/register",
+            postOptions
+         );
+         let registerResponse = await registerDataStream.json();
 
-      if (registerResponse.status === "error") {
-         console.log(registerResponse.error);
-         setActionStatus({ info: registerResponse.error, type: "error" });
+         if (registerResponse.status === "error") throw registerResponse.error;
+
+         if (registerResponse.status === "ok") history.push("/login");
+      } catch (error) {
+         console.log(error);
+         setActionStatus({ info: error, type: "error" });
       }
    }
 

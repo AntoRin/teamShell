@@ -72,7 +72,6 @@ function ProjectHome({ match, User, navHeight }) {
             let orgRequest = await fetch(
                `/api/organization/details/${match.params.OrganizationName}`,
                {
-                  credentials: "include",
                   signal: abortFetch.signal,
                }
             );
@@ -114,7 +113,7 @@ function ProjectHome({ match, User, navHeight }) {
                return;
             }
          } catch (error) {
-            console.error("The request was aborted");
+            console.log(error);
          }
       }
 
@@ -132,33 +131,36 @@ function ProjectHome({ match, User, navHeight }) {
    }
 
    async function handleJoinRequest() {
-      let requestData = {
-         initiator: User.UniqueUsername,
-         recipient: Project.ProjectName,
-         metaData: {
-            notification_type: "RequestToJoin",
-            target_category: "Project",
-            target_name: Project.ProjectName,
-            target_info: "",
-         },
-      };
+      try {
+         let requestData = {
+            initiator: User.UniqueUsername,
+            recipient: Project.ProjectName,
+            metaData: {
+               notification_type: "RequestToJoin",
+               target_category: "Project",
+               target_name: Project.ProjectName,
+               target_info: "",
+            },
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(requestData),
-         credentials: "include",
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData),
+         };
 
-      let requestStream = await fetch(
-         "/api/project/join/new-user",
-         postOptions
-      );
-      let requestResponse = await requestStream.json();
+         let requestStream = await fetch(
+            "/api/project/join/new-user",
+            postOptions
+         );
+         let requestResponse = await requestStream.json();
 
-      if (requestResponse.status === "ok")
-         setActionStatus({ info: "Request sent", type: "info" });
-      else setActionStatus({ info: requestResponse.error, type: "error" });
+         if (requestResponse.status === "ok")
+            setActionStatus({ info: "Request sent", type: "info" });
+         else setActionStatus({ info: requestResponse.error, type: "error" });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    if (isLoading) {

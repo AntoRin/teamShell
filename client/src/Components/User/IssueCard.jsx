@@ -112,154 +112,178 @@ function IssueCard({
    async function closeIssue() {
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
-      let putOptions = {
-         method: "PUT",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-            Issue_id: issue._id,
-         }),
-      };
+      try {
+         let putOptions = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               Issue_id: issue._id,
+            }),
+         };
 
-      let updateStream = await fetch("/api/issue/close", putOptions);
+         let updateStream = await fetch("/api/issue/close", putOptions);
 
-      let updateData = await updateStream.json();
+         let updateData = await updateStream.json();
 
-      if (updateData.status === "ok") {
-         setActionStatus({
-            type: "info",
-            info: "Issue closed",
-         });
-      } else
-         setActionStatus({
-            type: "error",
-            info: "There was an error closing the issue",
-         });
+         if (updateData.status === "ok") {
+            setActionStatus({
+               type: "info",
+               info: "Issue closed",
+            });
+         } else
+            setActionStatus({
+               type: "error",
+               info: "There was an error closing the issue",
+            });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    async function reopenIssue() {
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
-      let putOptions = {
-         method: "PUT",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-            Issue_id: issue._id,
-         }),
-      };
+      try {
+         let putOptions = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               Issue_id: issue._id,
+            }),
+         };
 
-      let updateStream = await fetch("/api/issue/reopen", putOptions);
+         let updateStream = await fetch("/api/issue/reopen", putOptions);
 
-      let updateData = await updateStream.json();
+         let updateData = await updateStream.json();
 
-      if (updateData.status === "ok") {
-         setActionStatus({
-            type: "info",
-            info: "Issue reopened",
-         });
-      } else
-         setActionStatus({
-            type: "error",
-            info: "There was an error reopening the issue",
-         });
+         if (updateData.status === "ok") {
+            setActionStatus({
+               type: "info",
+               info: "Issue reopened",
+            });
+         } else
+            setActionStatus({
+               type: "error",
+               info: "There was an error reopening the issue",
+            });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    async function deleteIssue() {
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
-      let deleteOptions = {
-         method: "DELETE",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-            Issue_id: issue._id,
-            Project_id: issue.Project_id,
-         }),
-         credentials: "include",
-      };
+      try {
+         let deleteOptions = {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               Issue_id: issue._id,
+               Project_id: issue.Project_id,
+            }),
+         };
 
-      let deleteResponseStream = await fetch(
-         "/api/issue/delete",
-         deleteOptions
-      );
-      let deleteData = await deleteResponseStream.json();
+         let deleteResponseStream = await fetch(
+            "/api/issue/delete",
+            deleteOptions
+         );
+         let deleteData = await deleteResponseStream.json();
 
-      if (deleteData.status === "ok") {
-         if (redirectOnDelete === true) {
-            history.push("/user/environment");
-            return;
-         }
-         setActionStatus({
-            type: "success",
-            info: "Issue successfully deleted",
-         });
-      } else
-         setActionStatus({
-            type: "error",
-            info: "There was an error deleting the issue",
-         });
+         if (deleteData.status === "ok") {
+            if (redirectOnDelete === true) {
+               history.push("/user/environment");
+               return;
+            }
+            setActionStatus({
+               type: "success",
+               info: "Issue successfully deleted",
+            });
+         } else
+            setActionStatus({
+               type: "error",
+               info: "There was an error deleting the issue",
+            });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    async function bookmarkIssue() {
       if (userBookmarked) return;
-      let body = {
-         User_id: User._id,
-         User_UniqueUsername: User.UniqueUsername,
-         Issue_id: issue._id,
-         IssueTitle: issue.IssueTitle,
-      };
 
-      let putOptions = {
-         method: "PUT",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-      };
+      try {
+         let body = {
+            User_id: User._id,
+            User_UniqueUsername: User.UniqueUsername,
+            Issue_id: issue._id,
+            IssueTitle: issue.IssueTitle,
+         };
 
-      let bookmarkDataStream = await fetch("/api/issue/bookmark", putOptions);
-      let bookmarkData = await bookmarkDataStream.json();
+         let putOptions = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
 
-      if (bookmarkData.status === "ok") {
-         setActionStatus({
-            type: "info",
-            info: "Issue bookmarked",
-         });
-         setUserBookmarked(true);
-      } else
-         setActionStatus({
-            type: "error",
-            info: "There was an error saving the issue",
-         });
+         let bookmarkDataStream = await fetch(
+            "/api/issue/bookmark",
+            putOptions
+         );
+         let bookmarkData = await bookmarkDataStream.json();
+
+         if (bookmarkData.status === "ok") {
+            setActionStatus({
+               type: "info",
+               info: "Issue bookmarked",
+            });
+            setUserBookmarked(true);
+         } else
+            setActionStatus({
+               type: "error",
+               info: "There was an error saving the issue",
+            });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    async function removeBookmark() {
       if (!userBookmarked) return;
-      let body = {
-         User_id: User._id,
-         User_UniqueUsername: User.UniqueUsername,
-         Issue_id: issue._id,
-      };
 
-      let putOptions = {
-         method: "PUT",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-      };
+      try {
+         let body = {
+            User_id: User._id,
+            User_UniqueUsername: User.UniqueUsername,
+            Issue_id: issue._id,
+         };
 
-      let bookmarkDataStream = await fetch(
-         "/api/issue/bookmark/remove",
-         putOptions
-      );
-      let bookmarkData = await bookmarkDataStream.json();
+         let putOptions = {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
 
-      if (bookmarkData.status === "ok") {
-         setActionStatus({
-            type: "info",
-            info: "Bookmark removed",
-         });
-         setUserBookmarked(false);
-      } else
-         setActionStatus({
-            type: "error",
-            info: "There was an error removing the bookmark",
-         });
+         let bookmarkDataStream = await fetch(
+            "/api/issue/bookmark/remove",
+            putOptions
+         );
+         let bookmarkData = await bookmarkDataStream.json();
+
+         if (bookmarkData.status === "ok") {
+            setActionStatus({
+               type: "info",
+               info: "Bookmark removed",
+            });
+            setUserBookmarked(false);
+         } else
+            setActionStatus({
+               type: "error",
+               info: "There was an error removing the bookmark",
+            });
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    return (

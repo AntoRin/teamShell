@@ -49,11 +49,15 @@ function UserDropDown({ isOpen, setIsDropdownOpen, UniqueUsername }) {
    }
 
    async function handleLogout() {
-      let logout = await fetch("/api/auth/logout", {
-         redirect: "manual",
-         credentials: "include",
-      });
-      if (logout.type === "opaqueredirect") history.push("/");
+      try {
+         let logout = await fetch("/api/auth/logout", {
+            redirect: "manual",
+            credentials: "include",
+         });
+         if (logout.type === "opaqueredirect") history.push("/");
+      } catch (error) {
+         console.log(error);
+      }
    }
 
    return isOpen ? (

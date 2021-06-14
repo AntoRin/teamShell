@@ -58,26 +58,28 @@ function OrgSettingsModal({
    async function updateOrgSettings(event) {
       event.preventDefault();
 
-      if (Organization.Creator !== User.UniqueUsername) return;
+      try {
+         if (Organization.Creator !== User.UniqueUsername) return;
 
-      let body = {
-         Org: Organization.OrganizationName,
-         Description: newDescription,
-      };
+         let body = {
+            Org: Organization.OrganizationName,
+            Description: newDescription,
+         };
 
-      let postOptions = {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(body),
-         credentials: "include",
-      };
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+         };
 
-      let updateRequest = await fetch("/api/organization/edit", postOptions);
-      let updateResponse = await updateRequest.json();
+         let updateStream = await fetch("/api/organization/edit", postOptions);
+         let updateResponse = await updateStream.json();
 
-      if (updateResponse.status === "ok") {
-         setActionStatus({ info: "Successfully updated", type: "success" });
-      } else {
+         if (updateResponse.status === "error") throw updateResponse.error;
+
+         if (updateResponse.status === "ok")
+            setActionStatus({ info: "Successfully updated", type: "success" });
+      } catch (error) {
          setActionStatus({ info: "There was an error", type: "error" });
       }
    }

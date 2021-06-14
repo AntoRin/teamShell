@@ -43,7 +43,6 @@ function WorkspaceFileTab({ tab, User, activeProject }) {
             let responseStream = await fetch(
                `/api/project/drive/files/get/${activeProject}`,
                {
-                  credentials: "include",
                   signal: abortFetch.signal,
                }
             );
@@ -75,7 +74,6 @@ function WorkspaceFileTab({ tab, User, activeProject }) {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ fileId }),
-            credentials: "include",
          };
 
          let responseStream = await fetch(

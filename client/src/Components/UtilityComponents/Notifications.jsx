@@ -50,7 +50,6 @@ function Notifications({
             let notificationDataStream = await fetch(
                "/api/profile/notifications",
                {
-                  credentials: "include",
                   signal: abortFetch.signal,
                }
             );

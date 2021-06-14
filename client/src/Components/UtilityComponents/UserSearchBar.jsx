@@ -21,7 +21,6 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
             let searchStream = await fetch(
                `/api/profile/search?user=${query}`,
                {
-                  credentials: "include",
                   signal: abortFetch.signal,
                }
             );

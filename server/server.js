@@ -28,12 +28,12 @@ const {
 } = require("./socketHandlers");
 
 app.use(express.json({ limit: 500000 }));
-app.use(
-   cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-   })
-);
+// app.use(
+//    cors({
+//       origin: "http://localhost:3000",
+//       credentials: true,
+//    })
+// );
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../client/build")));
 
@@ -71,13 +71,7 @@ mongoose.connect(
             console.log(`[server] Listening on port ${port}`)
          );
 
-         let io = socketio(server, {
-            cors: {
-               origin: "http://localhost:3000",
-               methods: ["GET", "POST"],
-               credentials: true,
-            },
-         });
+         let io = socketio(server);
 
          io.use(parseCookies);
 
