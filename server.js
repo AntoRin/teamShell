@@ -28,14 +28,8 @@ const {
 } = require("./socketHandlers");
 
 app.use(express.json({ limit: 500000 }));
-// app.use(
-//    cors({
-//       origin: "http://localhost:3000",
-//       credentials: true,
-//    })
-// );
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "../client/build")));
+app.use(express.static(path.join(__dirname, "./client/build")));
 
 app.use("/api/auth", authRoute);
 app.use("/api/profile", checkAuth, profileRoute);
@@ -45,7 +39,7 @@ app.use("/api/issue", checkAuth, issueRoute);
 app.use("/api/chat", checkAuth, chatRoute);
 app.use("/api/meet", checkAuth, meetRoute);
 app.use("*", (req, res) => {
-   res.sendFile(path.join(__dirname, "../client/build/index.html"));
+   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
 //Error handler

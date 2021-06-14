@@ -1,8 +1,21 @@
 const redis = require("redis");
 const { promisify } = require("util");
 
+const host =
+   process.env.NODE_ENV === "production"
+      ? process.env.REDIS_REMOTE_HOST
+      : "127.0.0.1";
+const port =
+   process.env.NODE_ENV === "production" ? process.env.REDIS_REMOTE_PORT : 6379;
+const password =
+   process.env.NODE_ENV === "production"
+      ? process.env.REDIS_REMOTE_PASSWORD
+      : process.env.REDIS_PASSWORD;
+
 const redisClient = redis.createClient({
-   password: process.env.REDIS_PASSWORD,
+   host,
+   port,
+   password,
 });
 
 const redisGetAsync = promisify(redisClient.get).bind(redisClient);
