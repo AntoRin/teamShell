@@ -13,9 +13,9 @@ const config = require("../config");
 const router = Router();
 
 const googleClient = new google.auth.OAuth2({
-   clientId: process.env.GOOGLE_CLIENT_ID,
-   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-   redirectUri: "http://localhost:5000/api/auth/login/google/callback",
+   clientId: config.googleClientId,
+   clientSecret: config.googleClientSecret,
+   redirectUri: config.googleAuthRedirectUri,
 });
 
 const AppError = require("../utils/AppError");
