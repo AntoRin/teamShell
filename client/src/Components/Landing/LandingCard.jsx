@@ -7,7 +7,7 @@ function LandingCard() {
       <div className="landing-page-main">
          <div className="action-card">
             <header>
-               <h1>A Collaborative Platform for Working in Teams</h1>
+               <h1>A Collaborative Platform for Managing Projects</h1>
             </header>
             <div className="action-link">
                <button

@@ -8,6 +8,8 @@ const User = require("../models/User");
 const ProfileImage = require("../models/ProfileImage");
 const validateRegistration = require("../utils/validateRegistration");
 
+const config = require("../config");
+
 const router = Router();
 
 const googleClient = new google.auth.OAuth2({
@@ -68,7 +70,7 @@ router.post("/login", async (req, res, next) => {
 //GitHub Login
 router.get("/login/github", async (req, res) => {
    return res.redirect(
-      `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=user`
+      `https://github.com/login/oauth/authorize?client_id=${config.githubClientId}&scope=user`
    );
 });
 
@@ -76,8 +78,8 @@ router.get("/login/github/callback", async (req, res, next) => {
    try {
       let code = req.query.code;
       let body = {
-         client_id: process.env.GITHUB_CLIENT_ID,
-         client_secret: process.env.GITHUB_CLIENT_SECRET,
+         client_id: config.githubClientId,
+         client_secret: config.githubClientSecret,
          code,
       };
 
