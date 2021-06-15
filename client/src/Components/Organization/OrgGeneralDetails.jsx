@@ -96,7 +96,12 @@ function OrgGeneralDetails({ Organization }) {
                         label={Organization.Creator}
                         color="primary"
                         size="medium"
-                        avatar={<Avatar>{Organization.Creator[0]}</Avatar>}
+                        avatar={
+                           <Avatar
+                              src={`/api/profile/profile-image/${Organization.Creator}`}
+                              alt=""
+                           />
+                        }
                      />
                   }
                   secondaryTypographyProps={{ component: "div" }}

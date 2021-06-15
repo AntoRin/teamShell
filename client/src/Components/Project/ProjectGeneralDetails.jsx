@@ -97,7 +97,12 @@ function ProjectGeneralDetails({ Project }) {
                         label={Project.Creator}
                         color="primary"
                         size="medium"
-                        avatar={<Avatar>{Project.Creator[0]}</Avatar>}
+                        avatar={
+                           <Avatar
+                              src={`/api/profile/profile-image/${Project.Creator}`}
+                              alt=""
+                           />
+                        }
                      />
                   }
                   secondaryTypographyProps={{ component: "div" }}

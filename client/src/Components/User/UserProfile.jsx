@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import ButtonGroup from "@material-ui/core/ButtonGroup";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
-import DetailCard from "./DetailCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
+import ProfileUserTab from "./ProfileUserTab";
+import ProfileOrgTab from "./ProfileOrgTab";
+import ProfileProjectTab from "./ProfileProjectTab";
+import ProfileIssueTab from "./ProfileIssueTab";
+import ProfileUpdateTab from "./ProfileUpdateTab";
 import "../../styles/user-profile.css";
 
 const useStyles = makeStyles({
@@ -113,8 +115,8 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
       history.push(updateTab);
    }
 
-   function handleIssuesTabFilter(event) {
-      setIssueTabType(event.target.innerText.toLowerCase());
+   function handleIssuesTabFilter(tabName) {
+      setIssueTabType(tabName.toLowerCase());
    }
 
    async function handleImageUpload(event) {
@@ -191,198 +193,36 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
 
    function tabComponent() {
       if (query === "") {
-         return (
-            <>
-               <div className="profile-bio">
-                  <DetailCard header="Bio" detail={Profile.Bio} />
-               </div>
-               <div className="profile-unique-name">
-                  <DetailCard
-                     header="Unique Username"
-                     detail={Profile.UniqueUsername}
-                  />
-               </div>
-               <div className="profile-username">
-                  <DetailCard
-                     header="Username"
-                     detail={Profile.Username || "None"}
-                  />
-               </div>
-               <div className="profile-email">
-                  <DetailCard header="Email" detail={Profile.Email} />
-               </div>
-               <div className="profile-createdat">
-                  <DetailCard
-                     header="Account Created At"
-                     detail={Profile.createdAt}
-                  />
-               </div>
-            </>
-         );
+         return <ProfileUserTab Profile={Profile} />;
       } else if (query === "organizations") {
-         return (
-            <>
-               <div className="orgs-tab-list">
-                  {Profile.Organizations.map((org, index) => {
-                     return (
-                        <Link
-                           key={index}
-                           to={`/organization/${org.OrganizationName}`}
-                        >
-                           <DetailCard
-                              header={org.OrganizationName}
-                              detail=""
-                           />
-                        </Link>
-                     );
-                  })}
-               </div>
-            </>
-         );
+         return <ProfileOrgTab Profile={Profile} />;
       } else if (query === "projects") {
-         return (
-            <>
-               <div className="projects-tab-list">
-                  {Profile.Projects.map((project, index) => {
-                     return (
-                        <Link
-                           to={`/project/${project.ParentOrganization}/${project.ProjectName}`}
-                           key={index}
-                        >
-                           <DetailCard header={project.ProjectName} detail="" />
-                        </Link>
-                     );
-                  })}
-               </div>
-            </>
-         );
+         return <ProfileProjectTab Profile={Profile} />;
       } else if (query === "issues") {
-         return owner ? (
-            <>
-               <div className="issues-tab-select">
-                  <ButtonGroup>
-                     <Button
-                        onClick={handleIssuesTabFilter}
-                        variant="outlined"
-                        color="secondary"
-                     >
-                        Created
-                     </Button>
-                     <Button
-                        onClick={handleIssuesTabFilter}
-                        variant="outlined"
-                        color="secondary"
-                     >
-                        Bookmarked
-                     </Button>
-                  </ButtonGroup>
-               </div>
-               {issueTabType === "created" && (
-                  <div className="issues-tab-list">
-                     {Profile.Issues.Created.map((issue, index) => {
-                        return (
-                           <DetailCard
-                              key={index}
-                              header={issue.IssueTitle}
-                              detail=""
-                           />
-                        );
-                     })}
-                  </div>
-               )}
-               {issueTabType === "bookmarked" && (
-                  <div className="issues-tab-list">
-                     {Profile.Issues.Bookmarked.map((issue, index) => {
-                        return (
-                           <DetailCard
-                              key={index}
-                              header={issue.IssueTitle}
-                              detail=""
-                           />
-                        );
-                     })}
-                  </div>
-               )}
-            </>
-         ) : (
-            <Typography color="secondary" variant="h4">
-               Issues are private
-            </Typography>
+         return (
+            <ProfileIssueTab
+               owner={owner}
+               Profile={Profile}
+               issueTabType={issueTabType}
+               handleIssuesTabFilter={handleIssuesTabFilter}
+            />
          );
       } else if (query === "update") {
          if (!owner) {
             return <h1>😑</h1>;
          } else {
             return (
-               <div className="profile-edit-section">
-                  <form
-                     id="profileImageUploadForm"
-                     encType="multipart/form-data"
-                     onSubmit={handleImageUpload}
-                  >
-                     <div className="upload-image">
-                        <Typography variant="h5">
-                           Upload a new profile image
-                        </Typography>
-                        <input
-                           ref={fileInputElement}
-                           type="file"
-                           id="profileImage"
-                           required
-                        />
-                        <Button
-                           variant="outlined"
-                           type="submit"
-                           color="primary"
-                        >
-                           Upload
-                        </Button>
-                     </div>
-                  </form>
-                  <form id="profileEditForm" onSubmit={handleProfileUpdate}>
-                     <div className="edit-bio">
-                        <label htmlFor="bioEdit">Add a bio</label> <br />
-                        <textarea
-                           ref={bioElement}
-                           autoComplete="off"
-                           id="bioEdit"
-                           maxLength="300"
-                           rows="7"
-                           required
-                        ></textarea>
-                     </div>
-                     <div className="edit-name">
-                        <label htmlFor="nameEdit">Username</label> <br />
-                        <input
-                           ref={usernameElement}
-                           autoComplete="off"
-                           type="text"
-                           id="nameEdit"
-                           required
-                        />
-                     </div>
-                     <div className="submit-edition">
-                        <button
-                           type="button"
-                           className="form-action-btn dull"
-                           id="cancelEditsBtn"
-                           onClick={handleCancelUpdate}
-                        >
-                           Cancel
-                        </button>
-                        <button
-                           className="form-action-btn bright"
-                           id="saveEditsBtn"
-                           type="submit"
-                        >
-                           Save
-                        </button>
-                     </div>
-                  </form>
-               </div>
+               <ProfileUpdateTab
+                  fileInputElement={fileInputElement}
+                  handleImageUpload={handleImageUpload}
+                  handleProfileUpdate={handleProfileUpdate}
+                  bioElement={bioElement}
+                  usernameElement={usernameElement}
+                  handleCancelUpdate={handleCancelUpdate}
+               />
             );
          }
-      }
+      } else return <ProfileUserTab Profile={Profile} />;
    }
 
    if (isLoading) {

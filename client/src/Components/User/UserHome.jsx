@@ -146,14 +146,15 @@ function UserHome({ User, navHeight }) {
    }
 
    function currentProjects() {
-      if (User.Projects.length < 1) return [{ ProjectName: "No projects yet" }];
+      if (User.Projects.length < 1)
+         return [{ noProjectFallback: "No projects yet" }];
 
       let thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === activePanelOrg
       );
 
       if (!thisOrgProjects)
-         return [{ ProjectName: "No project in this organization" }];
+         return [{ noProjectFallback: "No project in this organization" }];
 
       let projectTitles = User.Projects.filter(
          project => project.ParentOrganization === activePanelOrg && project
@@ -246,11 +247,16 @@ function UserHome({ User, navHeight }) {
                      {currentProjects().map((project, index) => (
                         <ListItem
                            key={project._id || index}
-                           button
+                           button={project._id && true}
                            divider
                            onClick={() => goToProject(project.ProjectName)}
                         >
-                           <ListItemText primary={project.ProjectName} />
+                           <ListItemText
+                              primary={
+                                 project.ProjectName ||
+                                 project.noProjectFallback
+                              }
+                           />
                         </ListItem>
                      ))}
                   </List>
