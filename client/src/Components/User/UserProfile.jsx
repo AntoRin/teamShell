@@ -10,6 +10,7 @@ import ProfileOrgTab from "./ProfileOrgTab";
 import ProfileProjectTab from "./ProfileProjectTab";
 import ProfileIssueTab from "./ProfileIssueTab";
 import ProfileUpdateTab from "./ProfileUpdateTab";
+import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/user-profile.css";
 
 const useStyles = makeStyles({
@@ -102,9 +103,10 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
 
    useEffect(() => {
       let queryString = location.search;
+
       if (queryString) {
-         let [queryKey, queryValue] = queryString.split("?")[1].split("=");
-         queryKey === "tab" && setQuery(queryValue);
+         let queries = parseQueryStrings(queryString);
+         queries.tab && setQuery(queries.tab);
       } else {
          setQuery("");
       }
