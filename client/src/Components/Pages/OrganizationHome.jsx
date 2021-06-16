@@ -3,8 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import IconButton from "@material-ui/core/IconButton";
+import ButtonBase from "@material-ui/core/ButtonBase";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { Typography } from "@material-ui/core";
+import AccountBalanceIcon from "@material-ui/icons/AccountBalance";
 import OrgTabPanel from "../Organization/OrgTabPanel";
 import OrgSettingsModal from "../Organization/OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -36,13 +38,30 @@ const useStyles = makeStyles(theme => ({
    },
    crumbs: {
       display: "flex",
-      justifyContent: "space-between",
+      justifyContent: "center",
       alignItems: "center",
+      flexDirection: "column",
       margin: "10px",
       padding: "5px",
       borderBottom: "1px dashed rgb(108, 98, 190)",
       "& h6": {
          cursor: "pointer",
+      },
+      "& .MuiButtonBase-root": {
+         display: "flex",
+         justifyContent: "center",
+         alignItems: "center",
+         color: "#666",
+         margin: "5px 0",
+      },
+      "& svg": {
+         marginRight: "5px",
+      },
+      "& .orgTitle": {
+         color: "lightgray",
+      },
+      "& .orgDescription": {
+         color: "darkgray",
       },
    },
 }));
@@ -105,14 +124,30 @@ function OrganizationHome({ match, User, navHeight }) {
          <div className={classes.orgHomeContainer}>
             <div className={classes.crumbs}>
                <>
+                  <ButtonBase>
+                     <AccountBalanceIcon fontSize="large" />
+                     <Typography color="inherit" variant="h4" component="span">
+                        Organization
+                     </Typography>
+                  </ButtonBase>
                   <Typography
+                     className="orgTitle"
                      color="secondary"
-                     variant="h6"
+                     variant="h4"
+                     component="span"
                      gutterBottom={true}
                   >
                      {Organization.OrganizationName}
                   </Typography>
                </>
+               <Typography
+                  className="orgDescription"
+                  color="inherit"
+                  variant="h6"
+                  gutterBottom={true}
+               >
+                  {Organization.Description}
+               </Typography>
             </div>
             <div className={classes.root}>
                <Tabs

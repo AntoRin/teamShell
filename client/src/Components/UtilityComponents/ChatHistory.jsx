@@ -149,20 +149,22 @@ function ChatHistory({
                   chatHistory.length > 0 &&
                   chatHistory.map(chatRecipient => {
                      return (
-                        <ListItem
-                           button
-                           divider
-                           key={chatRecipient}
-                           onClick={() => initiateChat(chatRecipient)}
-                        >
-                           <ListItemAvatar>
-                              <Avatar
-                                 src={`/api/profile/profile-image/${chatRecipient}`}
-                                 alt=""
-                              />
-                           </ListItemAvatar>
-                           <ListItemText primary={chatRecipient} />
-                        </ListItem>
+                        chatRecipient && (
+                           <ListItem
+                              button
+                              divider
+                              key={chatRecipient}
+                              onClick={() => initiateChat(chatRecipient)}
+                           >
+                              <ListItemAvatar>
+                                 <Avatar
+                                    src={`/api/profile/profile-image/${chatRecipient}`}
+                                    alt=""
+                                 />
+                              </ListItemAvatar>
+                              <ListItemText primary={chatRecipient} />
+                           </ListItem>
+                        )
                      );
                   })
                ) : (

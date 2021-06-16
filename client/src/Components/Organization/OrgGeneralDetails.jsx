@@ -8,7 +8,6 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import EcoIcon from "@material-ui/icons/Eco";
-import DescriptionIcon from "@material-ui/icons/Description";
 import WbIncandescentIcon from "@material-ui/icons/WbIncandescent";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
@@ -58,19 +57,6 @@ function OrgGeneralDetails({ Organization }) {
                <ListItemText
                   primary={Organization.OrganizationName}
                   primaryTypographyProps={commonTypographicProps("h5")}
-               />
-            </ListItem>
-            <Divider variant="middle" className={classes.divider} />
-            <ListItem className={classes.listElement}>
-               <ListItemIcon>
-                  <DescriptionIcon
-                     fontSize="large"
-                     className={classes.listIcon}
-                  />
-               </ListItemIcon>
-               <ListItemText
-                  primary={Organization.Description}
-                  primaryTypographyProps={commonTypographicProps("h6")}
                />
             </ListItem>
             <Divider variant="middle" className={classes.divider} />

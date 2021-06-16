@@ -214,15 +214,10 @@ function UserHome({ User, navHeight }) {
                                  You are not part of any organization
                               </div>
                            )}
-                           <ListItem disableGutters>
+                           <ListItem>
                               <ListItemText
                                  primary="Create"
                                  primaryTypographyProps={{
-                                    variant: "caption",
-                                 }}
-                                 secondary="New Organization"
-                                 secondaryTypographyProps={{
-                                    color: "secondary",
                                     variant: "caption",
                                  }}
                               />

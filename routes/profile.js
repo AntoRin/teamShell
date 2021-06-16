@@ -206,8 +206,8 @@ router.get("/all-contacts", async (req, res, next) => {
       ];
 
       let sameOrgAggregation = await User.aggregate(aggregrationPipeline);
-      let contacts = sameOrgAggregation[0].MembersOfSameOrg.map(
-         member => member.UniqueUsername
+      let contacts = sameOrgAggregation[0].MembersOfSameOrg.map(member =>
+         member.UniqueUsername !== UniqueUsername ? member.UniqueUsername : null
       );
 
       return res.json({ status: "ok", data: contacts });

@@ -120,7 +120,7 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
    }
 
    function handleIssuesTabFilter(tabName) {
-      setIssueTabType(tabName.toLowerCase());
+      if (tabName) setIssueTabType(tabName.toLowerCase());
    }
 
    async function handleImageUpload(event) {
