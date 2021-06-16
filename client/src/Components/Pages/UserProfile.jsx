@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
+import NotFound from "./NotFound";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import LinearLoader from "../UtilityComponents/LinearLoader";
@@ -16,6 +17,7 @@ import "../../styles/user-profile.css";
 const useStyles = makeStyles({
    profileContainer: {
       marginTop: navHeight => navHeight + 10,
+      minHeight: navHeight => `calc(100vh - ${navHeight}px)`,
    },
 });
 
@@ -305,7 +307,7 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
             </div>
          </div>
       ) : (
-         <h1>There was an error</h1>
+         <NotFound />
       );
    }
 }
