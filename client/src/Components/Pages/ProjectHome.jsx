@@ -8,8 +8,8 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { GlobalActionStatus } from "../App";
-import ProjectTabPanel from "./ProjectTabPanel";
-import ProjectSettingsModal from "./ProjectSettingsModal";
+import ProjectTabPanel from "../Project/ProjectTabPanel";
+import ProjectSettingsModal from "../Project/ProjectSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles(theme => ({

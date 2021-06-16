@@ -9,7 +9,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import SettingsSharpIcon from "@material-ui/icons/SettingsSharp";
-import WorkspaceSelection from "./WorkspaceSelection";
+import WorkspaceSelection from "../User/WorkspaceSelection";
 
 const useStyles = makeStyles(theme => ({
    environmentContainer: {

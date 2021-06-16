@@ -5,8 +5,8 @@ import Tab from "@material-ui/core/Tab";
 import IconButton from "@material-ui/core/IconButton";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { Typography } from "@material-ui/core";
-import OrgTabPanel from "./OrgTabPanel";
-import OrgSettingsModal from "./OrgSettingsModal";
+import OrgTabPanel from "../Organization/OrgTabPanel";
+import OrgSettingsModal from "../Organization/OrgSettingsModal";
 import LinearLoader from "../UtilityComponents/LinearLoader";
 
 const useStyles = makeStyles(theme => ({

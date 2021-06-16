@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Route, Redirect } from "react-router-dom";
 import ThemeLoader from "./ThemeLoader";
 
-function NonUserRoute({ component: Component, ...props }) {
+function PublicRoute({ component: Component, ...props }) {
    const [isAuthenticated, setIsAuthenticated] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
 
@@ -51,4 +51,4 @@ function NonUserRoute({ component: Component, ...props }) {
    }
 }
 
-export default NonUserRoute;
+export default PublicRoute;

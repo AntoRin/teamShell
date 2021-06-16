@@ -172,7 +172,11 @@ function UserHome({ User, navHeight }) {
                         <Typography variant="h6">Organizations</Typography>
                      </AccordionSummary>
                      <AccordionDetails>
-                        <List className={classes.orgListContainer}>
+                        <List
+                           className={classes.orgListContainer}
+                           disablePadding
+                           dense
+                        >
                            {User.Organizations.length > 0 ? (
                               User.Organizations.map(org => {
                                  return (
@@ -181,6 +185,7 @@ function UserHome({ User, navHeight }) {
                                        className={classes.orgListElement}
                                        button
                                        divider
+                                       alignItems="flex-start"
                                        selected={
                                           activePanelOrg ===
                                           org.OrganizationName

@@ -5,11 +5,11 @@ import Button from "@material-ui/core/Button";
 import { SocketInstance } from "../UtilityComponents/ProtectedRoute";
 import { GlobalActionStatus } from "../App";
 import LinearLoader from "../UtilityComponents/LinearLoader";
-import ProfileUserTab from "./ProfileUserTab";
-import ProfileOrgTab from "./ProfileOrgTab";
-import ProfileProjectTab from "./ProfileProjectTab";
-import ProfileIssueTab from "./ProfileIssueTab";
-import ProfileUpdateTab from "./ProfileUpdateTab";
+import ProfileUserTab from "../User/ProfileUserTab";
+import ProfileOrgTab from "../User/ProfileOrgTab";
+import ProfileProjectTab from "../User/ProfileProjectTab";
+import ProfileIssueTab from "../User/ProfileIssueTab";
+import ProfileUpdateTab from "../User/ProfileUpdateTab";
 import parseQueryStrings from "../../utils/parseQueryStrings";
 import "../../styles/user-profile.css";
 

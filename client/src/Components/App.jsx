@@ -1,20 +1,20 @@
 import { useState, createContext } from "react";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
-import LandingPage from "./Landing/LandingPage";
-import Register from "./Authorization/Register";
-import Login from "./Authorization/Login";
-import UserHome from "./User/UserHome";
-import UserProfile from "./User/UserProfile";
+import LandingPage from "./Pages/LandingPage";
+import Register from "./Pages/Register";
+import Login from "./Pages/Login";
+import UserHome from "./Pages/UserHome";
+import UserProfile from "./Pages/UserProfile";
 import ProtectedRoute from "./UtilityComponents/ProtectedRoute";
-import NonUserRoute from "./UtilityComponents/NonUserRoute";
-import CreateOrganization from "./Organization/CreateOrganization";
-import OrganizationHome from "./Organization/OrganizationHome";
-import CreateProject from "./Project/CreateProject";
-import ProjectHome from "./Project/ProjectHome";
-import UserEnvironment from "./User/UserEnvironment";
-import UserWorkspace from "./User/UserWorkspace";
-import IssueHome from "./Issue/IssueHome";
-import MeetRoom from "./User/MeetRoom";
+import PublicRoute from "./UtilityComponents/PublicRoute";
+import CreateOrganization from "./Pages/OrganizationHome";
+import OrganizationHome from "./Pages/CreateOrganization";
+import CreateProject from "./Pages/CreateProject";
+import ProjectHome from "./Pages/ProjectHome";
+import UserEnvironment from "./Pages/UserEnvironment";
+import UserWorkspace from "./Pages/UserWorkspace";
+import IssueHome from "./Pages/IssueHome";
+import MeetRoom from "./Pages/MeetRoom";
 import StatusBar from "./UtilityComponents/StatusBar";
 
 export const GlobalActionStatus = createContext();
@@ -27,9 +27,9 @@ function App() {
          <div>
             <GlobalActionStatus.Provider value={setActionStatus}>
                <Switch>
-                  <NonUserRoute path="/" exact component={LandingPage} />
-                  <NonUserRoute path="/register" exact component={Register} />
-                  <NonUserRoute path="/login" exact component={Login} />
+                  <PublicRoute path="/" exact component={LandingPage} />
+                  <PublicRoute path="/register" exact component={Register} />
+                  <PublicRoute path="/login" exact component={Login} />
                   <ProtectedRoute
                      path="/user/home"
                      exact

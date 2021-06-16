@@ -1,5 +1,5 @@
-import LandingNav from "./LandingNav";
-import LandingCard from "./LandingCard";
+import LandingNav from "../Landing/LandingNav";
+import LandingCard from "../Landing/LandingCard";
 
 function LandingPage() {
    return (
