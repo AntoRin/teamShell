@@ -6,6 +6,10 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
 import Avatar from "@material-ui/core/Avatar";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import HistoryIcon from "@material-ui/icons/History";
+import GroupIcon from "@material-ui/icons/Group";
 import UserSearchBar from "./UserSearchBar";
 import CenteredLoader from "./CenteredLoader";
 import "../../styles/chat-history.css";
@@ -18,11 +22,15 @@ const useStyles = makeStyles({
    },
    drawerList: {
       minWidth: "350px",
+      minHeight: "100%",
+      position: "relative",
+   },
+   loaderContainer: {
+      position: "relative",
    },
 });
 
 function ChatHistory({
-   UniqueUsername,
    chatHistoryState,
    setChatHistoryState,
    setChatSettings,
@@ -30,26 +38,62 @@ function ChatHistory({
    const classes = useStyles();
 
    const [chatHistory, setChatHistory] = useState(null);
+   const [historyCache, setHistoryCache] = useState(null);
+   const [contactsCache, setContactsCache] = useState(null);
+   const [tab, setTab] = useState("history");
+   const [isLoading, setIsLoading] = useState(false);
 
    useEffect(() => {
+      if (!chatHistoryState) return;
+
+      let listDataUrl =
+         tab === "history"
+            ? "/api/chat/chat-history"
+            : "/api/profile/all-contacts";
+
       let abortFetch = new AbortController();
 
-      async function getChatHistory() {
+      async function getTabList() {
+         if (tab === "history" && historyCache)
+            return setChatHistory(historyCache);
+         if (tab === "contacts" && contactsCache)
+            return setChatHistory(contactsCache);
+
+         setIsLoading(true);
          try {
-            let chatDataStream = await fetch("/api/chat/chat-history", {
+            let chatDataStream = await fetch(listDataUrl, {
                signal: abortFetch.signal,
             });
+
+            if (abortFetch.signal.aborted) return;
+
             let chatData = await chatDataStream.json();
+
+            if (chatData.status === "error") throw chatData.error;
+
             setChatHistory(chatData.data);
+            tab === "history"
+               ? setHistoryCache(chatData.data)
+               : setContactsCache(chatData.data);
+            setIsLoading(false);
          } catch (error) {
-            console.log(error);
-            return;
+            if (error.name !== "AbortError") {
+               console.log(error);
+               return setIsLoading(false);
+            }
          }
       }
 
-      getChatHistory();
+      getTabList();
 
       return () => abortFetch.abort();
+   }, [chatHistoryState, tab, contactsCache, historyCache]);
+
+   useEffect(() => {
+      return () => {
+         setHistoryCache(null);
+         setContactsCache(null);
+      };
    }, [chatHistoryState]);
 
    function closeMessageHistory() {
@@ -65,6 +109,10 @@ function ChatHistory({
       closeMessageHistory();
    }
 
+   function handleTabChange(_, tabName) {
+      if (tabName !== null) setTab(tabName);
+   }
+
    return (
       <SwipeableDrawer
          anchor="right"
@@ -75,36 +123,57 @@ function ChatHistory({
       >
          <List className={classes.drawerList}>
             <ListItem divider>
-               <UserSearchBar
-                  setChatSettings={setChatSettings}
-                  closeMessageHistory={closeMessageHistory}
-               />
+               <ToggleButtonGroup
+                  exclusive
+                  value={tab}
+                  onChange={handleTabChange}
+               >
+                  <ToggleButton value="history">
+                     <HistoryIcon />
+                  </ToggleButton>
+                  <ToggleButton value="contacts">
+                     <GroupIcon />
+                  </ToggleButton>
+               </ToggleButtonGroup>
             </ListItem>
-            {chatHistory ? (
-               chatHistory.length > 0 &&
-               chatHistory.map(chat => {
-                  let thisChatHistory = chat.Users.find(
-                     user => user !== UniqueUsername
-                  );
-                  return (
-                     <ListItem
-                        button
-                        divider
-                        key={chat.ChatID}
-                        onClick={() => initiateChat(thisChatHistory)}
-                     >
-                        <ListItemAvatar>
-                           <Avatar
-                              src={`/api/profile/profile-image/${thisChatHistory}`}
-                              alt=""
-                           />
-                        </ListItemAvatar>
-                        <ListItemText primary={thisChatHistory} />
-                     </ListItem>
-                  );
-               })
+            {tab === "contacts" && (
+               <ListItem divider>
+                  <UserSearchBar
+                     setChatSettings={setChatSettings}
+                     closeMessageHistory={closeMessageHistory}
+                  />
+               </ListItem>
+            )}
+            {!isLoading ? (
+               chatHistory ? (
+                  chatHistory.length > 0 &&
+                  chatHistory.map(chatRecipient => {
+                     return (
+                        <ListItem
+                           button
+                           divider
+                           key={chatRecipient}
+                           onClick={() => initiateChat(chatRecipient)}
+                        >
+                           <ListItemAvatar>
+                              <Avatar
+                                 src={`/api/profile/profile-image/${chatRecipient}`}
+                                 alt=""
+                              />
+                           </ListItemAvatar>
+                           <ListItemText primary={chatRecipient} />
+                        </ListItem>
+                     );
+                  })
+               ) : (
+                  <ListItem
+                     primary={
+                        tab === "history" ? "No recent chat" : "No contacts"
+                     }
+                  ></ListItem>
+               )
             ) : (
-               <CenteredLoader color="primary" />
+               <CenteredLoader color="primary" absolutelyPositioned />
             )}
          </List>
       </SwipeableDrawer>

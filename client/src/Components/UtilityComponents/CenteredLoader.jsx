@@ -17,6 +17,7 @@ const useStyles = makeStyles(theme => ({
    },
    loader: {
       color: "rgb(89, 9, 185)",
+      zIndex: "99",
    },
 }));
 

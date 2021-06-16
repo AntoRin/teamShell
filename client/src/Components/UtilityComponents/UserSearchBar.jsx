@@ -17,6 +17,8 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
       let abortFetch = new AbortController();
       async function getSearchResults() {
          try {
+            setSearchResults(["Loading..."]);
+
             let query = textSearch;
             let searchStream = await fetch(
                `/api/profile/search?user=${query}`,
@@ -29,11 +31,13 @@ function UserSearchBar({ setChatSettings, closeMessageHistory }) {
 
             let resultData = await searchStream.json();
 
+            if (resultData.status === "error") throw resultData.error;
+
             resultData.data
                ? setSearchResults(resultData.data)
                : setSearchResults([]);
          } catch (error) {
-            console.log(error);
+            setSearchResults([]);
          }
       }
 

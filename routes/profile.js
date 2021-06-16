@@ -154,14 +154,32 @@ router.get("/notifications/seen", async (req, res, next) => {
 });
 
 router.get("/search", async (req, res, next) => {
-   let { UniqueUsername } = req.thisUser;
    let query = req.query.user;
+
+   try {
+      let regexSearch = await User.find({
+         UniqueUsername: { $regex: new RegExp(`\\b\\w*${query}\\w*\\b`, "i") },
+      });
+
+      let searchData = ["Not found"];
+
+      if (regexSearch.length > 0)
+         searchData = regexSearch.map(resultUser => resultUser.UniqueUsername);
+
+      return res.json({ status: "ok", data: searchData });
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.get("/all-contacts", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
 
    try {
       let aggregrationPipeline = [
          {
             $match: {
-               UniqueUsername: `${UniqueUsername}`,
+               UniqueUsername,
             },
          },
          {
@@ -188,26 +206,11 @@ router.get("/search", async (req, res, next) => {
       ];
 
       let sameOrgAggregation = await User.aggregate(aggregrationPipeline);
-      let { MembersOfSameOrg } = sameOrgAggregation[0];
+      let contacts = sameOrgAggregation[0].MembersOfSameOrg.map(
+         member => member.UniqueUsername
+      );
 
-      let regexSearch = await User.find({
-         UniqueUsername: { $regex: new RegExp(`\\b\\w*${query}\\w*\\b`, "i") },
-      });
-
-      let searchData = ["Not found"];
-
-      if (regexSearch.length > 0) {
-         searchData = regexSearch.map(resultUser => {
-            let commonOrg = MembersOfSameOrg.some(
-               member =>
-                  resultUser.UniqueUsername === member.UniqueUsername &&
-                  resultUser.UniqueUsername !== UniqueUsername
-            );
-
-            return commonOrg ? resultUser.UniqueUsername : null;
-         });
-      }
-      return res.json({ status: "ok", data: searchData });
+      return res.json({ status: "ok", data: contacts });
    } catch (error) {
       return next(error);
    }

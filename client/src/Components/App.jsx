@@ -1,5 +1,5 @@
 import { useState, createContext } from "react";
-import { BrowserRouter as Router, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ProtectedRoute from "./UtilityComponents/ProtectedRoute";
 import PublicRoute from "./UtilityComponents/PublicRoute";
 import LandingPage from "./Pages/LandingPage";
@@ -9,8 +9,8 @@ import UserHome from "./Pages/UserHome";
 import UserProfile from "./Pages/UserProfile";
 import UserEnvironment from "./Pages/UserEnvironment";
 import UserWorkspace from "./Pages/UserWorkspace";
-import CreateOrganization from "./Pages/OrganizationHome";
-import OrganizationHome from "./Pages/CreateOrganization";
+import CreateOrganization from "./Pages/CreateOrganization";
+import OrganizationHome from "./Pages/OrganizationHome";
 import CreateProject from "./Pages/CreateProject";
 import ProjectHome from "./Pages/ProjectHome";
 import IssueHome from "./Pages/IssueHome";
@@ -81,7 +81,7 @@ function App() {
                      exact
                      component={MeetRoom}
                   />
-                  <ProtectedRoute path="/" component={NotFound} />
+                  <Route path="/" component={NotFound} />
                </Switch>
             </GlobalActionStatus.Provider>
             {actionStatus.info && (

@@ -23,6 +23,9 @@ const useStyles = makeStyles({
    },
    orgAccordion: {
       backgroundColor: "rgb(50, 46, 83)",
+      "& .MuiAccordionDetails-root": {
+         padding: "5px 0",
+      },
       "& h6": {
          color: "white",
          fontWeight: "500",
@@ -42,6 +45,9 @@ const useStyles = makeStyles({
       width: "100%",
    },
    orgListElement: {
+      "&.MuiList-root": {
+         width: "100%",
+      },
       "&.Mui-selected": {
          backgroundColor: "rgb(100, 70, 202)",
       },
@@ -172,11 +178,7 @@ function UserHome({ User, navHeight }) {
                         <Typography variant="h6">Organizations</Typography>
                      </AccordionSummary>
                      <AccordionDetails>
-                        <List
-                           className={classes.orgListContainer}
-                           disablePadding
-                           dense
-                        >
+                        <List className={classes.orgListContainer}>
                            {User.Organizations.length > 0 ? (
                               User.Organizations.map(org => {
                                  return (

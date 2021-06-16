@@ -12,7 +12,12 @@ router.get("/chat-history", async (req, res, next) => {
          { Messages: 0 }
       ).sort({ updatedAt: -1 });
 
-      return res.json({ status: "ok", data: chatHistory });
+      let memberList = chatHistory.map(chat => {
+         let thisRecipient = chat.Users.find(user => user !== UniqueUsername);
+         return thisRecipient;
+      });
+
+      return res.json({ status: "ok", data: memberList });
    } catch (error) {
       console.log(error);
       return next(error);
