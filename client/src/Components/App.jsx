@@ -1,4 +1,4 @@
-import { useState, createContext } from "react";
+import { useState, useEffect, createContext } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ProtectedRoute from "./UtilityComponents/ProtectedRoute";
 import PublicRoute from "./UtilityComponents/PublicRoute";
@@ -22,6 +22,14 @@ export const GlobalActionStatus = createContext();
 
 function App() {
    const [actionStatus, setActionStatus] = useState({ info: null, type: null });
+
+   useEffect(() => {
+      if (
+         process.env.NODE_ENV === "production" &&
+         window.location.protocol === "http"
+      )
+         window.location.protocol = "https";
+   }, []);
 
    return (
       <Router>
