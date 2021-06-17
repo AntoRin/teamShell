@@ -251,7 +251,9 @@ function UserHome({ User, navHeight }) {
                            key={project._id || index}
                            button={project._id && true}
                            divider
-                           onClick={() => goToProject(project.ProjectName)}
+                           onClick={() =>
+                              project._id && goToProject(project.ProjectName)
+                           }
                         >
                            <ListItemText
                               primary={

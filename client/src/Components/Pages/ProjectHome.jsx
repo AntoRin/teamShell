@@ -149,15 +149,37 @@ function ProjectHome({ match, User, navHeight }) {
             body: JSON.stringify(requestData),
          };
 
-         let requestStream = await fetch(
+         let responseStream = await fetch(
             "/api/project/join/new-user",
             postOptions
          );
-         let requestResponse = await requestStream.json();
+         let response = await responseStream.json();
 
-         if (requestResponse.status === "ok")
-            setActionStatus({ info: "Request sent", type: "info" });
-         else setActionStatus({ info: requestResponse.error, type: "error" });
+         if (response.status === "ok")
+            setActionStatus({ info: response.data, type: "info" });
+         else setActionStatus({ info: response.error, type: "error" });
+      } catch (error) {
+         console.log(error);
+      }
+   }
+
+   async function handleLeaveProject() {
+      try {
+         let postOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+         };
+
+         let responseStream = await fetch(
+            `/api/project/leave/${Project.ProjectName}`,
+            postOptions
+         );
+
+         let response = await responseStream.json();
+
+         if (response.status === "error") throw response.error;
+
+         setActionStatus({ info: response.data, type: "info" });
       } catch (error) {
          console.log(error);
       }
@@ -198,10 +220,15 @@ function ProjectHome({ match, User, navHeight }) {
                <Button
                   color="secondary"
                   variant="outlined"
-                  disabled={Project.Members.includes(User.UniqueUsername)}
-                  onClick={handleJoinRequest}
+                  onClick={
+                     Project.Members.includes(User.UniqueUsername)
+                        ? handleLeaveProject
+                        : handleJoinRequest
+                  }
                >
-                  Join
+                  {Project.Members.includes(User.UniqueUsername)
+                     ? "Leave"
+                     : "Join"}
                </Button>
             </div>
             <div className={classes.root}>

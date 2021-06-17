@@ -1,5 +1,5 @@
 function errorHandler(error, req, res, next) {
-   console.log(error.name);
+   console.log(error);
    switch (error.name) {
       case "MongoError":
          if (error.code === 31254)
@@ -76,6 +76,10 @@ function errorHandler(error, req, res, next) {
          return res
             .status(400)
             .json({ status: "error", error: "Validation Error" });
+      case "IrrevertibleActionError":
+         return res
+            .status(400)
+            .json({ status: "error", error: "The action is irrevertible" });
       default:
          return res
             .status(500)

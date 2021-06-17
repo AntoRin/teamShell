@@ -4,6 +4,28 @@ const Issue = require("../models/Issue");
 
 const AppError = require("./AppError");
 
+function notifyAllInProject(initiator, recipient, notification) {
+   return new Promise(async (resolve, reject) => {
+      try {
+         await User.updateMany(
+            {
+               "Projects.ProjectName": recipient,
+               UniqueUsername: { $ne: initiator },
+            },
+            {
+               $push: {
+                  Notifications: { $each: [notification], $position: 0 },
+               },
+            }
+         );
+
+         resolve();
+      } catch (error) {
+         reject(error);
+      }
+   });
+}
+
 async function handleNotifications(req, res, next) {
    let { initiator, recipient, metaData } = req.body;
 
@@ -65,30 +87,63 @@ async function handleNotifications(req, res, next) {
             );
             return res.json({ status: "ok", data: "" });
          }
-         case "RequestToJoin":
-            {
-               let Hyperlink = null;
-               let notificationSnippet = `requested to join the project `;
+         case "RequestToJoin": {
+            let Hyperlink = null;
+            let notificationSnippet = `requested to join the project `;
 
-               let notification = {
-                  ...payloadBlueprint,
-                  Hyperlink,
-                  InfoType: "Request",
-                  ActivityContent: {
-                     Action: notificationSnippet,
-                     Keyword: metaData.target_name,
+            let notification = {
+               ...payloadBlueprint,
+               Hyperlink,
+               InfoType: "Request",
+               ActivityContent: {
+                  Action: notificationSnippet,
+                  Keyword: metaData.target_name,
+               },
+            };
+            await User.updateOne(
+               { UniqueUsername: req.projectCreator },
+               {
+                  $push: {
+                     Notifications: { $each: [notification], $position: 0 },
                   },
-               };
-               await User.updateOne(
-                  { UniqueUsername: req.projectCreator },
-                  {
-                     $push: {
-                        Notifications: { $each: [notification], $position: 0 },
-                     },
-                  }
-               );
-            }
-            return res.json({ status: "ok", data: "" });
+               }
+            );
+            return res.json({
+               status: "ok",
+               data: "Requested to join project",
+            });
+         }
+         case "JoinedProject": {
+            let notification = {
+               ...payloadBlueprint,
+               Hyperlink: `/user/profile/${initiator}`,
+               InfoType: "New User",
+               ActivityContent: {
+                  Action: `has joined the project`,
+                  Keyword: metaData.target_name,
+               },
+            };
+            await notifyAllInProject(
+               initiator,
+               metaData.target_name,
+               notification
+            );
+
+            return res.json({ status: "ok", data: "Joined Project" });
+         }
+         case "LeaveProjectNotice": {
+            let notification = {
+               ...payloadBlueprint,
+               Hyperlink: `/user/profile/${initiator}`,
+               InfoType: `User left project`,
+               ActivityContent: {
+                  Action: `has left project`,
+                  Keyword: metaData.target_name,
+               },
+            };
+            await notifyAllInProject(initiator, recipient, notification);
+            return res.json({ status: "ok", data: "Left project" });
+         }
          case "NewSolutionLike": {
             let user = await User.findOne({ UniqueUsername: recipient });
             if (!user) throw new AppError("UnauthorizedRequestError");
@@ -154,17 +209,7 @@ async function handleNotifications(req, res, next) {
                },
             };
 
-            await User.updateMany(
-               {
-                  "Projects.ProjectName": recipient,
-                  UniqueUsername: { $ne: initiator },
-               },
-               {
-                  $push: {
-                     Notifications: { $each: [notification], $position: 0 },
-                  },
-               }
-            );
+            await notifyAllInProject(initiator, recipient, notification);
             return res.json({ status: "ok", data: "" });
          }
       }

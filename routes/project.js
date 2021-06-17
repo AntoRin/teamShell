@@ -332,11 +332,61 @@ router.post(
                }
             );
 
-            return res.json({ status: "ok", data: "You joined the project" });
+            req.body.metaData.notification_type = "JoinedProject";
+            return next();
          } else {
             req.projectCreator = project.Creator;
             return next();
          }
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
+router.post(
+   "/leave/:projectName",
+   async (req, res, next) => {
+      let { UniqueUsername, Email } = req.thisUser;
+      let projectName = req.params.projectName;
+
+      try {
+         let user = await User.findOne({ UniqueUsername, Email }).lean();
+
+         let userInProject = user.Projects.find(
+            project => project.ProjectName === projectName
+         );
+
+         if (!userInProject) throw new AppError("NoActionRequiredError");
+
+         if (userInProject.status === "creator")
+            throw new AppError("IrrevertibleActionError");
+
+         await User.updateOne(
+            { UniqueUsername, Email },
+            { $pull: { Projects: { ProjectName: projectName } } }
+         );
+
+         await Project.updateOne(
+            { ProjectName: projectName },
+            { $pull: { Members: UniqueUsername } }
+         );
+
+         let body = {
+            initiator: UniqueUsername,
+            recipient: projectName,
+            metaData: {
+               notification_type: "LeaveProjectNotice",
+               target_category: "User",
+               target_name: projectName,
+               target_info: "",
+            },
+         };
+
+         req.body = body;
+
+         return next();
       } catch (error) {
          return next(error);
       }
