@@ -101,19 +101,18 @@ function ProjectHome({ match, User, navHeight }) {
 
             let projectResponse = await projectRequest.json();
 
-            if (projectResponse.status === "ok") {
-               setProject(projectResponse.Project);
-               setIsAuthorized(true);
-               setIsLoading(false);
-            } else {
+            if (projectResponse.status === "error") throw projectResponse.error;
+
+            setProject(projectResponse.Project);
+            setIsAuthorized(true);
+            setIsLoading(false);
+         } catch (error) {
+            if (error.name !== "AbortError") {
                setParentOrg({});
                setProject({});
                setIsAuthorized(false);
-               history.push("/user/home");
-               return;
+               return history.push("/user/home");
             }
-         } catch (error) {
-            console.log(error);
          }
       }
 
@@ -133,14 +132,7 @@ function ProjectHome({ match, User, navHeight }) {
    async function handleJoinRequest() {
       try {
          let requestData = {
-            initiator: User.UniqueUsername,
-            recipient: Project.ProjectName,
-            metaData: {
-               notification_type: "RequestToJoin",
-               target_category: "Project",
-               target_name: Project.ProjectName,
-               target_info: "",
-            },
+            projectName: Project.ProjectName,
          };
 
          let postOptions = {
@@ -155,11 +147,11 @@ function ProjectHome({ match, User, navHeight }) {
          );
          let response = await responseStream.json();
 
-         if (response.status === "ok")
-            setActionStatus({ info: response.data, type: "info" });
-         else setActionStatus({ info: response.error, type: "error" });
+         if (response.status === "error") throw response.error;
+
+         setActionStatus({ info: response.data, type: "info" });
       } catch (error) {
-         console.log(error);
+         setActionStatus({ info: error, type: "error" });
       }
    }
 

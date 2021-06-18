@@ -75,17 +75,9 @@ function SolutionCard({ solution, User, issueDetails }) {
       let body = {
          user_id: User._id,
          solution_id: solution._id,
-         solution_creator: solution.SolutionCreator.UniqueUsername,
-         initiator: User.UniqueUsername,
-         recipient: solution.SolutionCreator.UniqueUsername,
-         metaData: {
-            notification_type: "NewSolutionLike",
-            info_type: "New like",
-            target_category: "Solution",
-            target_name: issueDetails.IssueTitle,
-            target_info: "",
-            initiator_opinion: "liked",
-         },
+         solution_creator: solution.SolutionCreator,
+         issueTitle: issueDetails.IssueTitle,
+         issueId: issueDetails._id,
       };
 
       try {
@@ -116,7 +108,7 @@ function SolutionCard({ solution, User, issueDetails }) {
                   <Avatar className={classes.avatar}>
                      <img
                         className={classes["profile-image"]}
-                        src={`/api/profile/profile-image/${solution.SolutionCreator.UniqueUsername}`}
+                        src={`/api/profile/profile-image/${solution.SolutionCreator}`}
                         alt=""
                      />
                   </Avatar>
@@ -126,7 +118,7 @@ function SolutionCard({ solution, User, issueDetails }) {
                      <MoreVertIcon />
                   </IconButton>
                }
-               title={solution.SolutionCreator.UniqueUsername}
+               title={solution.SolutionCreator}
                subheader={formatDate(solution.createdAt)}
             />
             <CardMedia

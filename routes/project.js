@@ -198,50 +198,216 @@ router.post("/edit", async (req, res, next) => {
    }
 });
 
-router.post("/invite/new-user", handleNotifications);
+router.post(
+   "/invite/new-user",
+   async (req, res, next) => {
+      let { UniqueUsername } = req.thisUser;
+      let { recipient, projectName } = req.body;
 
-router.post("/accept/new-user", async (req, res, next) => {
-   let { newUser, requestedProject } = req.body;
-   let { UniqueUsername } = req.thisUser;
+      try {
+         let project = await Project.findOne({
+            ProjectName: projectName,
+         }).lean();
 
-   try {
-      let project = await Project.findOne({ ProjectName: requestedProject });
+         if (!project) throw new AppError("BadRequestError");
 
-      if (!project) throw new AppError("BadRequestError");
+         if (project.Creator !== UniqueUsername)
+            throw new AppError("UnauthorizedRequestError");
 
-      if (!project.Creator === UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+         let recipientData = await User.findOne({
+            UniqueUsername: recipient,
+         }).lean();
 
-      if (project.Members.includes(newUser))
-         throw new AppError("ProjectInvitationReboundError");
+         if (!recipientData) throw new AppError("UnauthorizedRequestError");
 
-      let updatedProject = await Project.findOneAndUpdate(
-         { ProjectName: requestedProject },
-         { $push: { Members: { $each: [newUser], $position: 0 } } }
-      );
-      await User.updateOne(
-         { UniqueUsername: newUser },
-         {
-            $push: {
-               Projects: {
-                  $each: [
-                     {
-                        _id: updatedProject._id,
-                        ProjectName: updatedProject.ProjectName,
-                        Status: "Member",
-                        ParentOrganization: updatedProject.ParentOrganization,
-                     },
-                  ],
-                  $position: 0,
+         let invitationSecret = jwt.sign(
+            { _id: recipientData._id, ProjectName: project.ProjectName },
+            process.env.ORG_JWT_SECRET
+         );
+
+         let inviteLink = `/api/project/add/new-user/${invitationSecret}`;
+
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "Invitation",
+            NotificationType: "Invitation",
+            NotificationLink: inviteLink,
+            NotificationAction: `invited you to join the project ${project.ProjectName}`,
+            OtherLinks: [
+               {
+                  Name: "Project",
+                  Link: `project/${project.ParentOrganization}/${project.ProjectName}`,
                },
+            ],
+            metaData: {
+               recipientType: "SingleUser",
+               recipient,
             },
+         };
+
+         req.notifications = [notification];
+
+         return next();
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
+router.post(
+   "/join/new-user",
+   async (req, res, next) => {
+      let { UniqueUsername } = req.thisUser;
+      let { projectName } = req.body;
+
+      try {
+         let project = await Project.findOne({
+            ProjectName: projectName,
+         });
+         if (!project) throw new AppError("BadRequestError");
+
+         if (project.Members.includes(UniqueUsername))
+            throw new AppError("ProjectInvitationReboundError");
+
+         if (!project.InviteOnly) {
+            await Project.findOneAndUpdate(
+               { ProjectName: project.ProjectName },
+               { $push: { Members: UniqueUsername } }
+            );
+
+            await User.updateOne(
+               { UniqueUsername },
+               {
+                  $push: {
+                     Projects: {
+                        _id: project._id,
+                        ProjectName: project.ProjectName,
+                        Status: "Member",
+                        ParentOrganization: project.ParentOrganization,
+                     },
+                  },
+               }
+            );
+
+            let notification = {
+               Initiator: UniqueUsername,
+               NotificationTitle: "New User",
+               NotificationType: "Standard",
+               NotificationLink: `/project/${project.ParentOrganization}/${project.ProjectName}`,
+               OtherLinks: [],
+               NotificationAction: `joined the project ${project.ProjectName}`,
+               metaData: {
+                  recipientType: "Group",
+                  recipient: project.ProjectName,
+                  groupType: "Project",
+               },
+            };
+
+            req.notifications = [notification];
+
+            return next();
+         } else {
+            let notification = {
+               Initiator: UniqueUsername,
+               NotificationTitle: "Request",
+               NotificationType: "Request",
+               NotificationLink: `/api/project/accept/new-user?newUser=${UniqueUsername}&requestedProject=${project.ProjectName}`,
+               OtherLinks: [],
+               NotificationAction: `requested to join the project ${project.ProjectName}`,
+               metaData: {
+                  recipientType: "SingleUser",
+                  recipient: project.Creator,
+               },
+            };
+
+            req.notifications = [notification];
+
+            return next();
          }
-      );
-      return res.json({ status: "ok", data: "" });
-   } catch (error) {
-      return next(error);
-   }
-});
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
+router.get(
+   "/accept/new-user",
+   async (req, res, next) => {
+      let { newUser, requestedProject } = req.query;
+      let { UniqueUsername } = req.thisUser;
+
+      try {
+         let project = await Project.findOne({ ProjectName: requestedProject });
+
+         if (!project) throw new AppError("BadRequestError");
+
+         if (project.Creator !== UniqueUsername)
+            throw new AppError("UnauthorizedRequestError");
+
+         if (project.Members.includes(newUser))
+            throw new AppError("ProjectInvitationReboundError");
+
+         let updatedProject = await Project.findOneAndUpdate(
+            { ProjectName: requestedProject },
+            { $push: { Members: { $each: [newUser], $position: 0 } } }
+         );
+         await User.updateOne(
+            { UniqueUsername: newUser },
+            {
+               $push: {
+                  Projects: {
+                     $each: [
+                        {
+                           _id: updatedProject._id,
+                           ProjectName: updatedProject.ProjectName,
+                           Status: "Member",
+                           ParentOrganization:
+                              updatedProject.ParentOrganization,
+                        },
+                     ],
+                     $position: 0,
+                  },
+               },
+            }
+         );
+
+         let notification1 = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "",
+            NotificationAction: `accepted your request to join the project ${project.ProjectName}`,
+            NotificationLink: `/project/${project.ParentOrganization}/${project.ProjectName}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "SingleUser",
+               recipient: newUser,
+            },
+         };
+
+         let notification2 = {
+            Initiator: newUser,
+            NotificationTitle: "New User",
+            NotificationType: "Standard",
+            NotificationAction: `joined the project ${project.ProjectName}`,
+            NotificationLink: `/project/${project.ParentOrganization}/${project.ProjectName}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "Group",
+               groupType: "Project",
+               recipient: project.ProjectName,
+            },
+         };
+
+         req.notifications = [notification1, notification2];
+
+         return next();
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
 
 router.get("/add/new-user/:userSecret", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
@@ -283,9 +449,13 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
                },
             }
          );
-         return res.redirect(
-            `/project/${project.ParentOrganization}/${project.ProjectName}`
-         );
+
+         return res.json({
+            status: "ok",
+            data: {
+               url: `/project/${project.ParentOrganization}/${project.ProjectName}`,
+            },
+         });
       } else {
          throw new AppError("AuthenticationError");
       }
@@ -293,57 +463,6 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
       return next(error);
    }
 });
-
-router.post(
-   "/join/new-user",
-   async (req, res, next) => {
-      let { UniqueUsername } = req.thisUser;
-      let { initiator, recipient, metaData } = req.body;
-
-      try {
-         if (UniqueUsername !== initiator)
-            throw new AppError("UnauthorizedRequestError");
-
-         let project = await Project.findOne({
-            ProjectName: metaData.target_name,
-         });
-         if (!project) throw new AppError("BadRequestError");
-
-         if (project.Members.includes(UniqueUsername))
-            throw new AppError("ProjectInvitationReboundError");
-
-         if (!project.InviteOnly) {
-            await Project.findOneAndUpdate(
-               { ProjectName: metaData.target_name },
-               { $push: { Members: UniqueUsername } }
-            );
-
-            await User.updateOne(
-               { UniqueUsername },
-               {
-                  $push: {
-                     Projects: {
-                        _id: project._id,
-                        ProjectName: project.ProjectName,
-                        Status: "Member",
-                        ParentOrganization: project.ParentOrganization,
-                     },
-                  },
-               }
-            );
-
-            req.body.metaData.notification_type = "JoinedProject";
-            return next();
-         } else {
-            req.projectCreator = project.Creator;
-            return next();
-         }
-      } catch (error) {
-         return next(error);
-      }
-   },
-   handleNotifications
-);
 
 router.post(
    "/leave/:projectName",
@@ -373,18 +492,21 @@ router.post(
             { $pull: { Members: UniqueUsername } }
          );
 
-         let body = {
-            initiator: UniqueUsername,
-            recipient: projectName,
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "",
+            NotificationType: "Standard",
+            NotificationLink: `/user/profile/${UniqueUsername}`,
+            OtherLinks: [],
+            NotificationAction: `left the project ${projectName}`,
             metaData: {
-               notification_type: "LeaveProjectNotice",
-               target_category: "User",
-               target_name: projectName,
-               target_info: "",
+               recipientType: "Group",
+               groupType: "Project",
+               recipient: projectName,
             },
          };
 
-         req.body = body;
+         req.notifications = [notification];
 
          return next();
       } catch (error) {

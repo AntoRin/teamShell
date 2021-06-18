@@ -20,17 +20,6 @@ function SolutionEditor({ issueDetails, User }) {
             Issue_id: issueDetails._id,
             Project_id: issueDetails.Project_id,
             SolutionBody: solutionEncoded,
-            SolutionCreator: {
-               UniqueUsername: User.UniqueUsername,
-            },
-            initiator: User.UniqueUsername,
-            recipient: issueDetails.ProjectContext,
-            metaData: {
-               notification_type: "NewSolution",
-               target_category: "Solution",
-               target_name: issueDetails.IssueTitle,
-               target_info: "Solution can be reviewed",
-            },
          };
 
          let postOptions = {

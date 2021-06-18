@@ -25,6 +25,10 @@ const OrganizationSchema = new Schema(
          type: Array,
          default: [],
       },
+      Public: {
+         type: Boolean,
+         default: false,
+      },
    },
    { timestamps: true, strictQuery: "throw" }
 );

@@ -154,6 +154,7 @@ router.get("/notifications/seen", async (req, res, next) => {
 });
 
 router.get("/search", async (req, res, next) => {
+   let { UniqueUsername } = req.thisUser;
    let query = req.query.user;
 
    try {
@@ -164,7 +165,11 @@ router.get("/search", async (req, res, next) => {
       let searchData = ["Not found"];
 
       if (regexSearch.length > 0)
-         searchData = regexSearch.map(resultUser => resultUser.UniqueUsername);
+         searchData = regexSearch.map(resultUser =>
+            resultUser.UniqueUsername !== UniqueUsername
+               ? resultUser.UniqueUsername
+               : null
+         );
 
       return res.json({ status: "ok", data: searchData });
    } catch (error) {

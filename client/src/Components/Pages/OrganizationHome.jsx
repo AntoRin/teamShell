@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { Typography } from "@material-ui/core";
@@ -43,6 +44,7 @@ const useStyles = makeStyles(theme => ({
       flexDirection: "column",
       margin: "10px",
       padding: "5px",
+      position: "relative",
       borderBottom: "1px dashed rgb(108, 98, 190)",
       "& h6": {
          cursor: "pointer",
@@ -64,6 +66,11 @@ const useStyles = makeStyles(theme => ({
          color: "darkgray",
       },
    },
+   joinBtn: {
+      position: "absolute",
+      right: 0,
+      bottom: 0,
+   },
 }));
 
 function OrganizationHome({ match, User, navHeight }) {
@@ -79,7 +86,7 @@ function OrganizationHome({ match, User, navHeight }) {
       let abortFetch = new AbortController();
       async function getOrgData() {
          try {
-            let orgRequest = await fetch(
+            let responseStream = await fetch(
                `/api/organization/details/${match.params.OrganizationName}`,
                {
                   signal: abortFetch.signal,
@@ -88,19 +95,19 @@ function OrganizationHome({ match, User, navHeight }) {
 
             if (abortFetch.signal.aborted) return;
 
-            let orgResponse = await orgRequest.json();
+            let response = await responseStream.json();
 
-            if (orgResponse.status === "ok") {
-               setIsAuthorized(true);
-               setOrganization(orgResponse.Organization);
-               setIsLoading(false);
-            } else {
+            if (response.status === "error") throw response.error;
+
+            setIsAuthorized(true);
+            setOrganization(response.Organization);
+            setIsLoading(false);
+         } catch (error) {
+            if (error.name !== "AbortError") {
                setIsAuthorized(false);
                setOrganization({});
                setIsLoading(false);
             }
-         } catch (error) {
-            console.error("The request was aborted");
          }
       }
 
@@ -148,6 +155,17 @@ function OrganizationHome({ match, User, navHeight }) {
                >
                   {Organization.Description}
                </Typography>
+               {Organization.Public && (
+                  <Button
+                     className={classes.joinBtn}
+                     variant="outlined"
+                     color="primary"
+                  >
+                     {Organization.Members.includes(User.UniqueUsername)
+                        ? "Leave"
+                        : "Join"}
+                  </Button>
+               )}
             </div>
             <div className={classes.root}>
                <Tabs
@@ -192,7 +210,9 @@ function OrganizationHome({ match, User, navHeight }) {
             />
          </div>
       ) : (
-         <h1>There was an error</h1>
+         <Typography variant="h4">
+            This organization has not been made public
+         </Typography>
       );
    }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -47,41 +47,31 @@ function NotificationBlock({ notification, setActionStatus }) {
 
       async function performNotificationAction() {
          try {
-            if (notification.InfoType === "Invitation") {
-               let notificationAction = await fetch(notification.Hyperlink, {
+            if (notification.NotificationType === "Invitation") {
+               let responseStream = await fetch(notification.NotificationLink, {
                   signal: abortFetch.signal,
                });
 
                if (abortFetch.signal.aborted) return;
 
-               if (notificationAction.redirected) {
-                  let redirectUrl = new URL(notificationAction.url);
-                  history.replace(redirectUrl.pathname);
-                  return;
-               }
+               let responseData = await responseStream.json();
 
-               let actionData = await notificationAction.json();
+               if (responseData.status === "error")
+                  return setActionStatus({
+                     info: responseData.error,
+                     type: "error",
+                  });
 
-               if (actionData.status === "error")
-                  setActionStatus({ info: actionData.error, type: "error" });
-            } else if (notification.InfoType === "Request") {
-               let postOptions = {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                     newUser: notification.Initiator,
-                     requestedProject: notification.ActivityContent.Keyword,
-                  }),
+               return history.push(responseData.data.url);
+            } else if (notification.NotificationType === "Request") {
+               let responseStream = await fetch(notification.NotificationLink, {
                   signal: abortFetch.signal,
-               };
-               let notificationAction = await fetch(
-                  `/api/project/accept/new-user`,
-                  postOptions
-               );
+               });
 
                if (abortFetch.signal.aborted) return;
 
-               let responseData = await notificationAction.json();
+               console.log(responseStream);
+               let responseData = await responseStream.json();
                console.log(responseData);
 
                if (responseData.status === "ok")
@@ -95,7 +85,7 @@ function NotificationBlock({ notification, setActionStatus }) {
                      type: "error",
                   });
             } else {
-               history.push(notification.Hyperlink);
+               history.push(notification.NotificationLink);
             }
          } catch (error) {
             console.log(error);
@@ -120,15 +110,23 @@ function NotificationBlock({ notification, setActionStatus }) {
          title,
          requireConfirmation = false;
 
-      switch (notification.InfoType) {
+      switch (notification.NotificationType) {
          case "Invitation":
             title = "Invitation";
-            message = `Do you want to join ${notification.ActivityContent.Keyword}?`;
+            message = `Do you want to join the ${notification.NotificationAction.slice(
+               notification.NotificationAction.indexOf("project") !== -1
+                  ? notification.NotificationAction.indexOf("project")
+                  : notification.NotificationAction.indexOf("organization")
+            )}?`;
             requireConfirmation = true;
             break;
          case "Request":
             title = "Request";
-            message = `Do you want to accept the user's request to join ${notification.ActivityContent.Keyword}?`;
+            message = `Do you want to accept the user's request to join ${notification.NotificationAction.slice(
+               notification.NotificationAction.indexOf("project") !== -1
+                  ? notification.NotificationAction.indexOf("project")
+                  : notification.NotificationAction.indexOf("organization")
+            )}?`;
             requireConfirmation = true;
             break;
          default:
@@ -152,7 +150,7 @@ function NotificationBlock({ notification, setActionStatus }) {
                </ListItemAvatar>
                <ListItemText
                   disableTypography={true}
-                  primary={notification.InfoType}
+                  primary={notification.NotificationTitle}
                   secondary={
                      <>
                         {
@@ -171,22 +169,23 @@ function NotificationBlock({ notification, setActionStatus }) {
                                        {notification.Initiator}
                                     </span>
                                  }{" "}
-                                 <span>
-                                    {notification.ActivityContent.Action}
-                                 </span>{" "}
-                                 {
-                                    <span
-                                       className={
-                                          classes["notification-keyword"]
-                                       }
-                                    >
-                                       {notification.ActivityContent.Keyword}
-                                    </span>
-                                 }
+                                 <span>{notification.NotificationAction}</span>{" "}
                                  <br />
-                                 <span className={classes["notification-spl"]}>
-                                    {notification.Target.Info}
-                                 </span>
+                                 {notification.OtherLinks.length > 0 &&
+                                    notification.OtherLinks.map(
+                                       (link, linkIdx) => (
+                                          <span
+                                             key={linkIdx}
+                                             className={
+                                                classes["notification-spl"]
+                                             }
+                                          >
+                                             <Link to={link.Link}>
+                                                {link.Name}
+                                             </Link>
+                                          </span>
+                                       )
+                                    )}
                                  <br />
                                  <span>
                                     {formatDate(notification.createdAt)}

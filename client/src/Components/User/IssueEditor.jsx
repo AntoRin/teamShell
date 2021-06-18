@@ -58,14 +58,6 @@ function IssueEditor({ activeProject, User, done }) {
                UniqueUsername: User.UniqueUsername,
                User_id: User._id,
             },
-            initiator: User.UniqueUsername,
-            recipient: activeProject,
-            metaData: {
-               notification_type: "NewIssue",
-               target_category: "Issue",
-               target_name: issueTitle,
-               target_info: "",
-            },
          };
 
          let postOptions = {

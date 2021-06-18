@@ -39,26 +39,29 @@ const UserSchema = new Schema(
                   type: String,
                   required: true,
                },
-               InfoType: {
+               NotificationTitle: {
                   type: String,
                   required: true,
                },
-               Target: {
-                  type: {
-                     Category: String,
-                     Name: String,
-                     Info: String,
-                  },
-               },
-               ActivityContent: {
-                  type: {
-                     Action: { type: String, required: true },
-                     Keyword: { type: String, required: true },
-                  },
-               },
-               Hyperlink: {
+               NotificationType: {
                   type: String,
                   required: true,
+               },
+               NotificationAction: {
+                  type: String,
+                  required: true,
+               },
+               NotificationLink: {
+                  type: String,
+                  required: true,
+               },
+               OtherLinks: {
+                  type: [
+                     {
+                        Name: String,
+                        Link: String,
+                     },
+                  ],
                },
                Seen: {
                   type: Boolean,

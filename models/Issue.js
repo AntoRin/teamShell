@@ -34,9 +34,7 @@ const issueSchema = new Schema(
          type: [
             {
                SolutionCreator: {
-                  type: {
-                     UniqueUsername: { type: String, required: true },
-                  },
+                  type: String,
                   required: true,
                },
                SolutionBody: {

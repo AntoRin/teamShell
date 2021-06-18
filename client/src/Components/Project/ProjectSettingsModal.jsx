@@ -98,14 +98,8 @@ function ProjectSettingsModal({
          }
 
          let invitationData = {
-            initiator: User.UniqueUsername,
             recipient: newUser,
-            metaData: {
-               notification_type: "Invitation",
-               target_category: "Project",
-               target_name: Project.ProjectName,
-               target_info: `Project with ${Project.Members.length} member(s)`,
-            },
+            projectName: Project.ProjectName,
          };
 
          let postOptions = {

@@ -49,13 +49,11 @@ router.get("/details/:OrganizationName", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
 
    try {
-      let org = await Organization.findOne({ OrganizationName });
+      let org = await Organization.findOne({ OrganizationName }).lean();
+
       if (org === null) throw new AppError("BadRequestError");
-      if (org.Members.includes(UniqueUsername)) {
-         return res.json({ status: "ok", Organization: org });
-      } else {
-         throw new AppError("UnauthorizedRequestError");
-      }
+
+      return res.json({ status: "ok", Organization: org });
    } catch (error) {
       return next(error);
    }
@@ -63,16 +61,20 @@ router.get("/details/:OrganizationName", async (req, res, next) => {
 
 router.post("/edit", async (req, res, next) => {
    let { UniqueUsername } = req.thisUser;
-   let { Org, Description } = req.body;
+   let { Org, Description, Public } = req.body;
 
    try {
       let organization = await Organization.findOne({ OrganizationName: Org });
 
       if (!organization) throw new AppError("BadRequestError");
+
       if (organization.Creator !== UniqueUsername)
          throw new AppError("UnauthorizedRequestError");
 
-      await Organization.updateOne({ OrganizationName: Org }, { Description });
+      await Organization.updateOne(
+         { OrganizationName: Org },
+         { $set: { Description, Public } }
+      );
       return res.json({ status: "ok", data: "" });
    } catch (error) {
       console.log(error);
@@ -80,7 +82,62 @@ router.post("/edit", async (req, res, next) => {
    }
 });
 
-router.post("/invite/new-user", handleNotifications);
+router.post(
+   "/invite/new-user",
+   async (req, res, next) => {
+      let { UniqueUsername } = req.thisUser;
+      let { recipient, organizationName } = req.body;
+
+      try {
+         let org = await Organization.findOne({
+            OrganizationName: organizationName,
+         }).lean();
+
+         if (!org) throw new AppError("BadRequestError");
+
+         if (org.Creator !== UniqueUsername)
+            throw new AppError("UnauthorizedRequestError");
+
+         let recipientData = await User.findOne({
+            UniqueUsername: recipient,
+         }).lean();
+
+         if (!recipientData) throw new AppError("UnauthorizedRequestError");
+
+         let invitationSecret = jwt.sign(
+            { _id: recipientData._id, OrganizationName: org.OrganizationName },
+            process.env.ORG_JWT_SECRET
+         );
+
+         let inviteLink = `/api/organization/add/new-user/${invitationSecret}`;
+
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "Invitation",
+            NotificationType: "Invitation",
+            NotificationLink: inviteLink,
+            NotificationAction: `invited you to join the organization ${org.OrganizationName}`,
+            OtherLinks: [
+               {
+                  Name: "Organization",
+                  Link: `/organization/${org.OrganizationName}`,
+               },
+            ],
+            metaData: {
+               recipientType: "SingleUser",
+               recipient,
+            },
+         };
+
+         req.notifications = [notification];
+
+         return next();
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
 
 router.get("/add/new-user/:userSecret", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
@@ -113,7 +170,10 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
                },
             }
          );
-         return res.redirect(`/organization/${OrganizationName}`);
+         return res.json({
+            status: "ok",
+            data: { url: `/organization/${OrganizationName}` },
+         });
       } else {
          throw new AppError("AuthenticationError");
       }
@@ -121,5 +181,123 @@ router.get("/add/new-user/:userSecret", async (req, res, next) => {
       return next(error);
    }
 });
+
+router.post(
+   "/join/new-user",
+   async (req, res, next) => {
+      let { UniqueUsername } = req.thisUser;
+      let { organizationName } = req.body;
+
+      try {
+         let org = await Organization.finOne({
+            OrganizationName: organizationName,
+         }).lean();
+
+         if (!org) throw new AppError("BadRequestError");
+
+         if (org.Members.includes(UniqueUsername))
+            throw new AppError("OrgInvitationReboundError");
+
+         if (!org.Public) throw new AppError("UnauthorizedRequestError");
+
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "Request",
+            NotificationType: "Request",
+            NotificationLink: `/api/organization/accept/new-user?newUser=${UniqueUsername}&requestedOrganization=${org.OrganizationName}`,
+            OtherLinks: [],
+            NotificationAction: `requested to join the organization ${org.OrganizationName}`,
+            metaData: {
+               recipientType: "SingleUser",
+               recipient: org.Creator,
+            },
+         };
+
+         req.notifications = [notification];
+
+         return next();
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
+router.get(
+   "/accept/new-user",
+   async (req, res, next) => {
+      let { newUser, requestedOrganization } = req.query;
+      let { UniqueUsername } = req.thisUser;
+
+      try {
+         let org = await Organization.findOne({
+            OrganizationName: requestedOrganization,
+         });
+
+         if (!org) throw new AppError("BadRequestError");
+
+         if (org.Creator !== UniqueUsername)
+            throw new AppError("UnauthorizedRequestError");
+
+         if (org.Members.includes(newUser))
+            throw new AppError("OrgInvitationReboundError");
+
+         let updatedOrganization = await Organization.findOneAndUpdate(
+            { OrganizationName: org.OrganizationName },
+            { $push: { Members: { $each: [newUser], $position: 0 } } }
+         );
+         await User.updateOne(
+            { UniqueUsername: newUser },
+            {
+               $push: {
+                  Organizations: {
+                     $each: [
+                        {
+                           _id: updatedOrganization._id,
+                           OrganizationName: org.OrganizationName,
+                           Status: "Member",
+                        },
+                     ],
+                     $position: 0,
+                  },
+               },
+            }
+         );
+
+         let notification1 = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "",
+            NotificationAction: `accepted your request to join the organization ${org.OrganizationName}`,
+            NotificationLink: `/organization/${org.OrganizationName}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "SingleUser",
+               recipient: newUser,
+            },
+         };
+
+         let notification2 = {
+            Initiator: newUser,
+            NotificationTitle: "New User",
+            NotificationType: "Standard",
+            NotificationAction: `joined the organization ${org.OrganizationName}`,
+            NotificationLink: `/organization/${org.OrganizationName}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "Group",
+               groupType: "Organization",
+               recipient: org.OrganizationName,
+            },
+         };
+
+         req.notifications = [notification1, notification2];
+
+         return next();
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
 
 module.exports = router;

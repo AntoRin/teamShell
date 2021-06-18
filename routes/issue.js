@@ -124,6 +124,22 @@ router.post(
             }
          );
 
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "New Issue",
+            NotificationType: "Standard",
+            NotificationAction: `created a new Issue in the project ${ProjectContext}`,
+            NotificationLink: `/issue/${newIssueId}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "Group",
+               groupType: "Project",
+               recipient: ProjectContext,
+            },
+         };
+
+         req.notifications = [notification];
+
          return next();
       } catch (error) {
          console.log(error);
@@ -258,17 +274,14 @@ router.post(
    "/solution/create",
    async (req, res, next) => {
       let { UniqueUsername, Email } = req.thisUser;
-      let { Issue_id, Project_id, SolutionCreator, SolutionBody } = req.body;
+      let { Issue_id, Project_id, SolutionBody } = req.body;
 
       let newSolution = {
-         SolutionCreator,
+         SolutionCreator: UniqueUsername,
          SolutionBody,
       };
 
       try {
-         if (UniqueUsername !== SolutionCreator.UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
-
          let updatedIssue = await Issue.findOneAndUpdate(
             { _id: Issue_id },
             { $push: { Solutions: { $each: [newSolution], $position: 0 } } },
@@ -299,6 +312,22 @@ router.post(
             }
          );
 
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "New Solution",
+            NotificationType: "Standard",
+            NotificationAction: `created a new solution for the Issue ${updatedIssue.IssueTitle}`,
+            NotificationLink: `/issue/${updatedIssue._id}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "Group",
+               groupType: "Project",
+               recipient: updatedIssue.ProjectContext,
+            },
+         };
+
+         req.notifications = [notification];
+
          return next();
       } catch (error) {
          console.log(error);
@@ -312,7 +341,8 @@ router.post(
    "/solution/add-like",
    async (req, res, next) => {
       let { UniqueUsername } = req.thisUser;
-      let { user_id, solution_id, solution_creator } = req.body;
+      let { user_id, solution_id, solution_creator, issueTitle, issueId } =
+         req.body;
 
       let userRef = {
          _id: user_id,
@@ -329,7 +359,24 @@ router.post(
             }
          );
 
-         if (UniqueUsername !== solution_creator) return next();
+         if (UniqueUsername !== solution_creator) {
+            let notification = {
+               Initiator: UniqueUsername,
+               NotificationTitle: "New Link",
+               NotificationType: "Standard",
+               NotificationAction: `liked your solution to the issue ${issueTitle}`,
+               NotificationLink: `/issue/${issueId}`,
+               OtherLinks: [],
+               metaDeta: {
+                  recipientType: "SingleUser",
+                  recipient: solution_creator,
+               },
+            };
+
+            req.notifications = [notification];
+
+            return next();
+         }
 
          return res.json({ status: "ok", data: "Like added" });
       } catch (error) {

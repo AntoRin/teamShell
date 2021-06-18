@@ -11,6 +11,8 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { Button, TextField } from "@material-ui/core";
+import Switch from "@material-ui/core/Switch";
+import Typography from "@material-ui/core/Typography";
 import { GlobalActionStatus } from "../App";
 import FullScreenDialog from "../UtilityComponents/FullScreenDialog";
 import "../../styles/settings-modal.css";
@@ -21,7 +23,11 @@ const useStyles = makeStyles(theme => ({
       cursor: "default",
       boxShadow: "0px 1px 2px black",
    },
-   submitBtn: {},
+   optionPair: {
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "flex-end",
+   },
 }));
 
 function OrgSettingsModal({
@@ -36,6 +42,7 @@ function OrgSettingsModal({
    const [newDescription, setNewDescription] = useState(
       Organization.Description
    );
+   const [isPublic, setIsPublic] = useState(Boolean(Organization.Public));
    const [newUser, setNewUser] = useState("");
    const [addUserQuery, setAddUserQuery] = useState(false);
 
@@ -45,6 +52,10 @@ function OrgSettingsModal({
 
    function handleDescriptionChange(event) {
       setNewDescription(event.target.value);
+   }
+
+   function handleSwitchChange(event) {
+      setIsPublic(event.target.checked);
    }
 
    function handleNewUserNameChange(event) {
@@ -64,6 +75,7 @@ function OrgSettingsModal({
          let body = {
             Org: Organization.OrganizationName,
             Description: newDescription,
+            Public: isPublic,
          };
 
          let postOptions = {
@@ -95,29 +107,22 @@ function OrgSettingsModal({
       }
 
       let invitationData = {
-         initiator: User.UniqueUsername,
          recipient: newUser,
-         metaData: {
-            notification_type: "Invitation",
-            target_category: "Organization",
-            target_name: Organization.OrganizationName,
-            target_info: `Organization with ${Organization.Members.length} member(s)`,
-         },
+         organizationName: Organization.OrganizationName,
       };
 
       let postOptions = {
          method: "POST",
          headers: { "Content-Type": "application/json" },
          body: JSON.stringify(invitationData),
-         credentials: "include",
       };
 
-      let invitationStream = await fetch(
+      let responseStream = await fetch(
          "/api/organization/invite/new-user",
          postOptions
       );
 
-      let invitationResponse = await invitationStream.json();
+      let invitationResponse = await responseStream.json();
 
       if (invitationResponse.status === "ok") {
          setActionStatus({ info: "Invitation sent to user", type: "success" });
@@ -163,7 +168,18 @@ function OrgSettingsModal({
                            />
                         </div>
                         <br />
-
+                        <div className={classes.optionPair}>
+                           <Typography variant="body1" gutterBottom={true}>
+                              Public
+                           </Typography>
+                           <Switch
+                              color="primary"
+                              checked={isPublic}
+                              size="medium"
+                              onChange={handleSwitchChange}
+                           />
+                        </div>
+                        <br />
                         <Button
                            type="submit"
                            variant="outlined"

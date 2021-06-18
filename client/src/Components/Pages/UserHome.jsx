@@ -210,9 +210,12 @@ function UserHome({ User, navHeight }) {
                                  );
                               })
                            ) : (
-                              <div className="member-list-item">
-                                 You are not part of any organization
-                              </div>
+                              <ListItem
+                                 className={classes.orgListElement}
+                                 divider
+                              >
+                                 <ListItemText primary="You are not part of any organization" />
+                              </ListItem>
                            )}
                            <ListItem>
                               <ListItemText
