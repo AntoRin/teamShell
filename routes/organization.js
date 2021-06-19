@@ -211,7 +211,7 @@ router.get(
       let { organizationName } = req.params;
 
       try {
-         let org = await Organization.finOne({
+         let org = await Organization.findOne({
             OrganizationName: organizationName,
          }).lean();
 
@@ -330,14 +330,12 @@ router.get(
 
       try {
          let user = await User.findOne({ UniqueUsername, Email }).lean();
-         console.log(organizationName);
+
          let userInOrg = user.Organizations.find(
             org => org.OrganizationName === organizationName
          );
 
          if (!userInOrg) throw new AppError("NoActionRequiredError");
-
-         console.log(userInOrg);
 
          if (userInOrg.Status === "Creator")
             throw new AppError("IrrevertibleActionError");

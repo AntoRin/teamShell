@@ -56,7 +56,6 @@ async function handleNotifications(req, res, next) {
       let successMessage = null;
 
       for (let notification of notifications) {
-         console.log(notification);
          let { metaData, ...notificationData } = notification;
 
          if (!notification) throw new AppError("ServerError");
