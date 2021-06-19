@@ -70,9 +70,7 @@ function NotificationBlock({ notification, setActionStatus }) {
 
                if (abortFetch.signal.aborted) return;
 
-               console.log(responseStream);
                let responseData = await responseStream.json();
-               console.log(responseData);
 
                if (responseData.status === "ok")
                   setActionStatus({

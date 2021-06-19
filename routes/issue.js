@@ -362,12 +362,12 @@ router.post(
          if (UniqueUsername !== solution_creator) {
             let notification = {
                Initiator: UniqueUsername,
-               NotificationTitle: "New Link",
+               NotificationTitle: "New Like",
                NotificationType: "Standard",
                NotificationAction: `liked your solution to the issue ${issueTitle}`,
                NotificationLink: `/issue/${issueId}`,
                OtherLinks: [],
-               metaDeta: {
+               metaData: {
                   recipientType: "SingleUser",
                   recipient: solution_creator,
                },

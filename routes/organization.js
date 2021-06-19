@@ -6,6 +6,7 @@ const { handleNotifications } = require("../utils/notificationHandler");
 const router = Router();
 
 const AppError = require("../utils/AppError");
+const Project = require("../models/Project");
 
 router.post("/create", async (req, res, next) => {
    let { UniqueUsername, Email } = req.thisUser;
@@ -51,7 +52,7 @@ router.get("/details/:OrganizationName", async (req, res, next) => {
    try {
       let org = await Organization.findOne({ OrganizationName }).lean();
 
-      if (org === null) throw new AppError("BadRequestError");
+      if (!org) throw new AppError("BadRequestError");
 
       return res.json({ status: "ok", Organization: org });
    } catch (error) {
@@ -139,54 +140,75 @@ router.post(
    handleNotifications
 );
 
-router.get("/add/new-user/:userSecret", async (req, res, next) => {
-   let { UniqueUsername, Email } = req.thisUser;
-   let { userSecret } = req.params;
+router.get(
+   "/add/new-user/:userSecret",
+   async (req, res, next) => {
+      let { UniqueUsername, Email } = req.thisUser;
+      let { userSecret } = req.params;
 
-   try {
-      let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw new AppError("UnauthorizedRequestError");
-      let { _id, OrganizationName } = jwt.verify(
-         userSecret,
-         process.env.ORG_JWT_SECRET
-      );
-      if (_id === user._id.toString()) {
-         let checkIsMember = await Organization.findOne({ OrganizationName });
-         if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw new AppError("OrgInvitationReboundError");
-         let Org = await Organization.findOneAndUpdate(
-            { OrganizationName },
-            { $push: { Members: user.UniqueUsername } }
+      try {
+         let user = await User.findOne({ UniqueUsername, Email });
+         if (!user) throw new AppError("UnauthorizedRequestError");
+         let { _id, OrganizationName } = jwt.verify(
+            userSecret,
+            process.env.ORG_JWT_SECRET
          );
-         await User.updateOne(
-            { _id: user._id },
-            {
-               $push: {
-                  Organizations: {
-                     _id: Org._id,
-                     OrganizationName,
-                     Status: "Member",
+         if (_id === user._id.toString()) {
+            let checkIsMember = await Organization.findOne({
+               OrganizationName,
+            });
+            if (checkIsMember.Members.includes(user.UniqueUsername))
+               throw new AppError("OrgInvitationReboundError");
+            let Org = await Organization.findOneAndUpdate(
+               { OrganizationName },
+               { $push: { Members: user.UniqueUsername } }
+            );
+            await User.updateOne(
+               { _id: user._id },
+               {
+                  $push: {
+                     Organizations: {
+                        _id: Org._id,
+                        OrganizationName,
+                        Status: "Member",
+                     },
                   },
-               },
-            }
-         );
-         return res.json({
-            status: "ok",
-            data: { url: `/organization/${OrganizationName}` },
-         });
-      } else {
-         throw new AppError("AuthenticationError");
-      }
-   } catch (error) {
-      return next(error);
-   }
-});
+               }
+            );
 
-router.post(
-   "/join/new-user",
+            let notification = {
+               Initiator: UniqueUsername,
+               NotificationTitle: "New User",
+               NotificationType: "Standard",
+               NotificationAction: `joined the organization ${OrganizationName}`,
+               NotificationLink: `/organization/${OrganizationName}`,
+               OtherLinks: [],
+               metaData: {
+                  recipientType: "Group",
+                  groupType: "Organization",
+                  recipient: OrganizationName,
+                  successMessage: { url: `/organization/${OrganizationName}` },
+               },
+            };
+
+            req.notifications = [notification];
+
+            return next();
+         } else {
+            throw new AppError("AuthenticationError");
+         }
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
+router.get(
+   "/join-request/:organizationName",
    async (req, res, next) => {
       let { UniqueUsername } = req.thisUser;
-      let { organizationName } = req.body;
+      let { organizationName } = req.params;
 
       try {
          let org = await Organization.finOne({
@@ -291,6 +313,74 @@ router.get(
          };
 
          req.notifications = [notification1, notification2];
+
+         return next();
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
+router.get(
+   "/leave/:organizationName",
+   async (req, res, next) => {
+      let { UniqueUsername, Email } = req.thisUser;
+      let organizationName = req.params.organizationName;
+
+      try {
+         let user = await User.findOne({ UniqueUsername, Email }).lean();
+         console.log(organizationName);
+         let userInOrg = user.Organizations.find(
+            org => org.OrganizationName === organizationName
+         );
+
+         if (!userInOrg) throw new AppError("NoActionRequiredError");
+
+         console.log(userInOrg);
+
+         if (userInOrg.Status === "Creator")
+            throw new AppError("IrrevertibleActionError");
+
+         await User.updateOne(
+            { UniqueUsername, Email },
+            { $pull: { Organizations: { OrganizationName: organizationName } } }
+         );
+
+         await User.updateOne(
+            { UniqueUsername, Email },
+            {
+               $pull: { Projects: { ParentOrganization: organizationName } },
+            }
+         );
+
+         await Organization.updateOne(
+            { OrganizationName: organizationName },
+            { $pull: { Members: UniqueUsername } }
+         );
+
+         await Project.updateMany(
+            { Members: UniqueUsername },
+            {
+               $pull: { Members: UniqueUsername },
+            }
+         );
+
+         let notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "",
+            NotificationType: "Standard",
+            NotificationLink: `/user/profile/${UniqueUsername}`,
+            OtherLinks: [],
+            NotificationAction: `left the organization ${organizationName}`,
+            metaData: {
+               recipientType: "Group",
+               groupType: "Organization",
+               recipient: organizationName,
+            },
+         };
+
+         req.notifications = [notification];
 
          return next();
       } catch (error) {

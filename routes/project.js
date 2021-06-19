@@ -255,6 +255,79 @@ router.post(
    handleNotifications
 );
 
+router.get(
+   "/add/new-user/:userSecret",
+   async (req, res, next) => {
+      let { UniqueUsername, Email } = req.thisUser;
+      let { userSecret } = req.params;
+
+      try {
+         let user = await User.findOne({ UniqueUsername, Email });
+         if (!user) throw new AppError("UnauthorizedRequestError");
+         let { _id, ProjectName } = jwt.verify(
+            userSecret,
+            process.env.ORG_JWT_SECRET
+         );
+         if (_id === user._id.toString()) {
+            let checkIsMember = await Project.findOne({ ProjectName });
+            if (checkIsMember.Members.includes(user.UniqueUsername))
+               throw new AppError("ProjectInvitationReboundError");
+
+            let parentOrg = await Organization.findOne({
+               OrganizationName: checkIsMember.ParentOrganization,
+            });
+
+            if (!parentOrg.Members.includes(user.UniqueUsername))
+               throw new AppError("OrganizationAuthFailError");
+
+            let project = await Project.findOneAndUpdate(
+               { ProjectName },
+               { $push: { Members: user.UniqueUsername } }
+            );
+            await User.updateOne(
+               { _id: user._id },
+               {
+                  $push: {
+                     Projects: {
+                        _id: project._id,
+                        ProjectName,
+                        Status: "Member",
+                        ParentOrganization: project.ParentOrganization,
+                     },
+                  },
+               }
+            );
+
+            let notification = {
+               Initiator: UniqueUsername,
+               NotificationTitle: "New User",
+               NotificationType: "Standard",
+               NotificationAction: `joined the project ${ProjectName}`,
+               NotificationLink: `/project/${project.ParentOrganization}/${ProjectName}`,
+               OtherLinks: [],
+               metaData: {
+                  recipientType: "Group",
+                  groupType: "Project",
+                  recipient: ProjectName,
+                  successMessage: {
+                     url: `/project/${project.ParentOrganization}/${ProjectName}`,
+                  },
+               },
+            };
+
+            req.notifications = [notification];
+
+            return next();
+         } else {
+            throw new AppError("AuthenticationError");
+         }
+      } catch (error) {
+         return next(error);
+      }
+   },
+   handleNotifications
+);
+
 router.post(
    "/join/new-user",
    async (req, res, next) => {
@@ -409,61 +482,6 @@ router.get(
    handleNotifications
 );
 
-router.get("/add/new-user/:userSecret", async (req, res, next) => {
-   let { UniqueUsername, Email } = req.thisUser;
-   let { userSecret } = req.params;
-
-   try {
-      let user = await User.findOne({ UniqueUsername, Email });
-      if (!user) throw new AppError("UnauthorizedRequestError");
-      let { _id, ProjectName } = jwt.verify(
-         userSecret,
-         process.env.ORG_JWT_SECRET
-      );
-      if (_id === user._id.toString()) {
-         let checkIsMember = await Project.findOne({ ProjectName });
-         if (checkIsMember.Members.includes(user.UniqueUsername))
-            throw new AppError("ProjectInvitationReboundError");
-
-         let parentOrg = await Organization.findOne({
-            OrganizationName: checkIsMember.ParentOrganization,
-         });
-
-         if (!parentOrg.Members.includes(user.UniqueUsername))
-            throw new AppError("OrganizationAuthFailError");
-
-         let project = await Project.findOneAndUpdate(
-            { ProjectName },
-            { $push: { Members: user.UniqueUsername } }
-         );
-         await User.updateOne(
-            { _id: user._id },
-            {
-               $push: {
-                  Projects: {
-                     _id: project._id,
-                     ProjectName,
-                     Status: "Member",
-                     ParentOrganization: project.ParentOrganization,
-                  },
-               },
-            }
-         );
-
-         return res.json({
-            status: "ok",
-            data: {
-               url: `/project/${project.ParentOrganization}/${project.ProjectName}`,
-            },
-         });
-      } else {
-         throw new AppError("AuthenticationError");
-      }
-   } catch (error) {
-      return next(error);
-   }
-});
-
 router.post(
    "/leave/:projectName",
    async (req, res, next) => {
@@ -479,7 +497,7 @@ router.post(
 
          if (!userInProject) throw new AppError("NoActionRequiredError");
 
-         if (userInProject.status === "creator")
+         if (userInProject.Status === "Creator")
             throw new AppError("IrrevertibleActionError");
 
          await User.updateOne(

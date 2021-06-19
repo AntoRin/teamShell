@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useHistory } from "react-router";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -66,7 +67,7 @@ const useStyles = makeStyles(theme => ({
          color: "darkgray",
       },
    },
-   joinBtn: {
+   orgPublicInfo: {
       position: "absolute",
       right: 0,
       bottom: 0,
@@ -76,11 +77,12 @@ const useStyles = makeStyles(theme => ({
 function OrganizationHome({ match, User, navHeight }) {
    const classes = useStyles(navHeight);
 
-   const [isAuthorized, setIsAuthorized] = useState(false);
    const [Organization, setOrganization] = useState({});
    const [isLoading, setIsLoading] = useState(true);
    const [tabName, setTabName] = useState("General Details");
    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+   const history = useHistory();
 
    useEffect(() => {
       let abortFetch = new AbortController();
@@ -99,12 +101,10 @@ function OrganizationHome({ match, User, navHeight }) {
 
             if (response.status === "error") throw response.error;
 
-            setIsAuthorized(true);
             setOrganization(response.Organization);
             setIsLoading(false);
          } catch (error) {
             if (error.name !== "AbortError") {
-               setIsAuthorized(false);
                setOrganization({});
                setIsLoading(false);
             }
@@ -124,10 +124,45 @@ function OrganizationHome({ match, User, navHeight }) {
       setIsSettingsOpen(prev => !prev);
    }
 
+   async function handleJoinOrgRequest() {
+      try {
+         let responseStream = await fetch(
+            `/api/organization/join-request/${Organization.OrganizationName}`
+         );
+
+         let response = await responseStream.json();
+
+         if (response.status === "error") throw new Error(response.error);
+
+         console.log(response);
+      } catch (error) {
+         console.log(error);
+      }
+   }
+
+   async function handleLeaveOrg() {
+      setIsLoading(true);
+      try {
+         let responseStream = await fetch(
+            `/api/organization/leave/${Organization.OrganizationName}`
+         );
+
+         let response = await responseStream.json();
+
+         if (response.status === "error") throw new Error(response.error);
+
+         setIsLoading(false);
+         return history.push("/user/home");
+      } catch (error) {
+         console.log(error);
+         setIsLoading(false);
+      }
+   }
+
    if (isLoading) {
       return <LinearLoader />;
    } else {
-      return isAuthorized ? (
+      return (
          <div className={classes.orgHomeContainer}>
             <div className={classes.crumbs}>
                <>
@@ -155,16 +190,28 @@ function OrganizationHome({ match, User, navHeight }) {
                >
                   {Organization.Description}
                </Typography>
-               {Organization.Public && (
+               {Organization.Members.includes(User.UniqueUsername) ? (
                   <Button
-                     className={classes.joinBtn}
+                     className={classes.orgPublicInfo}
                      variant="outlined"
                      color="primary"
+                     onClick={handleLeaveOrg}
                   >
-                     {Organization.Members.includes(User.UniqueUsername)
-                        ? "Leave"
-                        : "Join"}
+                     Leave
                   </Button>
+               ) : Organization.Public ? (
+                  <Button
+                     className={classes.orgPublicInfo}
+                     variant="outlined"
+                     color="primary"
+                     onClick={handleJoinOrgRequest}
+                  >
+                     Request to join
+                  </Button>
+               ) : (
+                  <Typography className={classes.orgPublicInfo} variant="h5">
+                     This organization is not public
+                  </Typography>
                )}
             </div>
             <div className={classes.root}>
@@ -209,10 +256,6 @@ function OrganizationHome({ match, User, navHeight }) {
                setIsSettingsOpen={setIsSettingsOpen}
             />
          </div>
-      ) : (
-         <Typography variant="h4">
-            This organization has not been made public
-         </Typography>
       );
    }
 }
