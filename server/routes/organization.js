@@ -388,4 +388,19 @@ router.get(
    handleNotifications
 );
 
+router.get("/explore", async (req, res, next) => {
+   try {
+      let orgs = await Organization.find({}).lean();
+
+      return res.json({
+         status: "ok",
+         data: {
+            exploreOrganizations: orgs,
+         },
+      });
+   } catch (error) {
+      return next(error);
+   }
+});
+
 module.exports = router;

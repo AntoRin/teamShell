@@ -13,6 +13,10 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import HomeFeedTab from "../User/HomeFeedTab";
+import HomeExploreTab from "../User/HomeExploreTab";
 import GeneralConfirmDialog from "../UtilityComponents/GeneralConfirmDialog";
 import "../../styles/user-home.css";
 
@@ -86,6 +90,28 @@ const useStyles = makeStyles({
    icon: {
       color: "rgb(180, 170, 255)",
    },
+   panelTabContainer: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "column",
+      margin: "30px 0",
+      width: "100%",
+      "& .MuiToggleButton-root": {
+         width: "100%",
+         backgroundColor: "rgba(0, 0, 0, 0.25)",
+      },
+      "& .MuiToggleButton-root:hover": {
+         width: "100%",
+         backgroundColor: "rgba(0, 0, 0, 0.4)",
+      },
+      "& .Mui-selected": {
+         backgroundColor: "rgba(0, 0, 0, 0.4)",
+      },
+      "& h6": {
+         color: "#fff",
+      },
+   },
 });
 
 function UserHome({ User, navHeight }) {
@@ -100,6 +126,7 @@ function UserHome({ User, navHeight }) {
       isRequired: false,
       confirmationFor: null,
    });
+   const [panelTab, setPanelTab] = useState("feed");
 
    const history = useHistory();
 
@@ -116,6 +143,12 @@ function UserHome({ User, navHeight }) {
    useEffect(() => {
       window.localStorage.setItem("organization_context", activePanelOrg);
    }, [activePanelOrg]);
+
+   function handlePanelTabChange(event, newTab) {
+      if (newTab !== null) {
+         setPanelTab(newTab);
+      }
+   }
 
    function requireConfirmation(orgName) {
       setConfirmDialog({
@@ -268,9 +301,29 @@ function UserHome({ User, navHeight }) {
                      ))}
                   </List>
                </div>
+               <div>
+                  <ToggleButtonGroup
+                     className={classes.panelTabContainer}
+                     exclusive
+                     value={panelTab}
+                     onChange={handlePanelTabChange}
+                  >
+                     <ToggleButton value="feed">
+                        <Typography variant="h6" color="initial">
+                           Feed
+                        </Typography>
+                     </ToggleButton>
+                     <ToggleButton value="explore">
+                        <Typography variant="h6" color="initial">
+                           Explore
+                        </Typography>
+                     </ToggleButton>
+                  </ToggleButtonGroup>
+               </div>
             </div>
-            <div className="home-workspace">
-               <h1 style={{ color: "gray" }}>No work progress to show😴</h1>
+            <div className="home-tab-result">
+               <HomeFeedTab tab={panelTab} />
+               <HomeExploreTab tab={panelTab} />
             </div>
          </div>
          <GeneralConfirmDialog
