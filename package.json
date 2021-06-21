@@ -1,7 +1,7 @@
 {
-   "name": "issues_tracker_server",
+   "name": "teamshell-server",
    "version": "1.0.0",
-   "description": "",
+   "description": "Server-side application for TeamShell",
    "main": "server.js",
    "scripts": {
       "start": "node server.js",
