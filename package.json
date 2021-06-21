@@ -2,11 +2,11 @@
    "name": "teamshell-server",
    "version": "1.0.0",
    "description": "Server-side application for TeamShell",
-   "main": "server.js",
+   "main": "server/server.js",
    "scripts": {
-      "start": "node server.js",
+      "start": "node server/server.js",
       "heroku-postbuild": "cd client && npm install && npm run build",
-      "dev": "nodemon server.js"
+      "dev": "nodemon server/server.js"
    },
    "author": "",
    "license": "ISC",
