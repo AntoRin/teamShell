@@ -1,0 +1,246 @@
+import { NextFunction, Response, Router } from "express";
+import multer, { FileFilterCallback } from "multer";
+import User from "../models/User";
+import ProfileImage from "../models/ProfileImage";
+import { handleNotifications } from "../utils/notificationHandler";
+
+import AppError from "../utils/AppError";
+import { INamedRequest, reqUser } from "../types";
+import { IUser } from "../interfaces/IUser";
+
+const router = Router();
+
+const upload = multer({
+   storage: multer.memoryStorage(),
+   fileFilter: (_, file, cb: FileFilterCallback) => {
+      if (!file || file.mimetype.split("/")[0] !== "image")
+         cb(new Error("Error parsing file"));
+      else cb(null, true);
+   },
+   limits: {
+      fileSize: 500000,
+   },
+});
+const imageParser = upload.single("profileImage");
+
+router.get(
+   "/details/:UniqueUsername",
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { UniqueUsername } = req.thisUser as reqUser;
+      const requestedUser = req.params.UniqueUsername;
+
+      try {
+         const queryResult = await User.findOne(
+            {
+               UniqueUsername: requestedUser,
+            },
+            { Password: 0, updatedAt: 0, Notifications: 0, __v: 0 }
+         ).lean();
+
+         if (!queryResult) throw new AppError("UserNotFoundError");
+
+         let user;
+
+         if (UniqueUsername === requestedUser) {
+            user = queryResult;
+         } else {
+            const { Issues, Solutions, ...limitedAccessData } = queryResult;
+            user = limitedAccessData;
+         }
+
+         if (user) return res.json({ status: "ok", user });
+         else throw new AppError("BadRequestError");
+      } catch (error) {
+         return next(error);
+      }
+   }
+);
+
+router.get("/profile-image/:UniqueUsername", async (req, res, next) => {
+   const requestedUser = req.params.UniqueUsername;
+
+   try {
+      const profileImage = await ProfileImage.findOne({
+         UserContext: requestedUser,
+      });
+
+      let imageUrl = "/assets/UserIcon.png";
+
+      if (profileImage) {
+         const savedImage = profileImage.ImageData;
+
+         if (savedImage.startsWith("https://")) {
+            imageUrl = savedImage;
+         } else {
+            res.set({ "Content-Type": "image/png" });
+            return res.write(savedImage, "base64", err => {
+               if (err) throw err;
+            });
+         }
+      }
+
+      return res.redirect(303, imageUrl);
+   } catch (error) {
+      return next(error);
+   }
+});
+
+router.put(
+   "/edit",
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { Bio, Username } = req.body;
+      const { UniqueUsername, Email } = req.thisUser as reqUser;
+
+      try {
+         await User.updateOne({ UniqueUsername, Email }, { Bio, Username });
+         res.json({ status: "ok", message: "Profile Updated" });
+      } catch (error) {
+         return next(error);
+      }
+   }
+);
+
+router.post(
+   "/uploads/profile-image",
+   imageParser,
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { UniqueUsername } = req.thisUser as reqUser;
+      try {
+         const file = req.file;
+
+         if (!file) throw new AppError("UploadFailureError");
+
+         const buffer = file.buffer;
+
+         const ImageData = buffer.toString("base64");
+
+         await ProfileImage.updateOne(
+            { UserContext: UniqueUsername },
+            { ImageData },
+            { upsert: true }
+         );
+
+         return res.json({ status: "ok", data: "Image Uploaded" });
+      } catch (error) {
+         return next(error);
+      }
+   }
+);
+
+router.get(
+   "/notifications",
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { UniqueUsername, Email } = req.thisUser as reqUser;
+
+      try {
+         const user = await User.findOne({ UniqueUsername, Email }).lean();
+         if (!user) throw new AppError("UnauthorizedRequestError");
+         const { Notifications } = user;
+         return res.json({ status: "ok", data: { Notifications } });
+      } catch (error) {
+         return next(error);
+      }
+   }
+);
+
+router.post("/notifications", handleNotifications);
+
+router.get(
+   "/notifications/seen",
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { UniqueUsername, Email } = req.thisUser as reqUser;
+
+      try {
+         await User.updateOne(
+            { UniqueUsername, Email, "Notifications.Seen": false },
+            { $set: { "Notifications.$[].Seen": true } },
+            { multi: true }
+         );
+         return res.json({ status: "ok", data: "" });
+      } catch (error) {
+         console.log(error);
+         next(error);
+      }
+   }
+);
+
+router.get(
+   "/search",
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { UniqueUsername } = req.thisUser as reqUser;
+      const query = req.query.user;
+
+      try {
+         const regexSearch = await User.find({
+            UniqueUsername: {
+               $regex: new RegExp(`\\b\\w*${query}\\w*\\b`, "i"),
+            },
+         });
+
+         let searchData: Array<string | null> = ["Not found"];
+
+         if (regexSearch.length > 0)
+            searchData = regexSearch.map(resultUser =>
+               resultUser.UniqueUsername !== UniqueUsername
+                  ? resultUser.UniqueUsername
+                  : null
+            );
+
+         return res.json({ status: "ok", data: searchData });
+      } catch (error) {
+         return next(error);
+      }
+   }
+);
+
+router.get(
+   "/all-contacts",
+   async (req: INamedRequest, res: Response, next: NextFunction) => {
+      const { UniqueUsername } = req.thisUser as reqUser;
+
+      try {
+         const aggregrationPipeline = [
+            {
+               $match: {
+                  UniqueUsername,
+               },
+            },
+            {
+               $lookup: {
+                  from: "Organizations",
+                  localField: "Organizations.OrganizationName",
+                  foreignField: "OrganizationName",
+                  as: "SameOrg",
+               },
+            },
+            {
+               $lookup: {
+                  from: "Users",
+                  localField: "SameOrg.Members",
+                  foreignField: "UniqueUsername",
+                  as: "MembersOfSameOrg",
+               },
+            },
+            {
+               $project: {
+                  "MembersOfSameOrg.UniqueUsername": 1,
+               },
+            },
+         ];
+
+         const sameOrgAggregation = await User.aggregate(aggregrationPipeline);
+         const contacts = sameOrgAggregation[0].MembersOfSameOrg.map(
+            (member: IUser) =>
+               member.UniqueUsername !== UniqueUsername
+                  ? member.UniqueUsername
+                  : null
+         );
+
+         return res.json({ status: "ok", data: contacts });
+      } catch (error) {
+         return next(error);
+      }
+   }
+);
+
+export default router;

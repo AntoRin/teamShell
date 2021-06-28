@@ -1,0 +1,43 @@
+import mongoose from "mongoose";
+import { OrganizationDoc } from "../interfaces/OrganizationDoc";
+const { Schema } = mongoose;
+
+const OrganizationSchema = new Schema(
+   {
+      OrganizationName: {
+         type: String,
+         required: true,
+         unique: true,
+      },
+      Description: {
+         type: String,
+         required: true,
+      },
+      Creator: {
+         type: String,
+         required: true,
+      },
+      Members: {
+         type: Array,
+         default: [],
+         required: true,
+      },
+      Projects: {
+         type: Array,
+         default: [],
+      },
+      Public: {
+         type: Boolean,
+         default: false,
+      },
+   },
+   { timestamps: true, strictQuery: "throw" }
+);
+
+const Organization = mongoose.model<OrganizationDoc>(
+   "Organization",
+   OrganizationSchema,
+   "Organizations"
+);
+
+export default Organization;
