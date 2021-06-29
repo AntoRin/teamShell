@@ -16,8 +16,6 @@ import meetRoute from "./routes/meet.route";
 
 import errorHandler from "./utils/errorHandler";
 
-const app = express();
-
 //Middleware
 import checkAuth from "./middleware/checkAuth";
 import {
@@ -25,7 +23,9 @@ import {
    initiateListeners,
    verifySocketIntegrity,
 } from "./socketHandlers";
-import { AuthenticatedSocket } from "./types";
+import { UserContextSocket } from "./types";
+
+const app = express();
 
 app.use(express.json({ limit: 500000 }));
 app.use(cookieParser());
@@ -71,7 +71,7 @@ mongoose.connect(
 
          io.use(verifySocketIntegrity);
 
-         io.on("connection", (socket: AuthenticatedSocket) =>
+         io.on("connection", (socket: UserContextSocket) =>
             initiateListeners(socket, io)
          );
       }

@@ -1,31 +1,31 @@
 import { Request } from "express";
 import { Socket } from "socket.io";
-import { userNotification } from "../interfaces/UserModel";
-
-export type reqUser = {
-   UniqueUsername: string;
-   Email: string;
-};
+import { UserNotificationType } from "../interfaces/UserModel";
 
 export interface AuthenticatedRequest extends Request {
-   thisUser?: reqUser;
-   notifications?: Array<userNotification>;
+   thisUser?: RequestUserType;
+   notifications?: Array<UserNotificationType>;
 }
 
-export interface AuthenticatedSocket extends Socket {
+export interface UserContextSocket extends Socket {
    userName?: string;
    authToken?: string;
 }
 
-export type tokenPayload = {
-   UniqueUsername: string;
-   Email: string;
-};
-
-export type messagesType = {
+export interface MessagesType {
    from: string;
    to?: string;
    content: string;
    messageType?: string;
    time?: Date;
+}
+
+export type RequestUserType = {
+   UniqueUsername: string;
+   Email: string;
+};
+
+export type TokenPayloadType = {
+   UniqueUsername: string;
+   Email: string;
 };

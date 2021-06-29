@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Response } from "express";
-import { userNotification } from "../interfaces/UserModel";
+import { UserNotificationType } from "../interfaces/UserModel";
 import Organization from "../models/Organization";
 import User from "../models/User";
-import { AuthenticatedRequest, reqUser } from "../types";
+import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 import { OrganizationModel } from "../interfaces/OrganizationModel";
 import Project from "../models/Project";
@@ -14,7 +14,7 @@ export class OrganizationService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const {
          OrganizationName,
          Description,
@@ -77,7 +77,7 @@ export class OrganizationService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { Org, Description, Public } = req.body;
 
       try {
@@ -106,7 +106,7 @@ export class OrganizationService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { recipient, organizationName } = req.body;
 
       try {
@@ -132,7 +132,7 @@ export class OrganizationService {
 
          const inviteLink = `/api/organization/add/new-user/${invitationSecret}`;
 
-         const notification: userNotification = {
+         const notification: UserNotificationType = {
             Initiator: UniqueUsername,
             NotificationTitle: "Invitation",
             NotificationType: "Invitation",
@@ -163,7 +163,7 @@ export class OrganizationService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const { userSecret } = req.params;
 
       try {
@@ -198,7 +198,7 @@ export class OrganizationService {
                }
             );
 
-            const notification: userNotification = {
+            const notification: UserNotificationType = {
                Initiator: UniqueUsername,
                NotificationTitle: "New User",
                NotificationType: "Standard",
@@ -229,7 +229,7 @@ export class OrganizationService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { organizationName } = req.params;
 
       try {
@@ -244,7 +244,7 @@ export class OrganizationService {
 
          if (!org.Public) throw new AppError("UnauthorizedRequestError");
 
-         const notification: userNotification = {
+         const notification: UserNotificationType = {
             Initiator: UniqueUsername,
             NotificationTitle: "Request",
             NotificationType: "Request",
@@ -274,7 +274,7 @@ export class OrganizationService {
          newUser: string;
          requestedOrganization: string;
       };
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
 
       try {
          const org = await Organization.findOne({
@@ -312,7 +312,7 @@ export class OrganizationService {
             }
          );
 
-         const notification1: userNotification = {
+         const notification1: UserNotificationType = {
             Initiator: UniqueUsername,
             NotificationTitle: "",
             NotificationAction: `accepted your request to join the organization ${org.OrganizationName}`,
@@ -325,7 +325,7 @@ export class OrganizationService {
             },
          };
 
-         const notification2: userNotification = {
+         const notification2: UserNotificationType = {
             Initiator: newUser,
             NotificationTitle: "New User",
             NotificationType: "Standard",
@@ -352,7 +352,7 @@ export class OrganizationService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const organizationName = req.params.organizationName;
 
       try {
@@ -393,7 +393,7 @@ export class OrganizationService {
             }
          );
 
-         const notification: userNotification = {
+         const notification: UserNotificationType = {
             Initiator: UniqueUsername,
             NotificationTitle: "",
             NotificationType: "Standard",

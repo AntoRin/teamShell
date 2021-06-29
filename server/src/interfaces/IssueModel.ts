@@ -1,7 +1,7 @@
-import { Document, ObjectId } from "mongoose";
+import mongoose, { Document, ObjectId } from "mongoose";
 
-export type issueSolutions = {
-   _id?: ObjectId;
+export type IssueSolutionType = {
+   _id: mongoose.Types.ObjectId;
    SolutionCreator: string;
    SolutionBody: string;
    LikedBy?: Array<{ _id: ObjectId; UniqueUsername: string }>;
@@ -15,6 +15,6 @@ export interface IssueModel extends Document {
    ProjectContext: string;
    Project_id: string;
    Creator: { UniqueUsername: string; User_id: string };
-   Solutions: Array<issueSolutions>;
+   Solutions: Array<IssueSolutionType>;
    createdAt?: Date;
 }

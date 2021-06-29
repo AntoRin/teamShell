@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { google } from "googleapis";
 import { NextFunction, Response } from "express";
 import User from "../models/User";
-import { AuthenticatedRequest, tokenPayload } from "../types";
+import { AuthenticatedRequest, TokenPayloadType } from "../types";
 import AppError from "../utils/AppError";
 import config from "../config";
 import validateRegistration from "../utils/validateRegistration";
@@ -297,7 +297,7 @@ export class AuthService {
          let { UniqueUsername, Email } = jwt.verify(
             token,
             process.env.JWT_SECRET
-         ) as tokenPayload;
+         ) as TokenPayloadType;
          let present = await validateRegistration({ UniqueUsername, Email });
          if (!present) throw new AppError("AuthenticationError");
 

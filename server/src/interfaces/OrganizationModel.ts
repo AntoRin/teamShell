@@ -1,7 +1,7 @@
-import { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface OrganizationModel extends Document {
-   _id: ObjectId;
+   _id: mongoose.Types.ObjectId;
    OrganizationName: string;
    Description: string;
    Creator: string;

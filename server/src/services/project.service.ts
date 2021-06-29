@@ -1,10 +1,10 @@
 import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
-import { userNotification } from "../interfaces/UserModel";
+import { UserNotificationType } from "../interfaces/UserModel";
 import Organization from "../models/Organization";
 import Project from "../models/Project";
 import User from "../models/User";
-import { AuthenticatedRequest, reqUser } from "../types";
+import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 import { google } from "googleapis";
 import config from "../config";
@@ -24,7 +24,7 @@ export class ProjectService {
       next: NextFunction
    ) {
       const { ProjectName, ProjectDescription, ParentOrganization } = req.body;
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
 
       try {
          const project = new Project({
@@ -74,7 +74,7 @@ export class ProjectService {
       next: NextFunction
    ) {
       const ProjectName = req.params.ProjectName;
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
 
       try {
          const aggregationPipeline = [
@@ -132,7 +132,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const ProjectName = req.params.ProjectName;
 
       try {
@@ -209,7 +209,7 @@ export class ProjectService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { recipient, projectName } = req.body;
 
       try {
@@ -235,7 +235,7 @@ export class ProjectService {
 
          const inviteLink = `/api/project/add/new-user/${invitationSecret}`;
 
-         const notification: userNotification = {
+         const notification: UserNotificationType = {
             Initiator: UniqueUsername,
             NotificationTitle: "Invitation",
             NotificationType: "Invitation",
@@ -266,7 +266,7 @@ export class ProjectService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const { userSecret } = req.params;
 
       try {
@@ -312,7 +312,7 @@ export class ProjectService {
                }
             );
 
-            const notification: userNotification = {
+            const notification: UserNotificationType = {
                Initiator: UniqueUsername,
                NotificationTitle: "New User",
                NotificationType: "Standard",
@@ -345,7 +345,7 @@ export class ProjectService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { projectName } = req.body;
 
       try {
@@ -377,7 +377,7 @@ export class ProjectService {
                }
             );
 
-            const notification: userNotification = {
+            const notification: UserNotificationType = {
                Initiator: UniqueUsername,
                NotificationTitle: "New User",
                NotificationType: "Standard",
@@ -395,7 +395,7 @@ export class ProjectService {
 
             return next();
          } else {
-            const notification: userNotification = {
+            const notification: UserNotificationType = {
                Initiator: UniqueUsername,
                NotificationTitle: "Request",
                NotificationType: "Request",
@@ -426,7 +426,7 @@ export class ProjectService {
          newUser: string;
          requestedProject: string;
       };
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
 
       try {
          const project = await Project.findOne({
@@ -468,7 +468,7 @@ export class ProjectService {
             }
          );
 
-         const notification1: userNotification = {
+         const notification1: UserNotificationType = {
             Initiator: UniqueUsername,
             NotificationTitle: "",
             NotificationType: "Standard",
@@ -481,7 +481,7 @@ export class ProjectService {
             },
          };
 
-         const notification2: userNotification = {
+         const notification2: UserNotificationType = {
             Initiator: newUser,
             NotificationTitle: "New User",
             NotificationType: "Standard",
@@ -508,7 +508,7 @@ export class ProjectService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const projectName = req.params.projectName;
 
       try {
@@ -580,7 +580,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       console.log(UniqueUsername);
       try {
          if (req.query.error) throw req.query.error;
@@ -610,7 +610,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
 
       try {
          const user = await User.findOne({ UniqueUsername }).lean();
@@ -636,7 +636,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
 
       try {
          const user = await User.findOne({ UniqueUsername }).lean();
@@ -679,7 +679,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { fileId } = req.body;
 
       try {
@@ -706,7 +706,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
+      let { UniqueUsername } = req.thisUser as RequestUserType;
       let { body: fileData } = req;
 
       try {
@@ -732,7 +732,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
+      let { UniqueUsername } = req.thisUser as RequestUserType;
       let { fileId } = req.body;
 
       try {
@@ -754,7 +754,7 @@ export class ProjectService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
+      let { UniqueUsername } = req.thisUser as RequestUserType;
       let requestedProject = req.params.ProjectName;
 
       try {

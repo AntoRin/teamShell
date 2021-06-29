@@ -6,11 +6,11 @@ import Project from "./models/Project";
 import Issue from "./models/Issue";
 import Chat from "./models/Chat";
 import ProjectChat from "./models/ProjectChat";
-import { AuthenticatedSocket, messagesType, tokenPayload } from "./types";
+import { UserContextSocket, MessagesType, TokenPayloadType } from "./types";
 import { Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-function parseCookies(socket: AuthenticatedSocket, next: Function) {
+function parseCookies(socket: UserContextSocket, next: Function) {
    socket.on("disconnect", async () => {
       console.log("Disconnected");
       try {
@@ -27,14 +27,14 @@ function parseCookies(socket: AuthenticatedSocket, next: Function) {
    next();
 }
 
-function verifySocketIntegrity(socket: AuthenticatedSocket, next: Function) {
+function verifySocketIntegrity(socket: UserContextSocket, next: Function) {
    try {
       if (!socket.authToken) throw new Error("Invalid auth credentials");
 
       let thisUser = jwt.verify(
          socket.authToken,
          process.env.JWT_SECRET
-      ) as tokenPayload;
+      ) as TokenPayloadType;
       socket.userName = thisUser.UniqueUsername;
       return next();
    } catch (error: any) {
@@ -46,7 +46,7 @@ function verifySocketIntegrity(socket: AuthenticatedSocket, next: Function) {
 }
 
 async function initiateListeners(
-   socket: AuthenticatedSocket,
+   socket: UserContextSocket,
    io: Server<DefaultEventsMap, DefaultEventsMap>
 ) {
    console.log("Connected: " + socket.id);
@@ -115,7 +115,7 @@ async function initiateListeners(
          let sorter = [from, to];
          sorter.sort();
 
-         let messageData: messagesType = {
+         let messageData: MessagesType = {
             from,
             to,
             content,
@@ -168,7 +168,7 @@ async function initiateListeners(
             content = content.toString("base64");
          }
 
-         let newMessageData: messagesType = {
+         let newMessageData: MessagesType = {
             from,
             content,
             messageType,

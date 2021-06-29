@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import { NextFunction, Response } from "express";
-import { issueSolutions } from "../interfaces/IssueModel";
+import { IssueSolutionType } from "../interfaces/IssueModel";
 import Issue from "../models/Issue";
 import Project from "../models/Project";
 import User from "../models/User";
-import { AuthenticatedRequest, reqUser } from "../types";
+import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
+import { UserSolutionsType } from "../interfaces/UserModel";
 
 export class IssueService {
    public static async getSingleIssue(
@@ -13,7 +14,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const _id = req.params.IssueID;
       try {
          const user = await User.findOne({ UniqueUsername, Email });
@@ -41,7 +42,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const _id = req.params.IssueID;
 
       try {
@@ -87,7 +88,7 @@ export class IssueService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const {
          IssueTitle,
          IssueDescription,
@@ -162,7 +163,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { User_id, User_UniqueUsername, Issue_id, IssueTitle } = req.body;
 
       const Issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
@@ -199,7 +200,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
+      let { UniqueUsername } = req.thisUser as RequestUserType;
       let { User_id, User_UniqueUsername, Issue_id } = req.body;
 
       let Issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
@@ -214,10 +215,12 @@ export class IssueService {
             bookmark => bookmark._id.toString() === Issue_id_object.toString()
          );
 
+         const typeCompatiblePullKey = "Issues.Bookmarked" as string;
+
          if (!bookmarked) throw new AppError("NoActionRequiredError");
          await User.updateOne(
             { _id: User_id, UniqueUsername },
-            { $pull: { "Issues.Bookmarked": { _id: Issue_id_object } } }
+            { $pull: { [typeCompatiblePullKey]: { _id: Issue_id_object } } }
          );
          return res.json({ status: "ok", data: "Bookmark removed" });
       } catch (error) {
@@ -230,7 +233,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { Issue_id } = req.body;
 
       try {
@@ -250,7 +253,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
+      let { UniqueUsername } = req.thisUser as RequestUserType;
       let { Issue_id } = req.body;
 
       try {
@@ -270,7 +273,7 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
+      let { UniqueUsername } = req.thisUser as RequestUserType;
       let { Issue_id, Project_id } = req.body;
       let issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
 
@@ -283,11 +286,14 @@ export class IssueService {
             { _id: Project_id },
             { $pull: { IssuesRef: issue_id_object } }
          );
+
+         const typeCompatiblePullKey = "Issues.Created" as string;
+
          await User.updateOne(
             { UniqueUsername },
             {
                $pull: {
-                  "Issues.Created": { _id: issue_id_object },
+                  [typeCompatiblePullKey]: { _id: issue_id_object },
                },
             }
          );
@@ -303,10 +309,11 @@ export class IssueService {
       _: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const { Issue_id, SolutionBody } = req.body;
 
-      const newSolution: issueSolutions = {
+      const newSolution: IssueSolutionType = {
+         _id: new mongoose.Types.ObjectId(),
          SolutionCreator: UniqueUsername,
          SolutionBody,
       };
@@ -320,10 +327,12 @@ export class IssueService {
             }
          );
 
-         const newSolutionID = updatedIssue.Solutions[0]._id;
+         if (!updatedIssue) throw new AppError("ServerError");
 
-         const UserSolutionContext: userSolutions = {
-            _id: newSolutionID,
+         const newSolutionId = updatedIssue.Solutions[0]._id;
+
+         const UserSolutionContext: UserSolutionsType = {
+            _id: newSolutionId,
             IssueContext: {
                _id: updatedIssue?._id,
                IssueTitle: updatedIssue?.IssueTitle,
@@ -370,11 +379,11 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      let { UniqueUsername } = req.thisUser as reqUser;
-      let { user_id, solution_id, solution_creator, issueTitle, issueId } =
+      const { UniqueUsername } = req.thisUser as RequestUserType;
+      const { user_id, solution_id, solution_creator, issueTitle, issueId } =
          req.body;
 
-      let userRef = {
+      const userRef = {
          _id: user_id,
          UniqueUsername,
       };
@@ -390,7 +399,7 @@ export class IssueService {
          );
 
          if (UniqueUsername !== solution_creator) {
-            let notification = {
+            const notification = {
                Initiator: UniqueUsername,
                NotificationTitle: "New Like",
                NotificationType: "Standard",
@@ -420,13 +429,15 @@ export class IssueService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { solution_id } = req.body;
+
+      const typeCompatiblePullKey = "Solutions.$.LikedBy" as string;
 
       try {
          await Issue.updateOne(
             { "Solutions._id": solution_id },
-            { $pull: { "Solutions.$.LikedBy": { UniqueUsername } } }
+            { $pull: { [typeCompatiblePullKey]: { UniqueUsername } } }
          );
          return res.json({ status: "ok", data: "Like removed" });
       } catch (error) {

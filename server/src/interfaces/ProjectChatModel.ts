@@ -1,7 +1,7 @@
 import { Document } from "mongoose";
-import { messagesType } from "../types";
+import { MessagesType } from "../types";
 
 export interface ProjectChatModel extends Document {
    ProjectName: string;
-   Messages: [messagesType];
+   Messages: [MessagesType];
 }

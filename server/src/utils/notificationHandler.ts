@@ -1,7 +1,7 @@
 import User from "../models/User";
 
 import AppError from "./AppError";
-import { userNotification } from "../interfaces/UserModel";
+import { UserNotificationType } from "../interfaces/UserModel";
 import { AuthenticatedRequest } from "../types";
 import { NextFunction, Response } from "express";
 
@@ -9,7 +9,7 @@ function notifyGroup(
    initiator: string,
    recipientGroup: string,
    groupType: string,
-   notification: userNotification
+   notification: UserNotificationType
 ): Promise<void> {
    const groupSelector =
       groupType === "Organization"
@@ -39,7 +39,7 @@ function notifyGroup(
 
 function notifySingleUser(
    recipientName: string,
-   notification: userNotification
+   notification: UserNotificationType
 ): Promise<void> {
    return new Promise(async (resolve, reject) => {
       try {

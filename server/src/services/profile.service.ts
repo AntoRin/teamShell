@@ -2,7 +2,7 @@ import { NextFunction, Response } from "express";
 import { UserModel } from "../interfaces/UserModel";
 import ProfileImage from "../models/ProfileImage";
 import User from "../models/User";
-import { AuthenticatedRequest, reqUser } from "../types";
+import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 
 export class ProfileService {
@@ -11,7 +11,7 @@ export class ProfileService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const requestedUser = req.params.UniqueUsername;
 
       try {
@@ -79,7 +79,7 @@ export class ProfileService {
       next: NextFunction
    ) {
       const { Bio, Username } = req.body;
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
 
       try {
          await User.updateOne({ UniqueUsername, Email }, { Bio, Username });
@@ -94,7 +94,7 @@ export class ProfileService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       try {
          const file = req.file;
 
@@ -121,7 +121,7 @@ export class ProfileService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
 
       try {
          const user = await User.findOne({ UniqueUsername, Email }).lean();
@@ -138,7 +138,7 @@ export class ProfileService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
 
       try {
          await User.updateOne(
@@ -158,7 +158,7 @@ export class ProfileService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const query = req.query.user;
 
       try {
@@ -188,7 +188,7 @@ export class ProfileService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
 
       try {
          const aggregrationPipeline = [

@@ -1,6 +1,6 @@
-import { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-export type userNotification = {
+export type UserNotificationType = {
    Initiator: string;
    NotificationTitle: string;
    NotificationType: string;
@@ -12,15 +12,15 @@ export type userNotification = {
    metaData?: any;
 };
 
-type userIssues = {
-   Created: Array<{ _id: ObjectId; IssueTitle: string }>;
-   Bookmarked: Array<{ _id: ObjectId; IssueTitle: string }>;
+type UserIssuesType = {
+   Created: Array<{ _id: mongoose.Types.ObjectId; IssueTitle: string }>;
+   Bookmarked: Array<{ _id: mongoose.Types.ObjectId; IssueTitle: string }>;
 };
 
-export type userSolutions = {
-   _id?: ObjectId;
+export type UserSolutionsType = {
+   _id: mongoose.Types.ObjectId;
    IssueContext: {
-      _id: ObjectId;
+      _id: mongoose.Types.ObjectId;
       IssueTitle: string;
    };
 };
@@ -33,18 +33,18 @@ export interface UserModel extends Document {
    AccountType: string;
    GoogleRefreshToken: string;
    Bio: string;
-   Notifications: [userNotification];
+   Notifications: Array<UserNotificationType>;
    Organizations: Array<{
-      _id: ObjectId;
+      _id: mongoose.Types.ObjectId;
       OrganizationName: string;
       Status: string;
    }>;
    Projects: Array<{
-      _id: ObjectId;
+      _id: mongoose.Types.ObjectId;
       ProjectName: string;
       ParentOrganization: string;
       Status: string;
    }>;
-   Issues: userIssues;
-   Solutions: Array<userSolutions>;
+   Issues: UserIssuesType;
+   Solutions: Array<UserSolutionsType>;
 }

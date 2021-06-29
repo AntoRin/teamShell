@@ -2,7 +2,7 @@ import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
 import Project from "../models/Project";
 import { redisLpushAsync, redisLRangeAsync } from "../redisConfig";
-import { AuthenticatedRequest, reqUser } from "../types";
+import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 
 const ROOM_PREFIX = "MeetRoom:";
@@ -13,7 +13,7 @@ export class MeetService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const { projectName, roomName } = req.body;
 
       try {
@@ -52,7 +52,7 @@ export class MeetService {
       res: Response,
       next: NextFunction
    ) {
-      const { UniqueUsername } = req.thisUser as reqUser;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
       const roomId = req.query.roomId as string;
 
       try {
