@@ -1,21 +1,15 @@
-import { NextFunction, Response, Router } from "express";
+import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
-import { google } from "googleapis";
-import multer from "multer";
-import stream from "stream";
-
+import { userNotification } from "../interfaces/UserModel";
 import Organization from "../models/Organization";
 import Project from "../models/Project";
 import User from "../models/User";
-import DriveFile from "../models/DriveFile";
-import { handleNotifications } from "../utils/notificationHandler";
-
+import { AuthenticatedRequest, reqUser } from "../types";
 import AppError from "../utils/AppError";
+import { google } from "googleapis";
 import config from "../config";
-import { INamedRequest, reqUser } from "../types";
-import { userNotification } from "../interfaces/IUser";
-
-const router = Router();
+import stream from "stream";
+import DriveFile from "../models/DriveFile";
 
 const googleClient = new google.auth.OAuth2({
    clientId: config.googleClientId,
@@ -23,21 +17,12 @@ const googleClient = new google.auth.OAuth2({
    redirectUri: config.googleDriveRedirectUri,
 });
 
-const upload = multer({
-   storage: multer.memoryStorage(),
-   fileFilter: (_, file, cb) => {
-      if (!file) cb(new Error("Error parsing file"));
-      else cb(null, true);
-   },
-   limits: {
-      fileSize: 500000,
-   },
-});
-const fileParser = upload.single("newDriveFile");
-
-router.post(
-   "/create",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+export class ProjectService {
+   public static async createNewProject(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { ProjectName, ProjectDescription, ParentOrganization } = req.body;
       const { UniqueUsername, Email } = req.thisUser as reqUser;
 
@@ -82,11 +67,12 @@ router.post(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/details/:ProjectName",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getSingleProject(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const ProjectName = req.params.ProjectName;
       const { UniqueUsername } = req.thisUser as reqUser;
 
@@ -140,11 +126,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/verification-data/:ProjectName",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getVerificationData(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const ProjectName = req.params.ProjectName;
 
@@ -164,11 +151,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/snippet/:ProjectName",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getProjectSnippet(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const ProjectName = req.params.ProjectName;
 
       try {
@@ -197,11 +185,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.post(
-   "/edit",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async editProject(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { ProjectName, ProjectDescription, InviteOnly } = req.body;
 
       try {
@@ -214,11 +203,12 @@ router.post(
          return next(error);
       }
    }
-);
 
-router.post(
-   "/invite/new-user",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async inviteUserToProject(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const { recipient, projectName } = req.body;
 
@@ -269,13 +259,13 @@ router.post(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/add/new-user/:userSecret",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async addUserToProjectWithUserSecret(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername, Email } = req.thisUser as reqUser;
       const { userSecret } = req.params;
 
@@ -348,13 +338,13 @@ router.get(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.post(
-   "/join/new-user",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async handleUserRequestToJoinProject(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const { projectName } = req.body;
 
@@ -425,13 +415,13 @@ router.post(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/accept/new-user",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async acceptUserToProject(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { newUser, requestedProject } = req.query as {
          newUser: string;
          requestedProject: string;
@@ -511,13 +501,13 @@ router.get(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.post(
-   "/leave/:projectName",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async leaveProject(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername, Email } = req.thisUser as reqUser;
       const projectName = req.params.projectName;
 
@@ -563,13 +553,13 @@ router.post(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/drive/google/authorize",
-   async (_: INamedRequest, res: Response, next: NextFunction) => {
+   public static async authorizeGoogleDriveUsage(
+      _: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       try {
          const scopes = "https://www.googleapis.com/auth/drive.file";
          const authUrl = googleClient.generateAuthUrl({
@@ -584,11 +574,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/drive/google/callback",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async handleGoogleDriveAuthorizationCallback(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       console.log(UniqueUsername);
       try {
@@ -613,11 +604,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/drive/google/list-files",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async listAllDriveFiles(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
 
       try {
@@ -638,12 +630,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.post(
-   "/drive/google/create-file",
-   fileParser,
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async createDriveFile(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
 
       try {
@@ -681,11 +673,12 @@ router.post(
          return next(error);
       }
    }
-);
 
-router.delete(
-   "/drive/google/delete-file",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async deleteFileFromGoogleDrive(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const { fileId } = req.body;
 
@@ -707,11 +700,12 @@ router.delete(
          return next(error);
       }
    }
-);
 
-router.post(
-   "/drive/file/add",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async addFileToProjectDrive(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       let { UniqueUsername } = req.thisUser as reqUser;
       let { body: fileData } = req;
 
@@ -732,11 +726,12 @@ router.post(
          return next(error);
       }
    }
-);
 
-router.delete(
-   "/drive/file/remove",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async removeFileFromProjectDrive(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       let { UniqueUsername } = req.thisUser as reqUser;
       let { fileId } = req.body;
 
@@ -753,11 +748,12 @@ router.delete(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/drive/files/get/:ProjectName",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getProjectDriveFiles(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       let { UniqueUsername } = req.thisUser as reqUser;
       let requestedProject = req.params.ProjectName;
 
@@ -778,6 +774,4 @@ router.get(
          return next(error);
       }
    }
-);
-
-export default router;
+}

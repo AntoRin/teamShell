@@ -1,13 +1,13 @@
 import { NextFunction, Response } from "express";
-import { INamedRequest } from "../types";
+import { AuthenticatedRequest } from "../types";
 
 function errorHandler(
    error: any,
-   _: INamedRequest,
+   _: AuthenticatedRequest,
    res: Response,
    __: NextFunction
 ) {
-   console.log(error);
+   console.log(error.name);
    switch (error.name) {
       case "MongoError":
          if (error.code === 31254)

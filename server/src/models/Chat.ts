@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IChat } from "../interfaces/IChat";
+import { ChatModel } from "../interfaces/ChatModel";
 const { Schema } = mongoose;
 const { model } = mongoose;
 
@@ -28,6 +28,6 @@ const chatSchema = new Schema(
    { timestamps: true, strictQuery: "throw" }
 );
 
-const Chat = model<IChat>("Chat", chatSchema, "Chats");
+const Chat = model<ChatModel>("Chat", chatSchema, "Chats");
 
 export default Chat;

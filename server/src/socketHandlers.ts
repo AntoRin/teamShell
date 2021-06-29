@@ -6,11 +6,11 @@ import Project from "./models/Project";
 import Issue from "./models/Issue";
 import Chat from "./models/Chat";
 import ProjectChat from "./models/ProjectChat";
-import { INamedSocket, messagesType, tokenPayload } from "./types";
+import { AuthenticatedSocket, messagesType, tokenPayload } from "./types";
 import { Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-function parseCookies(socket: INamedSocket, next: Function) {
+function parseCookies(socket: AuthenticatedSocket, next: Function) {
    socket.on("disconnect", async () => {
       console.log("Disconnected");
       try {
@@ -27,11 +27,14 @@ function parseCookies(socket: INamedSocket, next: Function) {
    next();
 }
 
-function verifySocketIntegrity(socket: INamedSocket, next: Function) {
+function verifySocketIntegrity(socket: AuthenticatedSocket, next: Function) {
    try {
       if (!socket.authToken) throw new Error("Invalid auth credentials");
 
-      let thisUser = jwt.verify(socket.authToken, process.env.JWT_SECRET) as tokenPayload;
+      let thisUser = jwt.verify(
+         socket.authToken,
+         process.env.JWT_SECRET
+      ) as tokenPayload;
       socket.userName = thisUser.UniqueUsername;
       return next();
    } catch (error: any) {
@@ -42,7 +45,10 @@ function verifySocketIntegrity(socket: INamedSocket, next: Function) {
    }
 }
 
-async function initiateListeners(socket: INamedSocket, io: Server<DefaultEventsMap, DefaultEventsMap>) {
+async function initiateListeners(
+   socket: AuthenticatedSocket,
+   io: Server<DefaultEventsMap, DefaultEventsMap>
+) {
    console.log("Connected: " + socket.id);
    try {
       await redisSetAsync(socket.userName!, socket.id);
@@ -92,29 +98,29 @@ async function initiateListeners(socket: INamedSocket, io: Server<DefaultEventsM
    socket.on("message", async data => {
       try {
          let { from, to, content } = data;
-   
+
          if (from !== socket.userName) return;
-   
+
          let recipientIdentity = await User.findOne({
             UniqueUsername: to,
          });
-   
+
          if (!recipientIdentity) return;
-   
+
          let sender = await redisGetAsync(from);
          let recipient = await redisGetAsync(to);
 
          if (!sender) throw new Error("There was an error");
-   
+
          let sorter = [from, to];
          sorter.sort();
-   
+
          let messageData: messagesType = {
             from,
             to,
             content,
          };
-   
+
          let newChat = await Chat.findOneAndUpdate(
             {
                ChatID: sorter[0] + sorter[1],
@@ -130,14 +136,14 @@ async function initiateListeners(socket: INamedSocket, io: Server<DefaultEventsM
             },
             { returnOriginal: false, upsert: true }
          );
-   
+
          if (recipient) {
             io.to(sender)
                .to(recipient)
                .emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
          } else {
             io.to(sender).emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
-         }         
+         }
       } catch (error) {
          console.log(error);
       }

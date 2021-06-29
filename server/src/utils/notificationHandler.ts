@@ -1,8 +1,8 @@
 import User from "../models/User";
 
 import AppError from "./AppError";
-import { userNotification } from "../interfaces/IUser";
-import { INamedRequest } from "../types";
+import { userNotification } from "../interfaces/UserModel";
+import { AuthenticatedRequest } from "../types";
 import { NextFunction, Response } from "express";
 
 function notifyGroup(
@@ -60,7 +60,7 @@ function notifySingleUser(
 }
 
 async function handleNotifications(
-   req: INamedRequest,
+   req: AuthenticatedRequest,
    res: Response,
    next: NextFunction
 ) {

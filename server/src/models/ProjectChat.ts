@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IProjectChat } from "../interfaces/IProjectChat";
+import { ProjectChatModel } from "../interfaces/ProjectChatModel";
 const { Schema } = mongoose;
 const { model } = mongoose;
 
@@ -24,6 +24,10 @@ const projectChatSchema = new Schema(
    { timestamps: true, strictQuery: "throw" }
 );
 
-const ProjectChat = model<IProjectChat>("ProjectChat", projectChatSchema, "ProjectChats");
+const ProjectChat = model<ProjectChatModel>(
+   "ProjectChat",
+   projectChatSchema,
+   "ProjectChats"
+);
 
 export default ProjectChat;

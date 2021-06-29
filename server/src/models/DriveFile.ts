@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { model } from "mongoose";
-import { DriveFileDoc } from "../interfaces/DriveFileDoc";
+import { DriveFileModel } from "../interfaces/DriveFileModel";
 
 const driveFileSchema = new Schema(
    {
@@ -45,6 +45,10 @@ const driveFileSchema = new Schema(
    { strictQuery: "throw" }
 );
 
-const DriveFile = model<DriveFileDoc>("DriveFile", driveFileSchema, "DriveFiles");
+const DriveFile = model<DriveFileModel>(
+   "DriveFile",
+   driveFileSchema,
+   "DriveFiles"
+);
 
 export default DriveFile;

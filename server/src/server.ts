@@ -6,13 +6,13 @@ import cookieParser from "cookie-parser";
 require("dotenv").config();
 
 //Routes
-import authRoute from "./routes/auth";
-import profileRoute from "./routes/profile";
-import organizationRoute from "./routes/organization";
-import projectRoute from "./routes/project";
-import issueRoute from "./routes/issue";
-import chatRoute from "./routes/chat";
-import meetRoute from "./routes/meet";
+import authRoute from "./routes/auth.route";
+import profileRoute from "./routes/profile.route";
+import organizationRoute from "./routes/organization.route";
+import projectRoute from "./routes/project.route";
+import issueRoute from "./routes/issue.route";
+import chatRoute from "./routes/chat.route";
+import meetRoute from "./routes/meet.route";
 
 import errorHandler from "./utils/errorHandler";
 
@@ -25,7 +25,7 @@ import {
    initiateListeners,
    verifySocketIntegrity,
 } from "./socketHandlers";
-import { INamedSocket } from "./types";
+import { AuthenticatedSocket } from "./types";
 
 app.use(express.json({ limit: 500000 }));
 app.use(cookieParser());
@@ -71,7 +71,7 @@ mongoose.connect(
 
          io.use(verifySocketIntegrity);
 
-         io.on("connection", (socket: INamedSocket) =>
+         io.on("connection", (socket: AuthenticatedSocket) =>
             initiateListeners(socket, io)
          );
       }

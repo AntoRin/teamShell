@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IUser } from "../interfaces/IUser";
+import { UserModel } from "../interfaces/UserModel";
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
@@ -139,6 +139,6 @@ const UserSchema = new Schema(
    { timestamps: true, strictQuery: "throw" }
 );
 
-const User = mongoose.model<IUser>("User", UserSchema, "Users");
+const User = mongoose.model<UserModel>("User", UserSchema, "Users");
 
 export default User;

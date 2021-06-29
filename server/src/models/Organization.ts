@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { OrganizationDoc } from "../interfaces/OrganizationDoc";
+import { OrganizationModel } from "../interfaces/OrganizationModel";
 const { Schema } = mongoose;
 
 const OrganizationSchema = new Schema(
@@ -34,7 +34,7 @@ const OrganizationSchema = new Schema(
    { timestamps: true, strictQuery: "throw" }
 );
 
-const Organization = mongoose.model<OrganizationDoc>(
+const Organization = mongoose.model<OrganizationModel>(
    "Organization",
    OrganizationSchema,
    "Organizations"

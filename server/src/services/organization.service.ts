@@ -1,60 +1,64 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import { NextFunction, Response } from "express";
+import { userNotification } from "../interfaces/UserModel";
 import Organization from "../models/Organization";
-import { NextFunction, Response, Router } from "express";
-import { handleNotifications } from "../utils/notificationHandler";
-const router = Router();
-
+import User from "../models/User";
+import { AuthenticatedRequest, reqUser } from "../types";
 import AppError from "../utils/AppError";
+import { OrganizationModel } from "../interfaces/OrganizationModel";
 import Project from "../models/Project";
-import { INamedRequest, reqUser } from "../types";
-import { userNotification } from "../interfaces/IUser";
-import { OrganizationDoc } from "../interfaces/OrganizationDoc";
 
-router.post("/create", async (req: INamedRequest, res, next) => {
-   const { UniqueUsername, Email } = req.thisUser as reqUser;
-   const {
-      OrganizationName,
-      Description,
-   }: { OrganizationName: string; Description: string } = req.body;
+export class OrganizationService {
+   public static async createNewOrganization(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
+      const { UniqueUsername, Email } = req.thisUser as reqUser;
+      const {
+         OrganizationName,
+         Description,
+      }: { OrganizationName: string; Description: string } = req.body;
 
-   const org = new Organization({
-      OrganizationName,
-      Description,
-      Creator: UniqueUsername,
-      Members: [UniqueUsername],
-   });
+      const org = new Organization({
+         OrganizationName,
+         Description,
+         Creator: UniqueUsername,
+         Members: [UniqueUsername],
+      });
 
-   try {
-      const newOrgData = await org.save();
+      try {
+         const newOrgData = await org.save();
 
-      await User.updateOne(
-         { UniqueUsername, Email },
-         {
-            $push: {
-               Organizations: {
-                  $each: [
-                     {
-                        _id: newOrgData._id,
-                        OrganizationName,
-                        Status: "Creator",
-                     },
-                  ],
-                  $position: 0,
+         await User.updateOne(
+            { UniqueUsername, Email },
+            {
+               $push: {
+                  Organizations: {
+                     $each: [
+                        {
+                           _id: newOrgData._id,
+                           OrganizationName,
+                           Status: "Creator",
+                        },
+                     ],
+                     $position: 0,
+                  },
                },
-            },
-         }
-      );
-      return res.json({ status: "ok" });
-   } catch (error) {
-      console.log(error);
-      return next(error);
+            }
+         );
+         return res.json({ status: "ok" });
+      } catch (error) {
+         console.log(error);
+         return next(error);
+      }
    }
-});
 
-router.get(
-   "/details/:OrganizationName",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getSingleOrganization(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const OrganizationName = req.params.OrganizationName;
 
       try {
@@ -67,36 +71,41 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.post("/edit", async (req: INamedRequest, res, next) => {
-   const { UniqueUsername } = req.thisUser as reqUser;
-   const { Org, Description, Public } = req.body;
+   public static async editOrganization(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
+      const { UniqueUsername } = req.thisUser as reqUser;
+      const { Org, Description, Public } = req.body;
 
-   try {
-      const organization = await Organization.findOne({
-         OrganizationName: Org,
-      });
+      try {
+         const organization = await Organization.findOne({
+            OrganizationName: Org,
+         });
 
-      if (!organization) throw new AppError("BadRequestError");
+         if (!organization) throw new AppError("BadRequestError");
 
-      if (organization.Creator !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+         if (organization.Creator !== UniqueUsername)
+            throw new AppError("UnauthorizedRequestError");
 
-      await Organization.updateOne(
-         { OrganizationName: Org },
-         { $set: { Description, Public } }
-      );
-      return res.json({ status: "ok", data: "" });
-   } catch (error) {
-      console.log(error);
-      return next(error);
+         await Organization.updateOne(
+            { OrganizationName: Org },
+            { $set: { Description, Public } }
+         );
+         return res.json({ status: "ok", data: "" });
+      } catch (error) {
+         console.log(error);
+         return next(error);
+      }
    }
-});
 
-router.post(
-   "/invite/new-user",
-   async (req: INamedRequest, _, next) => {
+   public static async inviteUserToOrganization(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const { recipient, organizationName } = req.body;
 
@@ -147,13 +156,13 @@ router.post(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/add/new-user/:userSecret",
-   async (req: INamedRequest, _, next) => {
+   public static async addUserToOrganizationWithUserSecret(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername, Email } = req.thisUser as reqUser;
       const { userSecret } = req.params;
 
@@ -213,13 +222,13 @@ router.get(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/join-request/:organizationName",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async sendJoinRequestToOrganization(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const { organizationName } = req.params;
 
@@ -254,13 +263,13 @@ router.get(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/accept/new-user",
-   async (req: INamedRequest, _, next) => {
+   public static async acceptUserToOrganization(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { newUser, requestedOrganization } = req.query as {
          newUser: string;
          requestedOrganization: string;
@@ -283,7 +292,7 @@ router.get(
          const updatedOrganization = (await Organization.findOneAndUpdate(
             { OrganizationName: org.OrganizationName },
             { $push: { Members: { $each: [newUser], $position: 0 } } }
-         )) as OrganizationDoc;
+         )) as OrganizationModel;
 
          await User.updateOne(
             { UniqueUsername: newUser },
@@ -336,13 +345,13 @@ router.get(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
+   }
 
-router.get(
-   "/leave/:organizationName",
-   async (req: INamedRequest, _: Response, next: NextFunction) => {
+   public static async leaveOrganization(
+      req: AuthenticatedRequest,
+      _: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername, Email } = req.thisUser as reqUser;
       const organizationName = req.params.organizationName;
 
@@ -404,23 +413,24 @@ router.get(
       } catch (error) {
          return next(error);
       }
-   },
-   handleNotifications
-);
-
-router.get("/explore", async (_, res, next) => {
-   try {
-      const orgs = await Organization.find({}).lean();
-
-      return res.json({
-         status: "ok",
-         data: {
-            exploreOrganizations: orgs,
-         },
-      });
-   } catch (error) {
-      return next(error);
    }
-});
 
-export default router;
+   public static async getExplorerData(
+      _: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
+      try {
+         const orgs = await Organization.find({}).lean();
+
+         return res.json({
+            status: "ok",
+            data: {
+               exploreOrganizations: orgs,
+            },
+         });
+      } catch (error) {
+         return next(error);
+      }
+   }
+}

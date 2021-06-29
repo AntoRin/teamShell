@@ -1,31 +1,16 @@
-import { NextFunction, Response, Router } from "express";
-import multer, { FileFilterCallback } from "multer";
-import User from "../models/User";
+import { NextFunction, Response } from "express";
+import { UserModel } from "../interfaces/UserModel";
 import ProfileImage from "../models/ProfileImage";
-import { handleNotifications } from "../utils/notificationHandler";
-
+import User from "../models/User";
+import { AuthenticatedRequest, reqUser } from "../types";
 import AppError from "../utils/AppError";
-import { INamedRequest, reqUser } from "../types";
-import { IUser } from "../interfaces/IUser";
 
-const router = Router();
-
-const upload = multer({
-   storage: multer.memoryStorage(),
-   fileFilter: (_, file, cb: FileFilterCallback) => {
-      if (!file || file.mimetype.split("/")[0] !== "image")
-         cb(new Error("Error parsing file"));
-      else cb(null, true);
-   },
-   limits: {
-      fileSize: 500000,
-   },
-});
-const imageParser = upload.single("profileImage");
-
-router.get(
-   "/details/:UniqueUsername",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+export class ProfileService {
+   public static async getSingleUser(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const requestedUser = req.params.UniqueUsername;
 
@@ -54,40 +39,45 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.get("/profile-image/:UniqueUsername", async (req, res, next) => {
-   const requestedUser = req.params.UniqueUsername;
+   public static async getUserProfileImage(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
+      const requestedUser = req.params.UniqueUsername;
 
-   try {
-      const profileImage = await ProfileImage.findOne({
-         UserContext: requestedUser,
-      });
+      try {
+         const profileImage = await ProfileImage.findOne({
+            UserContext: requestedUser,
+         });
 
-      let imageUrl = "/assets/UserIcon.png";
+         let imageUrl = "/assets/UserIcon.png";
 
-      if (profileImage) {
-         const savedImage = profileImage.ImageData;
+         if (profileImage) {
+            const savedImage = profileImage.ImageData;
 
-         if (savedImage.startsWith("https://")) {
-            imageUrl = savedImage;
-         } else {
-            res.set({ "Content-Type": "image/png" });
-            return res.write(savedImage, "base64", err => {
-               if (err) throw err;
-            });
+            if (savedImage.startsWith("https://")) {
+               imageUrl = savedImage;
+            } else {
+               res.set({ "Content-Type": "image/png" });
+               return res.write(savedImage, "base64", err => {
+                  if (err) throw err;
+               });
+            }
          }
+
+         return res.redirect(303, imageUrl);
+      } catch (error) {
+         return next(error);
       }
-
-      return res.redirect(303, imageUrl);
-   } catch (error) {
-      return next(error);
    }
-});
 
-router.put(
-   "/edit",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async editUserProfile(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { Bio, Username } = req.body;
       const { UniqueUsername, Email } = req.thisUser as reqUser;
 
@@ -98,12 +88,12 @@ router.put(
          return next(error);
       }
    }
-);
 
-router.post(
-   "/uploads/profile-image",
-   imageParser,
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async uploadProfileImage(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       try {
          const file = req.file;
@@ -125,11 +115,12 @@ router.post(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/notifications",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getUserNotifications(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername, Email } = req.thisUser as reqUser;
 
       try {
@@ -141,13 +132,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.post("/notifications", handleNotifications);
-
-router.get(
-   "/notifications/seen",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async updateSeenNotifications(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername, Email } = req.thisUser as reqUser;
 
       try {
@@ -162,11 +152,12 @@ router.get(
          next(error);
       }
    }
-);
 
-router.get(
-   "/search",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getUserProfilesBasedOnSearchQuery(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
       const query = req.query.user;
 
@@ -191,11 +182,12 @@ router.get(
          return next(error);
       }
    }
-);
 
-router.get(
-   "/all-contacts",
-   async (req: INamedRequest, res: Response, next: NextFunction) => {
+   public static async getAllUserContacts(
+      req: AuthenticatedRequest,
+      res: Response,
+      next: NextFunction
+   ) {
       const { UniqueUsername } = req.thisUser as reqUser;
 
       try {
@@ -230,7 +222,7 @@ router.get(
 
          const sameOrgAggregation = await User.aggregate(aggregrationPipeline);
          const contacts = sameOrgAggregation[0].MembersOfSameOrg.map(
-            (member: IUser) =>
+            (member: UserModel) =>
                member.UniqueUsername !== UniqueUsername
                   ? member.UniqueUsername
                   : null
@@ -241,6 +233,4 @@ router.get(
          return next(error);
       }
    }
-);
-
-export default router;
+}

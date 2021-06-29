@@ -1,6 +1,6 @@
 import { Document, ObjectId } from "mongoose";
 
-export interface OrganizationDoc extends Document {
+export interface OrganizationModel extends Document {
    _id: ObjectId;
    OrganizationName: string;
    Description: string;

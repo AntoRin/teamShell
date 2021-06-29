@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 import { model } from "mongoose";
-import { ProfileImageDoc } from "../interfaces/ProfileImageDoc";
+import { ProfileImageModel } from "../interfaces/ProfileImageModel";
 
 const imageSchema = new Schema(
    {
@@ -17,6 +17,10 @@ const imageSchema = new Schema(
    { strictQuery: "throw" }
 );
 
-const ProfileImage = model<ProfileImageDoc>("ProfileImage", imageSchema, "ProfileImages");
+const ProfileImage = model<ProfileImageModel>(
+   "ProfileImage",
+   imageSchema,
+   "ProfileImages"
+);
 
 export default ProfileImage;

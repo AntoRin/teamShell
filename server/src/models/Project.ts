@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { model } from "mongoose";
 import { Schema } from "mongoose";
-import { ProjectDoc } from "../interfaces/ProjectDoc";
+import { ProjectMdoel } from "../interfaces/ProjectModel";
 
 const ProjectSchema = new Schema(
    {
@@ -25,7 +25,7 @@ const ProjectSchema = new Schema(
       },
       IssuesRef: {
          type: [mongoose.Types.ObjectId],
-      },      
+      },
       Creator: {
          type: String,
          required: true,
@@ -38,6 +38,6 @@ const ProjectSchema = new Schema(
    { timestamps: true, strictQuery: "throw" }
 );
 
-const Project = model<ProjectDoc>("Project", ProjectSchema, "Projects");
+const Project = model<ProjectMdoel>("Project", ProjectSchema, "Projects");
 
 export default Project;

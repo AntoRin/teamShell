@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IssueDoc } from "../interfaces/IssueDoc";
+import { IssueModel } from "../interfaces/IssueModel";
 const { Schema } = mongoose;
 
 const issueSchema = new Schema(
@@ -62,6 +62,6 @@ const issueSchema = new Schema(
    { timestamps: true, strictQuery: "throw" }
 );
 
-const Issue = mongoose.model<IssueDoc>("Issues", issueSchema, "Issues");
+const Issue = mongoose.model<IssueModel>("Issues", issueSchema, "Issues");
 
 export default Issue;

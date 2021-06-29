@@ -25,7 +25,7 @@ export type userSolutions = {
    };
 };
 
-export interface IUser extends Document {
+export interface UserModel extends Document {
    UniqueUsername: string;
    Username: string;
    Email: string;
