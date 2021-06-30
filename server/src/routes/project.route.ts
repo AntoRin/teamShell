@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import { handleNotifications } from "../utils/notificationHandler";
-import { ProjectService } from "../services/project.service";
+import { projectServiceClient } from "../services/project.service";
 
 const router = Router();
 
@@ -17,76 +17,82 @@ const upload = multer({
 });
 const fileParser = upload.single("newDriveFile");
 
-router.post("/create", ProjectService.createNewProject);
+router.post("/create", projectServiceClient.createNewProject);
 
-router.get("/details/:ProjectName", ProjectService.getSingleProject);
+router.get("/details/:ProjectName", projectServiceClient.getSingleProject);
 
 router.get(
    "/verification-data/:ProjectName",
-   ProjectService.getVerificationData
+   projectServiceClient.getVerificationData
 );
 
-router.get("/snippet/:ProjectName", ProjectService.getProjectSnippet);
+router.get("/snippet/:ProjectName", projectServiceClient.getProjectSnippet);
 
-router.post("/edit", ProjectService.editProject);
+router.post("/edit", projectServiceClient.editProject);
 
 router.post(
    "/invite/new-user",
-   ProjectService.inviteUserToProject,
+   projectServiceClient.inviteUserToProject,
    handleNotifications
 );
 
 router.get(
    "/add/new-user/:userSecret",
-   ProjectService.addUserToProjectWithUserSecret,
+   projectServiceClient.addUserToProjectWithUserSecret,
    handleNotifications
 );
 
 router.post(
    "/join/new-user",
-   ProjectService.handleUserRequestToJoinProject,
+   projectServiceClient.handleUserRequestToJoinProject,
    handleNotifications
 );
 
 router.get(
    "/accept/new-user",
-   ProjectService.acceptUserToProject,
+   projectServiceClient.acceptUserToProject,
    handleNotifications
 );
 
 router.post(
    "/leave/:projectName",
-   ProjectService.leaveProject,
+   projectServiceClient.leaveProject,
    handleNotifications
 );
 
-router.get("/drive/google/authorize", ProjectService.authorizeGoogleDriveUsage);
+router.get(
+   "/drive/google/authorize",
+   projectServiceClient.authorizeGoogleDriveUsage
+);
 
 router.get(
    "/drive/google/callback",
-   ProjectService.handleGoogleDriveAuthorizationCallback
+   projectServiceClient.handleGoogleDriveAuthorizationCallback
 );
 
-router.get("/drive/google/list-files", ProjectService.listAllDriveFiles);
+router.get("/drive/google/list-files", projectServiceClient.listAllDriveFiles);
 
 router.post(
    "/drive/google/create-file",
    fileParser,
-   ProjectService.createDriveFile
+   projectServiceClient.createDriveFile
 );
 
 router.delete(
    "/drive/google/delete-file",
-   ProjectService.deleteFileFromGoogleDrive
+   projectServiceClient.deleteFileFromGoogleDrive
 );
 
-router.post("/drive/file/add", ProjectService.addFileToProjectDrive);
+router.post("/drive/file/add", projectServiceClient.addFileToProjectDrive);
 
-router.delete("/drive/file/remove", ProjectService.removeFileFromProjectDrive);
+router.delete(
+   "/drive/file/remove",
+   projectServiceClient.removeFileFromProjectDrive
+);
 
 router.get(
    "/drive/files/get/:ProjectName",
-   ProjectService.getProjectDriveFiles
+   projectServiceClient.getProjectDriveFiles
 );
 
 export default router;

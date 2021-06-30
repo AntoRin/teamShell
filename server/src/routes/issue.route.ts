@@ -1,37 +1,37 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
-import { IssueService } from "../services/issue.service";
+import { issueServiceClient } from "../services/issue.service";
 
 const router = Router();
 
-router.get("/details/:IssueID", IssueService.getSingleIssue);
+router.get("/details/:IssueID", issueServiceClient.getSingleIssue);
 
-router.get("/snippet/:IssueID", IssueService.getIssueSnippet);
+router.get("/snippet/:IssueID", issueServiceClient.getIssueSnippet);
 
-router.post("/create", IssueService.createNewIssue, handleNotifications);
+router.post("/create", issueServiceClient.createNewIssue, handleNotifications);
 
-router.put("/bookmark", IssueService.bookmarkIssue);
+router.put("/bookmark", issueServiceClient.bookmarkIssue);
 
-router.put("/bookmark/remove", IssueService.removeBookmark);
+router.put("/bookmark/remove", issueServiceClient.removeBookmark);
 
-router.put("/close", IssueService.closeIssue);
+router.put("/close", issueServiceClient.closeIssue);
 
-router.put("/reopen", IssueService.reopenIssue);
+router.put("/reopen", issueServiceClient.reopenIssue);
 
-router.delete("/delete", IssueService.deleteIssue);
+router.delete("/delete", issueServiceClient.deleteIssue);
 
 router.post(
    "/solution/create",
-   IssueService.createNewSolution,
+   issueServiceClient.createNewSolution,
    handleNotifications
 );
 
 router.post(
    "/solution/add-like",
-   IssueService.addLikeToSolution,
+   issueServiceClient.addLikeToSolution,
    handleNotifications
 );
 
-router.post("/solution/remove-like", IssueService.removeLikeFromSolution);
+router.post("/solution/remove-like", issueServiceClient.removeLikeFromSolution);
 
 export default router;

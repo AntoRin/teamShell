@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import multer, { FileFilterCallback } from "multer";
-import { ProfileService } from "../services/profile.service";
+import { profileServiceClient } from "../services/profile.service";
 
 const router = Router();
 
@@ -18,29 +18,29 @@ const upload = multer({
 });
 const imageParser = upload.single("profileImage");
 
-router.get("/details/:UniqueUsername", ProfileService.getSingleUser);
+router.get("/details/:UniqueUsername", profileServiceClient.getSingleUser);
 
 router.get(
    "/profile-image/:UniqueUsername",
-   ProfileService.getUserProfileImage
+   profileServiceClient.getUserProfileImage
 );
 
-router.put("/edit", ProfileService.editUserProfile);
+router.put("/edit", profileServiceClient.editUserProfile);
 
 router.post(
    "/uploads/profile-image",
    imageParser,
-   ProfileService.uploadProfileImage
+   profileServiceClient.uploadProfileImage
 );
 
-router.get("/notifications", ProfileService.getUserNotifications);
+router.get("/notifications", profileServiceClient.getUserNotifications);
 
 router.post("/notifications", handleNotifications);
 
-router.get("/notifications/seen", ProfileService.updateSeenNotifications);
+router.get("/notifications/seen", profileServiceClient.updateSeenNotifications);
 
-router.get("/search", ProfileService.getUserProfilesBasedOnSearchQuery);
+router.get("/search", profileServiceClient.getUserProfilesBasedOnSearchQuery);
 
-router.get("/all-contacts", ProfileService.getAllUserContacts);
+router.get("/all-contacts", profileServiceClient.getAllUserContacts);
 
 export default router;

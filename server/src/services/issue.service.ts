@@ -7,83 +7,81 @@ import User from "../models/User";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 import { UserSolutionsType } from "../interfaces/UserModel";
+import { ThrowsServiceException } from "../decorators/ServiceException";
 
-export class IssueService {
-   public static async getSingleIssue(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
-      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
-      const _id = req.params.IssueID;
-      try {
-         const user = await User.findOne({ UniqueUsername, Email });
-         if (!user) throw new AppError("UnauthorizedRequestError");
+class IssueService {
+   private static _serviceInstance: IssueService | null;
 
-         const issue = await Issue.findOne({ _id });
+   private constructor() {}
 
-         if (!issue) throw new AppError("BadRequestError");
+   public static get instance(): IssueService {
+      if (!this._serviceInstance) this._serviceInstance = new IssueService();
 
-         const projectMember = user.Projects.find(project => {
-            return project._id.toString() === issue.Project_id;
-         });
-
-         if (!projectMember) throw new AppError("UnauthorizedRequestError");
-
-         return res.json({ status: "ok", data: issue });
-      } catch (error) {
-         console.log(error);
-         return next(error);
-      }
+      return this._serviceInstance;
    }
 
-   public static async getIssueSnippet(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
+   @ThrowsServiceException
+   public async getSingleIssue(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const _id = req.params.IssueID;
 
-      try {
-         let user = await User.findOne({ UniqueUsername, Email });
+      const user = await User.findOne({ UniqueUsername, Email });
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
-         if (!user) throw new AppError("UnauthorizedRequestError");
+      const issue = await Issue.findOne({ _id });
 
-         let issueDetails = await Issue.findOne(
-            { _id },
-            {
-               ProjectContext: 0,
-               Solutions: 0,
-               updatedAt: 0,
-               __v: 0,
-            }
-         );
+      if (!issue) throw new AppError("BadRequestError");
 
-         if (!issueDetails) throw new AppError("BadRequestError");
+      const projectMember = user.Projects.find(project => {
+         return project._id.toString() === issue.Project_id;
+      });
 
-         let projectMember = user.Projects.find(project => {
-            return project._id.toString() === issueDetails!.Project_id;
-         });
+      if (!projectMember) throw new AppError("UnauthorizedRequestError");
 
-         if (!projectMember) throw new AppError("UnauthorizedRequestError");
-
-         let issueSnippet = {
-            ID: issueDetails._id,
-            Title: issueDetails.IssueTitle,
-            Description: issueDetails.IssueDescription,
-            "Created by": issueDetails.Creator.UniqueUsername,
-            Active: issueDetails.Active.toString(),
-            "Created at": issueDetails.createdAt,
-         };
-
-         return res.json({ status: "ok", data: issueSnippet });
-      } catch (error) {
-         return next(error);
-      }
+      return res.json({ status: "ok", data: issue });
    }
 
-   public static async createNewIssue(
+   @ThrowsServiceException
+   public async getIssueSnippet(req: AuthenticatedRequest, res: Response) {
+      const { UniqueUsername, Email } = req.thisUser as RequestUserType;
+      const _id = req.params.IssueID;
+
+      let user = await User.findOne({ UniqueUsername, Email });
+
+      if (!user) throw new AppError("UnauthorizedRequestError");
+
+      let issueDetails = await Issue.findOne(
+         { _id },
+         {
+            ProjectContext: 0,
+            Solutions: 0,
+            updatedAt: 0,
+            __v: 0,
+         }
+      );
+
+      if (!issueDetails) throw new AppError("BadRequestError");
+
+      let projectMember = user.Projects.find(project => {
+         return project._id.toString() === issueDetails!.Project_id;
+      });
+
+      if (!projectMember) throw new AppError("UnauthorizedRequestError");
+
+      let issueSnippet = {
+         ID: issueDetails._id,
+         Title: issueDetails.IssueTitle,
+         Description: issueDetails.IssueDescription,
+         "Created by": issueDetails.Creator.UniqueUsername,
+         Active: issueDetails.Active.toString(),
+         "Created at": issueDetails.createdAt,
+      };
+
+      return res.json({ status: "ok", data: issueSnippet });
+   }
+
+   @ThrowsServiceException
+   public async createNewIssue(
       req: AuthenticatedRequest,
       _: Response,
       next: NextFunction
@@ -106,63 +104,55 @@ export class IssueService {
          Active: true,
       };
 
-      try {
-         if (Creator.UniqueUsername !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
+      if (Creator.UniqueUsername !== UniqueUsername)
+         throw new AppError("UnauthorizedRequestError");
 
-         const newIssue = new Issue(issue);
+      const newIssue = new Issue(issue);
 
-         await newIssue.save();
+      await newIssue.save();
 
-         const newIssueId = newIssue._id;
+      const newIssueId = newIssue._id;
 
-         await Project.updateOne(
-            { _id: Project_id },
-            { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
-         );
+      await Project.updateOne(
+         { _id: Project_id },
+         { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
+      );
 
-         const userIssueContext = {
-            _id: newIssueId,
-            IssueTitle,
-         };
+      const userIssueContext = {
+         _id: newIssueId,
+         IssueTitle,
+      };
 
-         await User.updateOne(
-            { UniqueUsername, Email },
-            {
-               $push: {
-                  "Issues.Created": { $each: [userIssueContext], $position: 0 },
-               },
-            }
-         );
-
-         const notification = {
-            Initiator: UniqueUsername,
-            NotificationTitle: "New Issue",
-            NotificationType: "Standard",
-            NotificationAction: `created a new Issue in the project ${ProjectContext}`,
-            NotificationLink: `/issue/${newIssueId}`,
-            OtherLinks: [],
-            metaData: {
-               recipientType: "Group",
-               groupType: "Project",
-               recipient: ProjectContext,
+      await User.updateOne(
+         { UniqueUsername, Email },
+         {
+            $push: {
+               "Issues.Created": { $each: [userIssueContext], $position: 0 },
             },
-         };
+         }
+      );
 
-         req.notifications = [notification];
+      const notification = {
+         Initiator: UniqueUsername,
+         NotificationTitle: "New Issue",
+         NotificationType: "Standard",
+         NotificationAction: `created a new Issue in the project ${ProjectContext}`,
+         NotificationLink: `/issue/${newIssueId}`,
+         OtherLinks: [],
+         metaData: {
+            recipientType: "Group",
+            groupType: "Project",
+            recipient: ProjectContext,
+         },
+      };
 
-         return next();
-      } catch (error) {
-         console.log(error);
-         return next(error);
-      }
+      req.notifications = [notification];
+
+      return next();
    }
 
-   public static async bookmarkIssue(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
+   @ThrowsServiceException
+   public async bookmarkIssue(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { User_id, User_UniqueUsername, Issue_id, IssueTitle } = req.body;
 
@@ -173,138 +163,106 @@ export class IssueService {
          IssueTitle,
       };
 
-      try {
-         if (User_UniqueUsername !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
-         const user = await User.findOne({ UniqueUsername, _id: User_id });
-         if (!user) throw new AppError("UnauthorizedRequestError");
+      if (User_UniqueUsername !== UniqueUsername)
+         throw new AppError("UnauthorizedRequestError");
+      const user = await User.findOne({ UniqueUsername, _id: User_id });
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
-         const bookmarked = user.Issues.Bookmarked.find(
-            bookmark => bookmark._id.toString() === Issue_id_object.toString()
-         );
+      const bookmarked = user.Issues.Bookmarked.find(
+         bookmark => bookmark._id.toString() === Issue_id_object.toString()
+      );
 
-         if (bookmarked) throw new AppError("NoActionRequiredError");
+      if (bookmarked) throw new AppError("NoActionRequiredError");
 
-         await User.updateOne(
-            { _id: User_id, UniqueUsername },
-            { $push: { "Issues.Bookmarked": { $each: [issue], $position: 0 } } }
-         );
-         return res.json({ status: "ok", data: "Issue bookmarked" });
-      } catch (error) {
-         return next(error);
-      }
+      await User.updateOne(
+         { _id: User_id, UniqueUsername },
+         { $push: { "Issues.Bookmarked": { $each: [issue], $position: 0 } } }
+      );
+      return res.json({ status: "ok", data: "Issue bookmarked" });
    }
 
-   public static async removeBookmark(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
-      let { UniqueUsername } = req.thisUser as RequestUserType;
-      let { User_id, User_UniqueUsername, Issue_id } = req.body;
+   @ThrowsServiceException
+   public async removeBookmark(req: AuthenticatedRequest, res: Response) {
+      const { UniqueUsername } = req.thisUser as RequestUserType;
+      const { User_id, User_UniqueUsername, Issue_id } = req.body;
 
-      let Issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
+      const Issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
 
-      try {
-         if (User_UniqueUsername !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
-         let user = await User.findOne({ UniqueUsername, _id: User_id });
-         if (!user) throw new AppError("UnauthorizedRequestError");
+      if (User_UniqueUsername !== UniqueUsername)
+         throw new AppError("UnauthorizedRequestError");
+      const user = await User.findOne({ UniqueUsername, _id: User_id });
+      if (!user) throw new AppError("UnauthorizedRequestError");
 
-         let bookmarked = user.Issues.Bookmarked.find(
-            bookmark => bookmark._id.toString() === Issue_id_object.toString()
-         );
+      const bookmarked = user.Issues.Bookmarked.find(
+         bookmark => bookmark._id.toString() === Issue_id_object.toString()
+      );
 
-         const typeCompatiblePullKey = "Issues.Bookmarked" as string;
+      const typeCompatiblePullKey = "Issues.Bookmarked" as string;
 
-         if (!bookmarked) throw new AppError("NoActionRequiredError");
-         await User.updateOne(
-            { _id: User_id, UniqueUsername },
-            { $pull: { [typeCompatiblePullKey]: { _id: Issue_id_object } } }
-         );
-         return res.json({ status: "ok", data: "Bookmark removed" });
-      } catch (error) {
-         return next(error);
-      }
+      if (!bookmarked) throw new AppError("NoActionRequiredError");
+      await User.updateOne(
+         { _id: User_id, UniqueUsername },
+         { $pull: { [typeCompatiblePullKey]: { _id: Issue_id_object } } }
+      );
+      return res.json({ status: "ok", data: "Bookmark removed" });
    }
 
-   public static async closeIssue(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
+   @ThrowsServiceException
+   public async closeIssue(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { Issue_id } = req.body;
 
-      try {
-         const issue = await Issue.findOne({ _id: Issue_id });
-         if (issue?.Creator.UniqueUsername !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
-         if (!issue.Active) throw new AppError("NoActionRequiredError");
-         await Issue.updateOne({ _id: Issue_id }, { $set: { Active: false } });
-         return res.json({ status: "ok", data: "Issue closed" });
-      } catch (error) {
-         return next(error);
-      }
+      const issue = await Issue.findOne({ _id: Issue_id });
+      if (issue?.Creator.UniqueUsername !== UniqueUsername)
+         throw new AppError("UnauthorizedRequestError");
+      if (!issue.Active) throw new AppError("NoActionRequiredError");
+      await Issue.updateOne({ _id: Issue_id }, { $set: { Active: false } });
+      return res.json({ status: "ok", data: "Issue closed" });
    }
 
-   public static async reopenIssue(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
+   @ThrowsServiceException
+   public async reopenIssue(req: AuthenticatedRequest, res: Response) {
       let { UniqueUsername } = req.thisUser as RequestUserType;
       let { Issue_id } = req.body;
 
-      try {
-         let issue = await Issue.findOne({ _id: Issue_id });
-         if (issue?.Creator.UniqueUsername !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
-         if (issue?.Active) throw new AppError("NoActionRequiredError");
-         await Issue.updateOne({ _id: Issue_id }, { $set: { Active: true } });
-         return res.json({ status: "ok", data: "Issue closed" });
-      } catch (error) {
-         return next(error);
-      }
+      let issue = await Issue.findOne({ _id: Issue_id });
+      if (issue?.Creator.UniqueUsername !== UniqueUsername)
+         throw new AppError("UnauthorizedRequestError");
+      if (issue?.Active) throw new AppError("NoActionRequiredError");
+      await Issue.updateOne({ _id: Issue_id }, { $set: { Active: true } });
+      return res.json({ status: "ok", data: "Issue closed" });
    }
 
-   public static async deleteIssue(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
-      let { UniqueUsername } = req.thisUser as RequestUserType;
-      let { Issue_id, Project_id } = req.body;
-      let issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
+   @ThrowsServiceException
+   public async deleteIssue(req: AuthenticatedRequest, res: Response) {
+      const { UniqueUsername } = req.thisUser as RequestUserType;
+      const { Issue_id, Project_id } = req.body;
+      const issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
 
-      try {
-         let issue = await Issue.findOne({ _id: Issue_id });
-         if (issue?.Creator.UniqueUsername !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
-         await Issue.deleteOne({ _id: issue_id_object });
-         await Project.updateOne(
-            { _id: Project_id },
-            { $pull: { IssuesRef: issue_id_object } }
-         );
+      const issue = await Issue.findOne({ _id: Issue_id });
+      if (issue?.Creator.UniqueUsername !== UniqueUsername)
+         throw new AppError("UnauthorizedRequestError");
+      await Issue.deleteOne({ _id: issue_id_object });
+      await Project.updateOne(
+         { _id: Project_id },
+         { $pull: { IssuesRef: issue_id_object } }
+      );
 
-         const typeCompatiblePullKey = "Issues.Created" as string;
+      const typeCompatiblePullKey = "Issues.Created" as string;
 
-         await User.updateOne(
-            { UniqueUsername },
-            {
-               $pull: {
-                  [typeCompatiblePullKey]: { _id: issue_id_object },
-               },
-            }
-         );
-         return res.json({ status: "ok", data: "Issue deleted" });
-      } catch (error) {
-         console.log(error);
-         next(error);
-      }
+      await User.updateOne(
+         { UniqueUsername },
+         {
+            $pull: {
+               [typeCompatiblePullKey]: { _id: issue_id_object },
+            },
+         }
+      );
+      return res.json({ status: "ok", data: "Issue deleted" });
    }
 
-   public static async createNewSolution(
+   @ThrowsServiceException
+   public async createNewSolution(
       req: AuthenticatedRequest,
       _: Response,
       next: NextFunction
@@ -318,63 +276,59 @@ export class IssueService {
          SolutionBody,
       };
 
-      try {
-         const updatedIssue = await Issue.findOneAndUpdate(
-            { _id: Issue_id },
-            { $push: { Solutions: { $each: [newSolution], $position: 0 } } },
-            {
-               returnOriginal: false,
-            }
-         );
+      const updatedIssue = await Issue.findOneAndUpdate(
+         { _id: Issue_id },
+         { $push: { Solutions: { $each: [newSolution], $position: 0 } } },
+         {
+            returnOriginal: false,
+         }
+      );
 
-         if (!updatedIssue) throw new AppError("ServerError");
+      if (!updatedIssue) throw new AppError("ServerError");
 
-         const newSolutionId = updatedIssue.Solutions[0]._id;
+      const newSolutionId = updatedIssue.Solutions[0]._id;
 
-         const UserSolutionContext: UserSolutionsType = {
-            _id: newSolutionId,
-            IssueContext: {
-               _id: updatedIssue?._id,
-               IssueTitle: updatedIssue?.IssueTitle,
-            },
-         };
+      const UserSolutionContext: UserSolutionsType = {
+         _id: newSolutionId,
+         IssueContext: {
+            _id: updatedIssue?._id,
+            IssueTitle: updatedIssue?.IssueTitle,
+         },
+      };
 
-         await User.updateOne(
-            { UniqueUsername, Email },
-            {
-               $push: {
-                  Solutions: {
-                     $each: [UserSolutionContext],
-                     $position: 0,
-                  },
+      await User.updateOne(
+         { UniqueUsername, Email },
+         {
+            $push: {
+               Solutions: {
+                  $each: [UserSolutionContext],
+                  $position: 0,
                },
-            }
-         );
-
-         const notification = {
-            Initiator: UniqueUsername,
-            NotificationTitle: "New Solution",
-            NotificationType: "Standard",
-            NotificationAction: `created a new solution for the Issue ${updatedIssue.IssueTitle}`,
-            NotificationLink: `/issue/${updatedIssue._id}`,
-            OtherLinks: [],
-            metaData: {
-               recipientType: "Group",
-               groupType: "Project",
-               recipient: updatedIssue.ProjectContext,
             },
-         };
+         }
+      );
 
-         req.notifications = [notification];
+      const notification = {
+         Initiator: UniqueUsername,
+         NotificationTitle: "New Solution",
+         NotificationType: "Standard",
+         NotificationAction: `created a new solution for the Issue ${updatedIssue.IssueTitle}`,
+         NotificationLink: `/issue/${updatedIssue._id}`,
+         OtherLinks: [],
+         metaData: {
+            recipientType: "Group",
+            groupType: "Project",
+            recipient: updatedIssue.ProjectContext,
+         },
+      };
 
-         return next();
-      } catch (error) {
-         console.log(error);
-         return next(error);
-      }
+      req.notifications = [notification];
+
+      return next();
    }
 
-   public static async addLikeToSolution(
+   @ThrowsServiceException
+   public async addLikeToSolution(
       req: AuthenticatedRequest,
       res: Response,
       next: NextFunction
@@ -388,61 +342,53 @@ export class IssueService {
          UniqueUsername,
       };
 
-      try {
-         await Issue.updateOne(
-            { "Solutions._id": solution_id },
-            {
-               $push: {
-                  "Solutions.$.LikedBy": { $each: [userRef], $position: 0 },
-               },
-            }
-         );
-
-         if (UniqueUsername !== solution_creator) {
-            const notification = {
-               Initiator: UniqueUsername,
-               NotificationTitle: "New Like",
-               NotificationType: "Standard",
-               NotificationAction: `liked your solution to the issue ${issueTitle}`,
-               NotificationLink: `/issue/${issueId}`,
-               OtherLinks: [],
-               metaData: {
-                  recipientType: "SingleUser",
-                  recipient: solution_creator,
-               },
-            };
-
-            req.notifications = [notification];
-
-            return next();
+      await Issue.updateOne(
+         { "Solutions._id": solution_id },
+         {
+            $push: {
+               "Solutions.$.LikedBy": { $each: [userRef], $position: 0 },
+            },
          }
+      );
 
-         return res.json({ status: "ok", data: "Like added" });
-      } catch (error) {
-         console.log(error);
-         return next(error);
+      if (UniqueUsername !== solution_creator) {
+         const notification = {
+            Initiator: UniqueUsername,
+            NotificationTitle: "New Like",
+            NotificationType: "Standard",
+            NotificationAction: `liked your solution to the issue ${issueTitle}`,
+            NotificationLink: `/issue/${issueId}`,
+            OtherLinks: [],
+            metaData: {
+               recipientType: "SingleUser",
+               recipient: solution_creator,
+            },
+         };
+
+         req.notifications = [notification];
+
+         return next();
       }
+
+      return res.json({ status: "ok", data: "Like added" });
    }
 
-   public static async removeLikeFromSolution(
+   @ThrowsServiceException
+   public async removeLikeFromSolution(
       req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
+      res: Response
    ) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { solution_id } = req.body;
 
       const typeCompatiblePullKey = "Solutions.$.LikedBy" as string;
 
-      try {
-         await Issue.updateOne(
-            { "Solutions._id": solution_id },
-            { $pull: { [typeCompatiblePullKey]: { UniqueUsername } } }
-         );
-         return res.json({ status: "ok", data: "Like removed" });
-      } catch (error) {
-         console.log(error);
-         return next(error);
-      }
+      await Issue.updateOne(
+         { "Solutions._id": solution_id },
+         { $pull: { [typeCompatiblePullKey]: { UniqueUsername } } }
+      );
+      return res.json({ status: "ok", data: "Like removed" });
    }
 }
+
+export const issueServiceClient: IssueService = IssueService.instance;

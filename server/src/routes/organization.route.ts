@@ -1,48 +1,48 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
-import { OrganizationService } from "../services/organization.service";
+import { organizationServiceClient } from "../services/organization.service";
 
 const router = Router();
 
-router.post("/create", OrganizationService.createNewOrganization);
+router.post("/create", organizationServiceClient.createNewOrganization);
 
 router.get(
    "/details/:OrganizationName",
-   OrganizationService.getSingleOrganization
+   organizationServiceClient.getSingleOrganization
 );
 
-router.post("/edit", OrganizationService.editOrganization);
+router.post("/edit", organizationServiceClient.editOrganization);
 
 router.post(
    "/invite/new-user",
-   OrganizationService.inviteUserToOrganization,
+   organizationServiceClient.inviteUserToOrganization,
    handleNotifications
 );
 
 router.get(
    "/add/new-user/:userSecret",
-   OrganizationService.addUserToOrganizationWithUserSecret,
+   organizationServiceClient.addUserToOrganizationWithUserSecret,
    handleNotifications
 );
 
 router.get(
    "/join-request/:organizationName",
-   OrganizationService.sendJoinRequestToOrganization,
+   organizationServiceClient.sendJoinRequestToOrganization,
    handleNotifications
 );
 
 router.get(
    "/accept/new-user",
-   OrganizationService.acceptUserToOrganization,
+   organizationServiceClient.acceptUserToOrganization,
    handleNotifications
 );
 
 router.get(
    "/leave/:organizationName",
-   OrganizationService.leaveOrganization,
+   organizationServiceClient.leaveOrganization,
    handleNotifications
 );
 
-router.get("/explore", OrganizationService.getExplorerData);
+router.get("/explore", organizationServiceClient.getExplorerData);
 
 export default router;

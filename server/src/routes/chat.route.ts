@@ -1,12 +1,15 @@
 import { Router } from "express";
-import { ChatService } from "../services/chat.service";
+import { chatServiceClient } from "../services/chat.service";
 
 const router = Router();
 
-router.get("/chat-history", ChatService.getChatHistory);
+router.get("/chat-history", chatServiceClient.getChatHistory);
 
-router.get("/all-messages", ChatService.getAllUserChatMessages);
+router.get("/all-messages", chatServiceClient.getAllUserChatMessages);
 
-router.get("/project/:projectName", ChatService.getAllProjectChatMessages);
+router.get(
+   "/project/:projectName",
+   chatServiceClient.getAllProjectChatMessages
+);
 
 export default router;

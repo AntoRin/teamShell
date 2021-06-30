@@ -8,7 +8,7 @@
       "build": "rm -rf ./server/dist && tsc",
       "heroku-postbuild": "cd client && npm install && npm run build",
       "dev": "nodemon server/dist/server.js",
-      "dev-ts": "tsc -w"
+      "dev:ts": "tsc -w"
    },
    "author": "",
    "license": "ISC",
