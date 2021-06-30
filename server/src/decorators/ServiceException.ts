@@ -14,7 +14,7 @@ export function ThrowsServiceException(
       next: NextFunction
    ) {
       try {
-         await method.apply(this, [req, res, next]);
+         return await method.apply(this, [req, res, next]);
       } catch (error) {
          console.log("Error caught by decorator");
          return next(error);

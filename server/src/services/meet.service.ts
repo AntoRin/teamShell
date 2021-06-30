@@ -6,12 +6,14 @@ import { redisLpushAsync, redisLRangeAsync } from "../redisConfig";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 
-const ROOM_PREFIX = "MeetRoom:";
-
 class MeetService {
    private static _serviceInstance: MeetService | null = null;
+   private readonly ROOM_PREFIX: string = "MeetRoom:";
 
-   private constructor() {}
+   private constructor() {
+      this.createNewRoom = this.createNewRoom.bind(this);
+      this.getActiveRooms = this.getActiveRooms.bind(this);
+   }
 
    public static get instance(): MeetService {
       if (!this._serviceInstance) this._serviceInstance = new MeetService();
@@ -44,7 +46,7 @@ class MeetService {
       };
 
       await redisLpushAsync(
-         `${ROOM_PREFIX}${projectName}`,
+         `${this.ROOM_PREFIX}${projectName}`,
          JSON.stringify(roomDetails)
       );
 
@@ -79,7 +81,7 @@ class MeetService {
       if (!projectName) throw new AppError("BadRequestError");
 
       const projectMeetRooms = await redisLRangeAsync(
-         `${ROOM_PREFIX}${projectName}`,
+         `${this.ROOM_PREFIX}${projectName}`,
          0,
          -1
       );

@@ -4,7 +4,7 @@ import ProjectChat from "../models/ProjectChat";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import { ThrowsServiceException } from "../decorators/ServiceException";
 
-export class ChatService {
+class ChatService {
    private static _serviceInstance: ChatService | null = null;
 
    private constructor() {}
