@@ -2,8 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { handleNotifications } from "../utils/notificationHandler";
 import { projectServiceClient } from "../services/project.service";
-
-const router = Router();
+import { DELETE, GET, POST } from "../decorators/RestController";
 
 const upload = multer({
    storage: multer.memoryStorage(),
@@ -17,82 +16,118 @@ const upload = multer({
 });
 const fileParser = upload.single("newDriveFile");
 
-router.post("/create", projectServiceClient.createNewProject);
+class ProjectController {
+   private static _controllerInstance: ProjectController | null = null;
+   private static router = Router();
 
-router.get("/details/:ProjectName", projectServiceClient.getSingleProject);
+   private constructor() {}
 
-router.get(
-   "/verification-data/:ProjectName",
-   projectServiceClient.getVerificationData
-);
+   public static get controllerInstance() {
+      if (!this._controllerInstance)
+         this._controllerInstance = new ProjectController();
 
-router.get("/snippet/:ProjectName", projectServiceClient.getProjectSnippet);
+      return this._controllerInstance;
+   }
 
-router.post("/edit", projectServiceClient.editProject);
+   get routerInstance() {
+      return ProjectController.router;
+   }
 
-router.post(
-   "/invite/new-user",
-   projectServiceClient.inviteUserToProject,
-   handleNotifications
-);
+   @POST("/create")
+   createNewProject() {
+      return projectServiceClient.createNewProject;
+   }
 
-router.get(
-   "/add/new-user/:userSecret",
-   projectServiceClient.addUserToProjectWithUserSecret,
-   handleNotifications
-);
+   @GET("/details/:ProjectName")
+   getSingleProject() {
+      return projectServiceClient.getSingleProject;
+   }
 
-router.post(
-   "/join/new-user",
-   projectServiceClient.handleUserRequestToJoinProject,
-   handleNotifications
-);
+   @GET("/verification-data/:ProjectName")
+   getVerificationData() {
+      return projectServiceClient.getVerificationData;
+   }
 
-router.get(
-   "/accept/new-user",
-   projectServiceClient.acceptUserToProject,
-   handleNotifications
-);
+   @GET("/snippet/:ProjectName")
+   getProjectSnippet() {
+      return projectServiceClient.getProjectSnippet;
+   }
 
-router.post(
-   "/leave/:projectName",
-   projectServiceClient.leaveProject,
-   handleNotifications
-);
+   @POST("/edit")
+   editProject() {
+      return projectServiceClient.editProject;
+   }
 
-router.get(
-   "/drive/google/authorize",
-   projectServiceClient.authorizeGoogleDriveUsage
-);
+   @POST("/invite/new-user")
+   inviteUserToProject() {
+      return [projectServiceClient.inviteUserToProject, handleNotifications];
+   }
 
-router.get(
-   "/drive/google/callback",
-   projectServiceClient.handleGoogleDriveAuthorizationCallback
-);
+   @GET("/add/new-user/:userSecret")
+   addUserToProjectWithUserSecret() {
+      return [
+         projectServiceClient.addUserToProjectWithUserSecret,
+         handleNotifications,
+      ];
+   }
 
-router.get("/drive/google/list-files", projectServiceClient.listAllDriveFiles);
+   @POST("/join/new-user")
+   handleUserRequestToJoinProject() {
+      return [
+         projectServiceClient.handleUserRequestToJoinProject,
+         handleNotifications,
+      ];
+   }
 
-router.post(
-   "/drive/google/create-file",
-   fileParser,
-   projectServiceClient.createDriveFile
-);
+   @GET("/accept/new-user")
+   acceptUserToProject() {
+      return [projectServiceClient.acceptUserToProject, handleNotifications];
+   }
 
-router.delete(
-   "/drive/google/delete-file",
-   projectServiceClient.deleteFileFromGoogleDrive
-);
+   @POST("/leave/:projectName")
+   leaveProject() {
+      return [projectServiceClient.leaveProject, handleNotifications];
+   }
 
-router.post("/drive/file/add", projectServiceClient.addFileToProjectDrive);
+   @GET("/drive/google/authorize")
+   authorizeGoogleDriveUsage() {
+      return projectServiceClient.authorizeGoogleDriveUsage;
+   }
 
-router.delete(
-   "/drive/file/remove",
-   projectServiceClient.removeFileFromProjectDrive
-);
+   @GET("/drive/google/callback")
+   handleGoogleDriveAuthorizationCallback() {
+      return projectServiceClient.handleGoogleDriveAuthorizationCallback;
+   }
 
-router.get(
-   "/drive/files/get/:ProjectName",
-   projectServiceClient.getProjectDriveFiles
-);
+   @GET("/drive/google/list-files")
+   listAllDriveFiles() {
+      return projectServiceClient.listAllDriveFiles;
+   }
 
-export default router;
+   @POST("/drive/google/create-file")
+   createDriveFile() {
+      return [fileParser, projectServiceClient.createDriveFile];
+   }
+
+   @DELETE("/drive/google/delete-file")
+   deleteFileFromGoogleDrive() {
+      return projectServiceClient.deleteFileFromGoogleDrive;
+   }
+
+   @POST("/drive/file/add")
+   addFileToProjectDrive() {
+      return projectServiceClient.addFileToProjectDrive;
+   }
+
+   @DELETE("/drive/file/remove")
+   removeFileFromProjectDrive() {
+      return projectServiceClient.removeFileFromProjectDrive;
+   }
+
+   @GET("/drive/files/get/:ProjectName")
+   getProjectDriveFiles() {
+      return projectServiceClient.getProjectDriveFiles;
+   }
+}
+
+export default ProjectController.controllerInstance.routerInstance;

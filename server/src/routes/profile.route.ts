@@ -2,8 +2,7 @@ import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import multer, { FileFilterCallback } from "multer";
 import { profileServiceClient } from "../services/profile.service";
-
-const router = Router();
+import { GET, POST, PUT } from "../decorators/RestController";
 
 const upload = multer({
    storage: multer.memoryStorage(),
@@ -18,29 +17,67 @@ const upload = multer({
 });
 const imageParser = upload.single("profileImage");
 
-router.get("/details/:UniqueUsername", profileServiceClient.getSingleUser);
+class ProfileController {
+   private static _controllerInstance: ProfileController | null = null;
+   private static router = Router();
 
-router.get(
-   "/profile-image/:UniqueUsername",
-   profileServiceClient.getUserProfileImage
-);
+   private constructor() {}
 
-router.put("/edit", profileServiceClient.editUserProfile);
+   public static get controllerInstance() {
+      if (!this._controllerInstance)
+         this._controllerInstance = new ProfileController();
 
-router.post(
-   "/uploads/profile-image",
-   imageParser,
-   profileServiceClient.uploadProfileImage
-);
+      return this._controllerInstance;
+   }
 
-router.get("/notifications", profileServiceClient.getUserNotifications);
+   get routerInstance() {
+      return ProfileController.router;
+   }
 
-router.post("/notifications", handleNotifications);
+   @GET("/details/:UniqueUsername")
+   getSingleUser() {
+      return profileServiceClient.getSingleUser;
+   }
 
-router.get("/notifications/seen", profileServiceClient.updateSeenNotifications);
+   @GET("/profile-image/:UniqueUsername")
+   getUserProfileImage() {
+      return profileServiceClient.getUserProfileImage;
+   }
 
-router.get("/search", profileServiceClient.getUserProfilesBasedOnSearchQuery);
+   @PUT("/edit")
+   editUserProfile() {
+      return profileServiceClient.editUserProfile;
+   }
 
-router.get("/all-contacts", profileServiceClient.getAllUserContacts);
+   @POST("/uploads/profile-image")
+   uploadProfileImage() {
+      return [imageParser, profileServiceClient.uploadProfileImage];
+   }
 
-export default router;
+   @GET("/notifications")
+   getUserNotifications() {
+      return profileServiceClient.getUserNotifications;
+   }
+
+   @POST("/notifications")
+   handleNotifications() {
+      return handleNotifications;
+   }
+
+   @GET("/notifications/seen")
+   updateSeenNotifications() {
+      return profileServiceClient.updateSeenNotifications;
+   }
+
+   @GET("/search")
+   getUserProfilesBasedOnSearchQuery() {
+      return profileServiceClient.getUserProfilesBasedOnSearchQuery;
+   }
+
+   @GET("/all-contacts")
+   getAllUserContacts() {
+      return profileServiceClient.getAllUserContacts;
+   }
+}
+
+export default ProfileController.controllerInstance.routerInstance;

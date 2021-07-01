@@ -1,30 +1,63 @@
 import { Router } from "express";
+import { GET, POST } from "../decorators/RestController";
 import { authServiceClient } from "../services/auth.service";
 
-const router = Router();
+class AuthController {
+   private static _controllerInstance: AuthController | null = null;
+   private static router = Router();
 
-router.post("/register", authServiceClient.registerUser);
+   private constructor() {}
 
-router.post("/login", authServiceClient.loginUser);
+   public static get controllerInstance() {
+      if (!this._controllerInstance)
+         this._controllerInstance = new AuthController();
 
-//GitHub Login
-router.get("/login/github", authServiceClient.loginUserViaGitHub);
+      return this._controllerInstance;
+   }
 
-router.get(
-   "/login/github/callback",
-   authServiceClient.handleGitHubLoginCallback
-);
+   get routerInstance() {
+      return AuthController.router;
+   }
 
-//Google login
-router.get("/login/google", authServiceClient.loginUserViaGoogle);
+   @POST("/register")
+   registerUser() {
+      return authServiceClient.registerUser;
+   }
 
-router.get(
-   "/login/google/callback",
-   authServiceClient.handleGoogleLoginCallback
-);
+   @POST("/login")
+   loginUser() {
+      return authServiceClient.loginUser;
+   }
 
-router.get("/logout", authServiceClient.logoutUser);
+   @GET("/login/github")
+   loginUserViaGitHub() {
+      return authServiceClient.loginUserViaGitHub;
+   }
 
-router.get("/verify", authServiceClient.verifyUserCreds);
+   @GET("/login/github/callback")
+   handleGitHubLoginCallback() {
+      return authServiceClient.handleGitHubLoginCallback;
+   }
 
-export default router;
+   @GET("/login/google")
+   loginUserViaGoogle() {
+      return authServiceClient.loginUserViaGoogle;
+   }
+
+   @GET("/login/google/callback")
+   handleGoogleLoginCallback() {
+      return authServiceClient.handleGoogleLoginCallback;
+   }
+
+   @GET("/logout")
+   logoutUser() {
+      return authServiceClient.logoutUser;
+   }
+
+   @GET("/verify")
+   verifyCreds() {
+      return authServiceClient.verifyUserCreds;
+   }
+}
+
+export default AuthController.controllerInstance.routerInstance;

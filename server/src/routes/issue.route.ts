@@ -1,37 +1,79 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import { issueServiceClient } from "../services/issue.service";
+import { DELETE, GET, POST, PUT } from "../decorators/RestController";
 
-const router = Router();
+class IssueController {
+   private static _controllerInstance: IssueController | null = null;
+   private static router = Router();
 
-router.get("/details/:IssueID", issueServiceClient.getSingleIssue);
+   private constructor() {}
 
-router.get("/snippet/:IssueID", issueServiceClient.getIssueSnippet);
+   public static get controllerInstance() {
+      if (!this._controllerInstance)
+         this._controllerInstance = new IssueController();
 
-router.post("/create", issueServiceClient.createNewIssue, handleNotifications);
+      return this._controllerInstance;
+   }
 
-router.put("/bookmark", issueServiceClient.bookmarkIssue);
+   get routerInstance() {
+      return IssueController.router;
+   }
 
-router.put("/bookmark/remove", issueServiceClient.removeBookmark);
+   @GET("/details/:IssueID")
+   getSingleIssue() {
+      return issueServiceClient.getSingleIssue;
+   }
 
-router.put("/close", issueServiceClient.closeIssue);
+   @GET("/snippet/:IssueID")
+   getIssueSnippet() {
+      return issueServiceClient.getIssueSnippet;
+   }
 
-router.put("/reopen", issueServiceClient.reopenIssue);
+   @POST("/create")
+   createNewIssue() {
+      return [issueServiceClient.createNewIssue, handleNotifications];
+   }
 
-router.delete("/delete", issueServiceClient.deleteIssue);
+   @PUT("/bookmark")
+   bookmarkIssue() {
+      return issueServiceClient.bookmarkIssue;
+   }
 
-router.post(
-   "/solution/create",
-   issueServiceClient.createNewSolution,
-   handleNotifications
-);
+   @PUT("/bookmark/remove")
+   removeBookmark() {
+      return issueServiceClient.removeBookmark;
+   }
 
-router.post(
-   "/solution/add-like",
-   issueServiceClient.addLikeToSolution,
-   handleNotifications
-);
+   @PUT("/close")
+   closeIssue() {
+      return issueServiceClient.closeIssue;
+   }
 
-router.post("/solution/remove-like", issueServiceClient.removeLikeFromSolution);
+   @PUT("/reopen")
+   reopenIssue() {
+      return issueServiceClient.reopenIssue;
+   }
 
-export default router;
+   @DELETE("/delete")
+   deleteIssue() {
+      return issueServiceClient.deleteIssue;
+   }
+
+   @POST("/solution/create")
+   createNewSolution() {
+      return [issueServiceClient.createNewSolution, handleNotifications];
+   }
+
+   @POST("/solution/add-like")
+   addLikeToSolution() {
+      return [issueServiceClient.addLikeToSolution, handleNotifications];
+   }
+
+   @POST("/solution/remove-like")
+   removeLikeFromSolution() {
+      return issueServiceClient.removeLikeFromSolution;
+   }
+}
+
+export default IssueController.controllerInstance.routerInstance;

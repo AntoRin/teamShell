@@ -1,48 +1,81 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import { organizationServiceClient } from "../services/organization.service";
+import { GET, POST } from "../decorators/RestController";
 
-const router = Router();
+class OrganizationController {
+   private static _controllerInstance: OrganizationController | null = null;
+   private static router = Router();
 
-router.post("/create", organizationServiceClient.createNewOrganization);
+   private constructor() {}
 
-router.get(
-   "/details/:OrganizationName",
-   organizationServiceClient.getSingleOrganization
-);
+   public static get controllerInstance() {
+      if (!this._controllerInstance)
+         this._controllerInstance = new OrganizationController();
 
-router.post("/edit", organizationServiceClient.editOrganization);
+      return this._controllerInstance;
+   }
 
-router.post(
-   "/invite/new-user",
-   organizationServiceClient.inviteUserToOrganization,
-   handleNotifications
-);
+   get routerInstance() {
+      return OrganizationController.router;
+   }
 
-router.get(
-   "/add/new-user/:userSecret",
-   organizationServiceClient.addUserToOrganizationWithUserSecret,
-   handleNotifications
-);
+   @POST("/create")
+   createNewOrganization() {
+      return organizationServiceClient.createNewOrganization;
+   }
 
-router.get(
-   "/join-request/:organizationName",
-   organizationServiceClient.sendJoinRequestToOrganization,
-   handleNotifications
-);
+   @GET("/details/:OrganizationName")
+   getSingleOrganization() {
+      return organizationServiceClient.getSingleOrganization;
+   }
 
-router.get(
-   "/accept/new-user",
-   organizationServiceClient.acceptUserToOrganization,
-   handleNotifications
-);
+   @POST("/edit")
+   editOrganization() {
+      return organizationServiceClient.editOrganization;
+   }
 
-router.get(
-   "/leave/:organizationName",
-   organizationServiceClient.leaveOrganization,
-   handleNotifications
-);
+   @POST("/invite/new-user")
+   inviteUserToOrganization() {
+      return [
+         organizationServiceClient.inviteUserToOrganization,
+         handleNotifications,
+      ];
+   }
 
-router.get("/explore", organizationServiceClient.getExplorerData);
+   @GET("/add/new-user/:userSecret")
+   addUserToOrganizationWithUserSecret() {
+      return [
+         organizationServiceClient.addUserToOrganizationWithUserSecret,
+         handleNotifications,
+      ];
+   }
 
-export default router;
+   @GET("/join-request/:organizationName")
+   sendJoinRequestToOrganization() {
+      return [
+         organizationServiceClient.sendJoinRequestToOrganization,
+         handleNotifications,
+      ];
+   }
+
+   @GET("/accept/new-user")
+   acceptUserToOrganization() {
+      return [
+         organizationServiceClient.acceptUserToOrganization,
+         handleNotifications,
+      ];
+   }
+
+   @GET("/leave/:organizationName")
+   leaveOrganization() {
+      return [organizationServiceClient.leaveOrganization, handleNotifications];
+   }
+
+   @GET("/explore")
+   getExplorerData() {
+      return organizationServiceClient.getExplorerData;
+   }
+}
+
+export default OrganizationController.controllerInstance.routerInstance;

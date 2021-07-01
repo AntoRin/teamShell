@@ -75,6 +75,7 @@ class OrganizationService {
       return res.json({ status: "ok", Organization: org });
    }
 
+   @ThrowsServiceException
    public async editOrganization(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { Org, Description, Public } = req.body;

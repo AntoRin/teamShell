@@ -1,15 +1,38 @@
 import { Router } from "express";
+import { GET } from "../decorators/RestController";
 import { chatServiceClient } from "../services/chat.service";
 
-const router = Router();
+class ChatController {
+   private static _controllerInstance: ChatController | null = null;
+   private static router = Router();
 
-router.get("/chat-history", chatServiceClient.getChatHistory);
+   private constructor() {}
 
-router.get("/all-messages", chatServiceClient.getAllUserChatMessages);
+   public static get controllerInstance(): ChatController {
+      if (!this._controllerInstance)
+         this._controllerInstance = new ChatController();
 
-router.get(
-   "/project/:projectName",
-   chatServiceClient.getAllProjectChatMessages
-);
+      return this._controllerInstance;
+   }
 
-export default router;
+   get routerInstance() {
+      return ChatController.router;
+   }
+
+   @GET("/chat-history")
+   getChatHistory() {
+      return chatServiceClient.getChatHistory;
+   }
+
+   @GET("/all-messages")
+   getAllUserChatMessages() {
+      return chatServiceClient.getAllUserChatMessages;
+   }
+
+   @GET("/project/:projectName")
+   getAllProjectChatMessages() {
+      return chatServiceClient.getAllProjectChatMessages;
+   }
+}
+
+export default ChatController.controllerInstance.routerInstance;
