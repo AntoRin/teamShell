@@ -6,13 +6,13 @@ import cookieParser from "cookie-parser";
 require("dotenv").config();
 
 //Routes
-import authRoute from "./routes/auth.route";
-import profileRoute from "./routes/profile.route";
-import organizationRoute from "./routes/organization.route";
-import projectRoute from "./routes/project.route";
-import issueRoute from "./routes/issue.route";
-import chatRoute from "./routes/chat.route";
-import meetRoute from "./routes/meet.route";
+import authRoute from "./controllers/auth.controller";
+import profileRoute from "./controllers/profile.controller";
+import organizationRoute from "./controllers/organization.controller";
+import projectRoute from "./controllers/project.controller";
+import issueRoute from "./controllers/issue.controller";
+import chatRoute from "./controllers/chat.controller";
+import meetRoute from "./controllers/meet.controller";
 
 import errorHandler from "./utils/errorHandler";
 
