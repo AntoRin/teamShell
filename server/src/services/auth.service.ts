@@ -177,6 +177,7 @@ class AuthService {
       res.redirect(authUrl);
    }
 
+   @ThrowsServiceException
    public async handleGoogleLoginCallback(
       req: AuthenticatedRequest,
       res: Response
