@@ -61,17 +61,17 @@ function MeetRoom({ match, User, navHeight }) {
    const connectedPeersRef = useRef([]);
 
    useEffect(() => {
-      let abortFetch = new AbortController();
+      const abortFetch = new AbortController();
       async function verifyRoom() {
          try {
-            let responseStream = await fetch(
+            const responseStream = await fetch(
                `/api/meet/verify-room?roomId=${match.params.roomId}`,
                { signal: abortFetch.signal }
             );
 
             if (abortFetch.signal.aborted) return;
 
-            let response = await responseStream.json();
+            const response = await responseStream.json();
 
             if (response.status === "error") throw response.error;
 

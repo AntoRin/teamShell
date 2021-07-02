@@ -10,6 +10,19 @@ import LinearLoader from "../UtilityComponents/LinearLoader";
 import "../../styles/issue-home.css";
 
 const useStyles = makeStyles(theme => ({
+   issueHomeContainer: {
+      minHheight: "100vh",
+      height: "100%",
+      overflowX: "hidden",
+      background: "#111",
+      marginTop: navHeight => navHeight,
+   },
+   issueStatementDescriptionMain: {
+      margin: "20px",
+   },
+   solutionReadSection: {
+      margin: "50px",
+   },
    componentTitle: {
       color: "lightgreen",
       background: "#222",
@@ -18,28 +31,29 @@ const useStyles = makeStyles(theme => ({
    },
 }));
 
-function IssueHome({ match, User }) {
-   const classes = useStyles();
-
+function IssueHome({ location, match, User, navHeight }) {
    const [issueDetails, setIssueDetails] = useState("");
    const [isAuthorized, setIsAuthorized] = useState(false);
    const [isLoading, setIsLoading] = useState(true);
+   const [pageHash, setPageHash] = useState(null);
 
    const socket = useContext(SocketInstance);
    const setActionStatus = useContext(GlobalActionStatus);
 
+   const classes = useStyles(navHeight);
+
    useEffect(() => {
-      let abortFetch = new AbortController();
+      const abortFetch = new AbortController();
       async function getIssueDetails() {
          try {
-            let rawData = await fetch(
+            const rawData = await fetch(
                `/api/issue/details/${match.params.IssueID}`,
                { signal: abortFetch.signal }
             );
 
             if (abortFetch.signal.aborted) return;
 
-            let responseData = await rawData.json();
+            const responseData = await rawData.json();
 
             if (responseData.status === "error") throw responseData.error;
 
@@ -47,10 +61,11 @@ function IssueHome({ match, User }) {
             setIsAuthorized(true);
             setIsLoading(false);
          } catch (error) {
-            console.log(error);
-            setIsAuthorized(false);
-            setIssueDetails("");
-            setIsLoading(false);
+            if (error.name !== "AbortError") {
+               setIsAuthorized(false);
+               setIssueDetails("");
+               setIsLoading(false);
+            }
          }
       }
 
@@ -64,13 +79,21 @@ function IssueHome({ match, User }) {
       };
    }, [match.params, socket]);
 
+   useEffect(() => {
+      const { hash } = location;
+
+      if (!hash) return;
+
+      setPageHash(hash.split("#")[1]);
+   }, [location]);
+
    if (isLoading) {
       return <LinearLoader />;
    } else {
       return isAuthorized ? (
-         <div className="issue-home-container">
-            <div className="issue-home-contents-wrapper">
-               <div className="issue-statement-description-main">
+         <div className={classes.issueHomeContainer}>
+            <div>
+               <div className={classes.issueStatementDescriptionMain}>
                   <IssueCard
                      User={User}
                      issue={issueDetails}
@@ -105,11 +128,12 @@ function IssueHome({ match, User }) {
                      Issue closed
                   </Typography>
                )}
-               <div className="solutions-read-section">
+               <div className={classes.solutionReadSection}>
                   {issueDetails.Solutions.length > 0
                      ? issueDetails.Solutions.map(solution => {
                           return (
                              <SolutionCard
+                                pageHash={pageHash}
                                 key={solution._id}
                                 solution={solution}
                                 User={User}

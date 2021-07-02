@@ -46,11 +46,11 @@ class IssueService {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const _id = req.params.IssueID;
 
-      let user = await User.findOne({ UniqueUsername, Email });
+      const user = await User.findOne({ UniqueUsername, Email });
 
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      let issueDetails = await Issue.findOne(
+      const issueDetails = await Issue.findOne(
          { _id },
          {
             ProjectContext: 0,
@@ -62,13 +62,13 @@ class IssueService {
 
       if (!issueDetails) throw new AppError("BadRequestError");
 
-      let projectMember = user.Projects.find(project => {
+      const projectMember = user.Projects.find(project => {
          return project._id.toString() === issueDetails!.Project_id;
       });
 
       if (!projectMember) throw new AppError("UnauthorizedRequestError");
 
-      let issueSnippet = {
+      const issueSnippet = {
          ID: issueDetails._id,
          Title: issueDetails.IssueTitle,
          Description: issueDetails.IssueDescription,
@@ -313,7 +313,7 @@ class IssueService {
          NotificationTitle: "New Solution",
          NotificationType: "Standard",
          NotificationAction: `created a new solution for the Issue ${updatedIssue.IssueTitle}`,
-         NotificationLink: `/issue/${updatedIssue._id}`,
+         NotificationLink: `/issue/${updatedIssue._id}#${newSolutionId}`,
          OtherLinks: [],
          metaData: {
             recipientType: "Group",
@@ -357,7 +357,7 @@ class IssueService {
             NotificationTitle: "New Like",
             NotificationType: "Standard",
             NotificationAction: `liked your solution to the issue ${issueTitle}`,
-            NotificationLink: `/issue/${issueId}`,
+            NotificationLink: `/issue/${issueId}#${solution_id}`,
             OtherLinks: [],
             metaData: {
                recipientType: "SingleUser",

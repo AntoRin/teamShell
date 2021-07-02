@@ -396,8 +396,12 @@ class OrganizationService {
    }
 
    @ThrowsServiceException
-   public async getExplorerData(_: AuthenticatedRequest, res: Response) {
-      const orgs = await Organization.find({}).lean();
+   public async getExplorerData(req: AuthenticatedRequest, res: Response) {
+      const { UniqueUsername } = req.thisUser as RequestUserType;
+
+      const orgs = await Organization.find({
+         Members: { $ne: UniqueUsername },
+      });
 
       return res.json({
          status: "ok",

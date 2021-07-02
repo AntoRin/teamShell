@@ -23,48 +23,61 @@ const useStyles = makeStyles({
       width: "100%",
       "& .MuiCard-root": {
          backgroundColor: "#777",
+         margin: "20px",
       },
    },
    cardContainer: {
       width: "75%",
+      "& .MuiCardActions-root": {
+         borderTop: "1px solid #111",
+         "& .MuiButton-root": {
+            border: "1px solid #111",
+            backgroundColor: "#555",
+         },
+      },
+   },
+   cardTitle: {
+      fontWeight: "1000",
+      fontSize: "1.3rem",
    },
    pos: {
       marginBottom: 12,
    },
    loadMore: {
-      position: "absolute",
+      position: "fixed",
       bottom: "20px",
-      left: "50%",
+      left: sidePanelWidth => `calc(50vw + ${sidePanelWidth / 2}px)`,
       transform: "translateX(-50%)",
+      "& .MuiChip-root": {},
    },
 });
 
-function HomeExploreTab({ tab }) {
-   const classes = useStyles();
-
+function HomeExploreTab({ tab, sidePanelWidth }) {
    const [exploreOrgs, setExploreOrgs] = useState(null);
    const [isLoading, setIsLoading] = useState(false);
    const [loadMore, setLoadMore] = useState(false);
 
    const history = useHistory();
 
+   const classes = useStyles(sidePanelWidth);
+
    useEffect(() => {
       if (tab !== "explore") return;
       if (exploreOrgs && !loadMore) return;
 
-      let abortFetch = new AbortController();
+      const abortFetch = new AbortController();
 
       (async () => {
          setIsLoading(true);
 
          try {
-            let responseStream = await fetch("/api/organization/explore", {
+            const responseStream = await fetch("/api/organization/explore", {
                signal: abortFetch.signal,
             });
 
             if (abortFetch.signal.aborted) return;
 
-            let response = await responseStream.json();
+            const response = await responseStream.json();
 
             if (response.status === "error") throw new Error(response.error);
 
@@ -99,7 +112,7 @@ function HomeExploreTab({ tab }) {
                   <Card className={classes.cardContainer}>
                      <CardContent>
                         <Typography
-                           className={classes.title}
+                           className={classes.cardTitle}
                            color="textSecondary"
                            gutterBottom
                         >

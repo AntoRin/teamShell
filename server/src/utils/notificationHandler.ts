@@ -1,5 +1,4 @@
 import User from "../models/User";
-
 import AppError from "./AppError";
 import { UserNotificationType } from "../interfaces/UserModel";
 import { AuthenticatedRequest } from "../types";

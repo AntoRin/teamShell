@@ -50,12 +50,13 @@ const useStyles = makeStyles(theme => ({
 const editorDefaultStyles =
    "background-color: #fff; color: black; font-size: 18px; border: none; outline: none; user-select: text; min-height: 100px; max-height: 300px";
 
-function SolutionCard({ solution, User, issueDetails }) {
+function SolutionCard({ solution, User, issueDetails, pageHash }) {
    const classes = useStyles();
    const [solutionContent, setSolutionContent] = useState("");
    const [liked, setLiked] = useState(false);
 
    const editorRef = useRef();
+   const solutionCardRef = useRef();
 
    useEffect(() => {
       setSolutionContent(
@@ -70,6 +71,13 @@ function SolutionCard({ solution, User, issueDetails }) {
 
       userLike ? setLiked(true) : setLiked(false);
    }, [solution.LikedBy, User]);
+
+   useEffect(() => {
+      if (!pageHash) return;
+
+      if (pageHash === solution._id)
+         solutionCardRef.current.scrollIntoView({ behavior: "smooth" });
+   }, [pageHash, solution._id]);
 
    async function handleSolutionInteraction() {
       let body = {
@@ -101,7 +109,7 @@ function SolutionCard({ solution, User, issueDetails }) {
    }
 
    return (
-      <div className="solution-card-container">
+      <div ref={solutionCardRef} className="solution-card-container">
          <Card className={classes.root}>
             <CardHeader
                avatar={

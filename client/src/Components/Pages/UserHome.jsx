@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
@@ -115,8 +115,6 @@ const useStyles = makeStyles({
 });
 
 function UserHome({ User, navHeight }) {
-   const classes = useStyles(navHeight);
-
    const [activePanelOrg, setActivePanelOrg] = useState(
       User.Organizations.length > 0
          ? User.Organizations[0].OrganizationName
@@ -127,8 +125,13 @@ function UserHome({ User, navHeight }) {
       confirmationFor: null,
    });
    const [panelTab, setPanelTab] = useState("feed");
+   const [sidePanelWidth, setSidePanelWidth] = useState(250);
+
+   const sidePanelRef = useRef();
 
    const history = useHistory();
+
+   const classes = useStyles(navHeight);
 
    useEffect(() => {
       let preference = window.localStorage.getItem("organization_context");
@@ -143,6 +146,10 @@ function UserHome({ User, navHeight }) {
    useEffect(() => {
       window.localStorage.setItem("organization_context", activePanelOrg);
    }, [activePanelOrg]);
+
+   useEffect(() => {
+      setSidePanelWidth(sidePanelRef.current.offsetWidth);
+   }, []);
 
    function handlePanelTabChange(event, newTab) {
       if (newTab !== null) {
@@ -188,14 +195,14 @@ function UserHome({ User, navHeight }) {
       if (User.Projects.length < 1)
          return [{ noProjectFallback: "No projects yet" }];
 
-      let thisOrgProjects = User.Projects.find(
+      const thisOrgProjects = User.Projects.find(
          project => project.ParentOrganization === activePanelOrg
       );
 
       if (!thisOrgProjects)
          return [{ noProjectFallback: "No project in this organization" }];
 
-      let projectTitles = User.Projects.filter(
+      const projectTitles = User.Projects.filter(
          project => project.ParentOrganization === activePanelOrg && project
       );
       return projectTitles;
@@ -204,7 +211,7 @@ function UserHome({ User, navHeight }) {
    return (
       <div className={classes.homeContainer}>
          <div className="home-main">
-            <div className="user-details">
+            <div ref={sidePanelRef} className="user-details">
                <div className="details-section">
                   <Accordion className={classes.orgAccordion} square>
                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -323,7 +330,7 @@ function UserHome({ User, navHeight }) {
             </div>
             <div className="home-tab-result">
                <HomeFeedTab tab={panelTab} />
-               <HomeExploreTab tab={panelTab} />
+               <HomeExploreTab tab={panelTab} sidePanelWidth={sidePanelWidth} />
             </div>
          </div>
          <GeneralConfirmDialog
