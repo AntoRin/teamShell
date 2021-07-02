@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import { issueServiceClient } from "../services/issue.service";
-import { DELETE, GET, POST, PUT } from "../decorators/RestController";
+import { DELETE, GET, POST, PUT } from "../decorators/ControllerMethods";
+import { RestController } from "../decorators/RestController";
 
+@RestController("/api/issue")
 class IssueController {
    private static _controllerInstance: IssueController | null = null;
    private static router = Router();

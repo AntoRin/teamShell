@@ -1,66 +1,60 @@
 import { Router } from "express";
-import AppError from "../utils/AppError";
+import { HandlerMetadata } from "./types";
 
-export function GET(route: string) {
-   return function (target: any, _: string, descriptor: PropertyDescriptor) {
-      try {
-         const routerInstance: Router = target.constructor.router;
-         if (!routerInstance) throw new AppError("NoRouter");
-         routerInstance.get(route, descriptor.value());
-      } catch (error: any) {
-         if (error.name === "NoRouter")
-            console.log(
-               "A private static instance of express router is required to initialize api routes"
-            );
-         throw error.message;
-      }
-   };
-}
+export function RestController(routePrefix: string) {
+   return function (constructor: Function) {
+      const routerInstance: Router = constructor.prototype.constructor.router;
 
-export function POST(route: string) {
-   return function (target: any, _: string, descriptor: PropertyDescriptor) {
-      try {
-         const routerInstance: Router = target.constructor.router;
-         if (!routerInstance) throw new AppError("No router");
-         routerInstance.post(route, descriptor.value());
-      } catch (error: any) {
-         if (error.name === "NoRouter")
-            console.log(
-               "A private static instance of express router is required to initialize api routes"
-            );
-         throw error.message;
-      }
-   };
-}
+      for (const propName of Object.getOwnPropertyNames(
+         constructor.prototype
+      )) {
+         const prop = constructor.prototype[propName];
 
-export function PUT(route: string) {
-   return function (target: any, _: string, descriptor: PropertyDescriptor) {
-      try {
-         const routerInstance: Router = target.constructor.router;
-         if (!routerInstance) throw new AppError("NoRouter");
-         routerInstance.put(route, descriptor.value());
-      } catch (error: any) {
-         if (error.name === "NoRouter")
-            console.log(
-               "A private static instance of express router is required to initialize api routes"
-            );
-         throw error.message;
-      }
-   };
-}
+         if (
+            typeof prop === "function" &&
+            constructor.prototype.hasOwnProperty(propName)
+         ) {
+            try {
+               const { routeHandlers, path, restMethod }: HandlerMetadata =
+                  prop();
 
-export function DELETE(route: string) {
-   return function (target: any, _: string, descriptor: PropertyDescriptor) {
-      try {
-         const routerInstance: Router = target.constructor.router;
-         if (!routerInstance) throw new AppError("NoRouter");
-         routerInstance.delete(route, descriptor.value());
-      } catch (error: any) {
-         if (error.name === "NoRouter")
-            console.log(
-               "A private static instance of express router is required to initialize api routes"
-            );
-         throw error.message;
+               if (Array.isArray(routeHandlers)) {
+                  for (const handler of routeHandlers) {
+                     if (typeof handler !== "function")
+                        throw new Error(
+                           "Only functions should be returned from Controller methods"
+                        );
+                  }
+               } else {
+                  if (typeof routeHandlers !== "function")
+                     throw new Error(
+                        "Only functions should be returned from Controller methods"
+                     );
+               }
+
+               switch (restMethod) {
+                  case "get":
+                     routerInstance.get(`${routePrefix}${path}`, routeHandlers);
+                     break;
+                  case "post":
+                     routerInstance.post(
+                        `${routePrefix}${path}`,
+                        routeHandlers
+                     );
+                     break;
+                  case "put":
+                     routerInstance.put(`${routePrefix}${path}`, routeHandlers);
+                     break;
+                  case "delete":
+                     routerInstance.delete(
+                        `${routePrefix}${path}`,
+                        routeHandlers
+                     );
+                     break;
+               }
+            } catch (error) {}
+         }
       }
+      return;
    };
 }

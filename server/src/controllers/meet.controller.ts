@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { GET, POST } from "../decorators/RestController";
+import { GET, POST } from "../decorators/ControllerMethods";
+import { RestController } from "../decorators/RestController";
 import { meetServiceClient } from "../services/meet.service";
 
+@RestController("/api/meet")
 class MeetController {
    private static _controllerInstance: MeetController | null = null;
    private static router = Router();

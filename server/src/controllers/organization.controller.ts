@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import { organizationServiceClient } from "../services/organization.service";
-import { GET, POST } from "../decorators/RestController";
+import { GET, POST } from "../decorators/ControllerMethods";
+import { RestController } from "../decorators/RestController";
 
+@RestController("/api/organization")
 class OrganizationController {
    private static _controllerInstance: OrganizationController | null = null;
    private static router = Router();

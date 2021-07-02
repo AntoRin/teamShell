@@ -2,7 +2,8 @@ import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import multer, { FileFilterCallback } from "multer";
 import { profileServiceClient } from "../services/profile.service";
-import { GET, POST, PUT } from "../decorators/RestController";
+import { GET, POST, PUT } from "../decorators/ControllerMethods";
+import { RestController } from "../decorators/RestController";
 
 const upload = multer({
    storage: multer.memoryStorage(),
@@ -17,6 +18,7 @@ const upload = multer({
 });
 const imageParser = upload.single("profileImage");
 
+@RestController("/api/profile")
 class ProfileController {
    private static _controllerInstance: ProfileController | null = null;
    private static router = Router();

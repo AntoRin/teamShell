@@ -7,7 +7,6 @@ import SolutionEditor from "../Issue/SolutionEditor";
 import SolutionCard from "../Issue/SolutionCard";
 import IssueCard from "../User/IssueCard";
 import LinearLoader from "../UtilityComponents/LinearLoader";
-import "../../styles/issue-home.css";
 
 const useStyles = makeStyles(theme => ({
    issueHomeContainer: {

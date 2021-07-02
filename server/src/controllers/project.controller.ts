@@ -2,7 +2,8 @@ import { Router } from "express";
 import multer from "multer";
 import { handleNotifications } from "../utils/notificationHandler";
 import { projectServiceClient } from "../services/project.service";
-import { DELETE, GET, POST } from "../decorators/RestController";
+import { DELETE, GET, POST } from "../decorators/ControllerMethods";
+import { RestController } from "../decorators/RestController";
 
 const upload = multer({
    storage: multer.memoryStorage(),
@@ -16,6 +17,7 @@ const upload = multer({
 });
 const fileParser = upload.single("newDriveFile");
 
+@RestController("/api/project")
 class ProjectController {
    private static _controllerInstance: ProjectController | null = null;
    private static router = Router();
