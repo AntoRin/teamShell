@@ -114,7 +114,7 @@ function IssueCard({
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
       try {
-         let putOptions = {
+         const putOptions = {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -122,9 +122,9 @@ function IssueCard({
             }),
          };
 
-         let updateStream = await fetch("/api/issue/close", putOptions);
+         const updateStream = await fetch("/api/issue/close", putOptions);
 
-         let updateData = await updateStream.json();
+         const updateData = await updateStream.json();
 
          if (updateData.status === "ok") {
             setActionStatus({
@@ -145,7 +145,7 @@ function IssueCard({
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
       try {
-         let putOptions = {
+         const putOptions = {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -153,9 +153,9 @@ function IssueCard({
             }),
          };
 
-         let updateStream = await fetch("/api/issue/reopen", putOptions);
+         const updateStream = await fetch("/api/issue/reopen", putOptions);
 
-         let updateData = await updateStream.json();
+         const updateData = await updateStream.json();
 
          if (updateData.status === "ok") {
             setActionStatus({
@@ -176,7 +176,7 @@ function IssueCard({
       if (User.UniqueUsername !== issue.Creator.UniqueUsername) return;
 
       try {
-         let deleteOptions = {
+         const deleteOptions = {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -185,11 +185,11 @@ function IssueCard({
             }),
          };
 
-         let deleteResponseStream = await fetch(
+         const deleteResponseStream = await fetch(
             "/api/issue/delete",
             deleteOptions
          );
-         let deleteData = await deleteResponseStream.json();
+         const deleteData = await deleteResponseStream.json();
 
          if (deleteData.status === "ok") {
             if (redirectOnDelete === true) {
@@ -214,24 +214,24 @@ function IssueCard({
       if (userBookmarked) return;
 
       try {
-         let body = {
+         const body = {
             User_id: User._id,
             User_UniqueUsername: User.UniqueUsername,
             Issue_id: issue._id,
             IssueTitle: issue.IssueTitle,
          };
 
-         let putOptions = {
+         const putOptions = {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
          };
 
-         let bookmarkDataStream = await fetch(
+         const bookmarkDataStream = await fetch(
             "/api/issue/bookmark",
             putOptions
          );
-         let bookmarkData = await bookmarkDataStream.json();
+         const bookmarkData = await bookmarkDataStream.json();
 
          if (bookmarkData.status === "ok") {
             setActionStatus({
@@ -253,23 +253,23 @@ function IssueCard({
       if (!userBookmarked) return;
 
       try {
-         let body = {
+         const body = {
             User_id: User._id,
             User_UniqueUsername: User.UniqueUsername,
             Issue_id: issue._id,
          };
 
-         let putOptions = {
+         const putOptions = {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
          };
 
-         let bookmarkDataStream = await fetch(
+         const responseStream = await fetch(
             "/api/issue/bookmark/remove",
             putOptions
          );
-         let bookmarkData = await bookmarkDataStream.json();
+         const bookmarkData = await responseStream.json();
 
          if (bookmarkData.status === "ok") {
             setActionStatus({

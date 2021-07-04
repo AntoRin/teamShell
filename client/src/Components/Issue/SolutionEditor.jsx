@@ -3,6 +3,7 @@ import SunEditor from "suneditor-react";
 import { solution_editor_config } from "../../config/editor_config";
 import "suneditor/dist/css/suneditor.min.css";
 import "../../styles/solution-editor.css";
+import { Button } from "@material-ui/core";
 
 function SolutionEditor({ issueDetails, User }) {
    const editorRef = useRef();
@@ -10,34 +11,36 @@ function SolutionEditor({ issueDetails, User }) {
    async function handleNewSolution(event) {
       event.preventDefault();
 
-      try {
-         let solutionPlainText = editorRef.current.editor.core.getContents();
+      if (!/[a-bA-B]/.test(editorRef.current.editor.getText().trim())) return;
 
-         let solutionEncoded =
+      try {
+         const solutionPlainText = editorRef.current.editor.core.getContents();
+
+         const solutionEncoded =
             editorRef.current.editor.util.HTMLEncoder(solutionPlainText);
 
-         let body = {
+         const body = {
             Issue_id: issueDetails._id,
             Project_id: issueDetails.Project_id,
             SolutionBody: solutionEncoded,
          };
 
-         let postOptions = {
+         const postOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
          };
 
-         let newSolution = await fetch(
+         const newSolution = await fetch(
             "/api/issue/solution/create",
             postOptions
          );
-         let solutionResponse = await newSolution.json();
+         const solutionResponse = await newSolution.json();
 
          if (solutionResponse.status === "ok")
             editorRef.current.editor.core.setContents("");
       } catch (error) {
-         console.log(error);
+         console.error(error.message);
       }
    }
 
@@ -47,14 +50,12 @@ function SolutionEditor({ issueDetails, User }) {
             <SunEditor
                ref={editorRef}
                setOptions={solution_editor_config.options}
+               setDefaultStyle="background: darkgray; font-size: 20px; user-select: text; border: none; outline: none;"
             />
             <div className="solution-submit-btn">
-               <button
-                  type="submit"
-                  className="form-action-btn bright btn-long"
-               >
+               <Button variant="contained" type="submit">
                   Submit
-               </button>
+               </Button>
             </div>
          </form>
       </div>

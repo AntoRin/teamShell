@@ -113,24 +113,25 @@ class IssueService {
 
       const newIssueId = newIssue._id;
 
-      await Project.updateOne(
-         { _id: Project_id },
-         { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
-      );
-
       const userIssueContext = {
          _id: newIssueId,
          IssueTitle,
       };
 
-      await User.updateOne(
-         { UniqueUsername, Email },
-         {
-            $push: {
-               "Issues.Created": { $each: [userIssueContext], $position: 0 },
-            },
-         }
-      );
+      await Promise.all([
+         Project.updateOne(
+            { _id: Project_id },
+            { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
+         ),
+         User.updateOne(
+            { UniqueUsername, Email },
+            {
+               $push: {
+                  "Issues.Created": { $each: [userIssueContext], $position: 0 },
+               },
+            }
+         ),
+      ]);
 
       const notification = {
          Initiator: UniqueUsername,
@@ -222,10 +223,10 @@ class IssueService {
 
    @ThrowsServiceException
    public async reopenIssue(req: AuthenticatedRequest, res: Response) {
-      let { UniqueUsername } = req.thisUser as RequestUserType;
-      let { Issue_id } = req.body;
+      const { UniqueUsername } = req.thisUser as RequestUserType;
+      const { Issue_id } = req.body;
 
-      let issue = await Issue.findOne({ _id: Issue_id });
+      const issue = await Issue.findOne({ _id: Issue_id });
       if (issue?.Creator.UniqueUsername !== UniqueUsername)
          throw new AppError("UnauthorizedRequestError");
       if (issue?.Active) throw new AppError("NoActionRequiredError");
@@ -242,22 +243,34 @@ class IssueService {
       const issue = await Issue.findOne({ _id: Issue_id });
       if (issue?.Creator.UniqueUsername !== UniqueUsername)
          throw new AppError("UnauthorizedRequestError");
-      await Issue.deleteOne({ _id: issue_id_object });
-      await Project.updateOne(
-         { _id: Project_id },
-         { $pull: { IssuesRef: issue_id_object } }
-      );
 
-      const typeCompatiblePullKey = "Issues.Created" as string;
+      const typeCompatibleCreatedPullKey = "Issues.Created" as string;
+      const typeCompatibleBookmarkedPullKey = "Issues.Bookmarked" as string;
 
-      await User.updateOne(
-         { UniqueUsername },
-         {
-            $pull: {
-               [typeCompatiblePullKey]: { _id: issue_id_object },
-            },
-         }
-      );
+      await Promise.all([
+         Issue.deleteOne({ _id: issue_id_object }),
+         Project.updateOne(
+            { _id: Project_id },
+            { $pull: { IssuesRef: issue_id_object } }
+         ),
+         User.updateOne(
+            { UniqueUsername },
+            {
+               $pull: {
+                  [typeCompatibleCreatedPullKey]: { _id: issue_id_object },
+               },
+            }
+         ),
+         User.updateOne(
+            { UniqueUsername },
+            {
+               $pull: {
+                  [typeCompatibleBookmarkedPullKey]: { _id: issue_id_object },
+               },
+            }
+         ),
+      ]);
+
       return res.json({ status: "ok", data: "Issue deleted" });
    }
 
@@ -388,6 +401,35 @@ class IssueService {
          { $pull: { [typeCompatiblePullKey]: { UniqueUsername } } }
       );
       return res.json({ status: "ok", data: "Like removed" });
+   }
+
+   @ThrowsServiceException
+   public async deleteSolution(req: AuthenticatedRequest, res: Response) {
+      const { UniqueUsername } = req.thisUser as RequestUserType;
+      const { solutionId } = req.params;
+
+      if (!solutionId) throw new AppError("BadRequestError");
+
+      await Promise.all([
+         Issue.updateOne(
+            { "Solutions._id": solutionId },
+            {
+               $pull: {
+                  Solutions: { _id: solutionId },
+               },
+            }
+         ),
+         User.updateOne(
+            { UniqueUsername },
+            {
+               $pull: {
+                  Solutions: { _id: solutionId },
+               },
+            }
+         ),
+      ]);
+
+      return res.json({ status: "ok", data: "Solution deleted" });
    }
 }
 

@@ -35,21 +35,24 @@ function IssueEditor({ activeProject, User, done }) {
    async function handleIssueCreation(event) {
       event.preventDefault();
 
-      let userInActiveProject = User.Projects.find(
+      if (!/[a-bA-B]/.test(editorRef.current.editor.getText().trim())) return;
+
+      const userInActiveProject = User.Projects.find(
          project => project.ProjectName === activeProject
       );
 
-      let Project_id = userInActiveProject._id;
+      const Project_id = userInActiveProject._id;
 
       if (!Project_id) return;
 
       try {
-         let IssueDescriptionRaw = editorRef.current.editor.core.getContents();
+         const IssueDescriptionRaw =
+            editorRef.current.editor.core.getContents();
 
-         let IssueDescription =
+         const IssueDescription =
             editorRef.current.editor.util.HTMLEncoder(IssueDescriptionRaw);
 
-         let body = {
+         const body = {
             IssueTitle: issueTitle,
             IssueDescription,
             ProjectContext: activeProject,
@@ -60,14 +63,14 @@ function IssueEditor({ activeProject, User, done }) {
             },
          };
 
-         let postOptions = {
+         const postOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
          };
 
-         let newIssueSubmit = await fetch("/api/issue/create", postOptions);
-         let newIssueResponse = await newIssueSubmit.json();
+         const newIssueSubmit = await fetch("/api/issue/create", postOptions);
+         const newIssueResponse = await newIssueSubmit.json();
 
          if (newIssueResponse.status === "error") throw newIssueResponse.error;
 

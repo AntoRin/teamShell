@@ -76,6 +76,11 @@ class IssueController {
    removeLikeFromSolution() {
       return issueServiceClient.removeLikeFromSolution;
    }
+
+   @DELETE("/solution/delete/:solutionId")
+   deleteSolution() {
+      return issueServiceClient.deleteSolution;
+   }
 }
 
 export default IssueController.controllerInstance.routerInstance;

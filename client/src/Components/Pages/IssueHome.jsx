@@ -23,10 +23,10 @@ const useStyles = makeStyles(theme => ({
       margin: "50px",
    },
    componentTitle: {
-      color: "lightgreen",
+      color: "#999",
       background: "#222",
       padding: "7px",
-      marginTop: "50px",
+      marginTop: "40px",
    },
 }));
 

@@ -11,7 +11,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { red } from "@material-ui/core/colors";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import ShareIcon from "@material-ui/icons/Share";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import DeleteIcon from "@material-ui/icons/Delete";
 import { readonly_editor_config } from "../../config/editor_config";
 import formatDate from "../../utils/formatDate";
 import "suneditor/dist/css/suneditor.min.css";
@@ -20,10 +20,10 @@ import "../../styles/solution-card.css";
 const useStyles = makeStyles(theme => ({
    root: {
       width: "100%",
-      background: "#fff",
+      background: "darkgray",
    },
    media: {
-      background: "#333",
+      background: "darkgray",
    },
    expand: {
       transform: "rotate(0deg)",
@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const editorDefaultStyles =
-   "background-color: #fff; color: black; font-size: 18px; border: none; outline: none; user-select: text; min-height: 100px; max-height: 300px";
+   "background-color: darkgray; color: black; font-size: 20px; border: none; outline: none; user-select: text; min-height: 100px; max-height: 300px";
 
 function SolutionCard({ solution, User, issueDetails, pageHash }) {
    const classes = useStyles();
@@ -89,22 +89,43 @@ function SolutionCard({ solution, User, issueDetails, pageHash }) {
       };
 
       try {
-         let postOptions = {
+         const postOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
          };
 
-         let liked = solution.LikedBy.some(like => {
+         const liked = solution.LikedBy.some(like => {
             return like.UniqueUsername === User.UniqueUsername;
          });
 
-         let endpoint = liked ? "remove-like" : "add-like";
+         const endpoint = liked ? "remove-like" : "add-like";
 
          await fetch(`/api/issue/solution/${endpoint}`, postOptions);
       } catch (error) {
          console.log(error);
          return;
+      }
+   }
+
+   async function deleteSolution() {
+      try {
+         const deleteOptions = {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+         };
+
+         const responseStream = await fetch(
+            `/api/issue/solution/delete/${solution._id}`,
+            deleteOptions
+         );
+         const response = await responseStream.json();
+
+         if (response.status === "error") throw response.error;
+
+         console.log(response);
+      } catch (error) {
+         console.log(error);
       }
    }
 
@@ -122,9 +143,13 @@ function SolutionCard({ solution, User, issueDetails, pageHash }) {
                   </Avatar>
                }
                action={
-                  <IconButton aria-label="settings">
-                     <MoreVertIcon />
-                  </IconButton>
+                  <>
+                     {solution.SolutionCreator === User.UniqueUsername ? (
+                        <IconButton onClick={deleteSolution}>
+                           <DeleteIcon />
+                        </IconButton>
+                     ) : null}
+                  </>
                }
                title={solution.SolutionCreator}
                subheader={formatDate(solution.createdAt)}

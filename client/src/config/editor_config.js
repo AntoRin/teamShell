@@ -10,7 +10,6 @@ export const issue_editor_config = {
       buttonList: [
          ["font", "fontSize", "formatBlock"],
          ["bold", "underline", "italic", "strike", "subscript", "superscript"],
-         ["fontColor"],
          ["removeFormat"],
          ["align", "horizontalRule", "list"],
          ["link", "image"],
@@ -25,7 +24,7 @@ export const solution_editor_config = {
    options: {
       width: "100%",
       minHeight: "100px",
-      height: "300px",
+      height: "300",
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
