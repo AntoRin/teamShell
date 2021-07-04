@@ -93,6 +93,8 @@ function HomeExploreTab({ tab, sidePanelWidth }) {
             }
          }
       })();
+
+      return () => abortFetch.abort();
    }, [tab, exploreOrgs, loadMore]);
 
    function goToOrganization(orgName) {

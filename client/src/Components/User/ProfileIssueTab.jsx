@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { makeStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import ToggleButton from "@material-ui/lab/ToggleButton";
@@ -8,6 +9,7 @@ const useStyles = makeStyles({
    filter: {
       "& h6": {
          color: "white",
+         fontSize: "1.1rem",
       },
       "&": {
          display: "flex",
@@ -22,6 +24,15 @@ const useStyles = makeStyles({
       },
       "& .Mui-selected:hover": {
          backgroundColor: "#5233ff88",
+      },
+   },
+   issueTabList: {
+      "& a": {
+         textDecoration: "none",
+         color: "#fff",
+      },
+      "& .detail-card-container:hover": {
+         backgroundColor: "rgb(21, 21, 29)",
       },
    },
 });
@@ -69,27 +80,23 @@ function ProfileIssueTab({
             </ToggleButtonGroup>
          </div>
          {issueTabType === "created" && (
-            <div className="issues-tab-list">
-               {Profile.Issues.Created.map((issue, index) => {
+            <div className={classes.issueTabList}>
+               {Profile.Issues.Created.map(issue => {
                   return (
-                     <DetailCard
-                        key={index}
-                        header={issue.IssueTitle}
-                        detail=""
-                     />
+                     <Link key={issue._id} to={`/issue/${issue._id}`}>
+                        <DetailCard header={issue.IssueTitle} detail="" />
+                     </Link>
                   );
                })}
             </div>
          )}
          {issueTabType === "bookmarked" && (
-            <div className="issues-tab-list">
-               {Profile.Issues.Bookmarked.map((issue, index) => {
+            <div className={classes.issueTabList}>
+               {Profile.Issues.Bookmarked.map(issue => {
                   return (
-                     <DetailCard
-                        key={index}
-                        header={issue.IssueTitle}
-                        detail=""
-                     />
+                     <Link key={issue._id} to={`/issue/${issue._id}`}>
+                        <DetailCard header={issue.IssueTitle} detail="" />
+                     </Link>
                   );
                })}
             </div>

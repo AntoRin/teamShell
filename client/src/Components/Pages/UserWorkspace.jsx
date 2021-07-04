@@ -17,8 +17,8 @@ import WorkspaceChatTab from "../User/WorkspaceChatTab";
 import WorkspaceMeetTab from "../User/WorkspaceMeetTab";
 import { GlobalActionStatus } from "../App";
 import parseQueryStrings from "../../utils/parseQueryStrings";
-import "../../styles/environment-panel.css";
 import LinearLoader from "../UtilityComponents/LinearLoader";
+import "../../styles/environment-panel.css";
 
 const useStyles = makeStyles(theme => ({
    "environment-panel-container": {
@@ -76,30 +76,30 @@ function UserWorkspace({ location, User, navHeight }) {
    const setActionStatus = useContext(GlobalActionStatus);
 
    useEffect(() => {
-      let abortFetch = new AbortController();
+      const abortFetch = new AbortController();
 
       async function verifyBasicDetails() {
          setIsLoading(true);
-         let queryString = location.search;
+         const queryString = location.search;
          try {
             if (!queryString) throw new Error("Invalid query string");
 
-            let queries = parseQueryStrings(queryString);
+            const queries = parseQueryStrings(queryString);
             if (!queries.organization || !queries.project)
                throw new Error("Invalid query string");
 
-            let responseStream = await fetch(
+            const responseStream = await fetch(
                `/api/project/verification-data/${queries.project}`,
                { signal: abortFetch.signal }
             );
 
             if (abortFetch.signal.aborted) return;
 
-            let response = await responseStream.json();
+            const response = await responseStream.json();
 
             if (response.status === "error") throw response.error;
 
-            let projectData = response.data;
+            const projectData = response.data;
 
             if (projectData.ParentOrganization !== queries.organization)
                throw new Error("Invalid query string");
@@ -110,7 +110,7 @@ function UserWorkspace({ location, User, navHeight }) {
             setProjectMembers(projectData.Members);
             setIsLoading(false);
          } catch (error) {
-            history.push("/user/environment");
+            if (error.name !== "AbortError") history.push("/user/environment");
          }
       }
 

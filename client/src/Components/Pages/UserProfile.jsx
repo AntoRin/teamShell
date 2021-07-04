@@ -19,6 +19,11 @@ const useStyles = makeStyles({
       marginTop: navHeight => navHeight + 10,
       minHeight: navHeight => `calc(100vh - ${navHeight}px)`,
    },
+   tabBtn: {
+      color: "rgb(108, 98, 190)",
+      border: "1px solid rgb(89, 9, 185)",
+      fontWeight: "800",
+   },
 });
 
 function UserProfile({ location, match, User, setChatSettings, navHeight }) {
@@ -52,14 +57,14 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
                   setIsLoading(false);
                } else {
                   setIsLoading(true);
-                  let userDataStream = await fetch(
+                  const userDataStream = await fetch(
                      `/api/profile/details/${match.params.UniqueUsername}`,
                      { signal: abortFetch.signal }
                   );
 
                   if (abortFetch.signal.aborted) return;
 
-                  let profile = await userDataStream.json();
+                  const profile = await userDataStream.json();
                   if (profile.status === "ok") {
                      setProfile(profile.user);
                      setIsValid(true);
@@ -70,14 +75,14 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
                   }
                }
             } else {
-               let userDataStream = await fetch(
+               const userDataStream = await fetch(
                   `/api/profile/details/${match.params.UniqueUsername}`,
                   { signal: abortFetch.signal }
                );
 
                if (abortFetch.signal.aborted) return;
 
-               let profile = await userDataStream.json();
+               const profile = await userDataStream.json();
 
                if (profile.status === "ok") {
                   setProfile(profile.user);
@@ -104,10 +109,10 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
    }, [User, match.params.UniqueUsername, socket]);
 
    useEffect(() => {
-      let queryString = location.search;
+      const queryString = location.search;
 
       if (queryString) {
-         let queries = parseQueryStrings(queryString);
+         const queries = parseQueryStrings(queryString);
          queries.tab && setQuery(queries.tab);
       } else {
          setQuery("");
@@ -115,7 +120,7 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
    }, [location]);
 
    function goToUpdate() {
-      let updateTab = location.pathname + "?tab=update";
+      const updateTab = location.pathname + "?tab=update";
       history.push(updateTab);
    }
 
@@ -127,22 +132,22 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
       event.preventDefault();
 
       try {
-         let form = event.target;
-         let image = fileInputElement.current.files[0];
-         let imageData = new FormData(form);
+         const form = event.target;
+         const image = fileInputElement.current.files[0];
+         const imageData = new FormData(form);
          imageData.append("profileImage", image);
 
-         let postOptions = {
+         const postOptions = {
             method: "POST",
             body: imageData,
          };
 
-         let uploadStream = await fetch(
+         const uploadStream = await fetch(
             "/api/profile/uploads/profile-image",
             postOptions
          );
 
-         let uploadResponse = await uploadStream.json();
+         const uploadResponse = await uploadStream.json();
 
          uploadResponse.status === "ok"
             ? setActionStatus({
@@ -159,17 +164,17 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
       event.preventDefault();
 
       try {
-         let newBio = bioElement.current.value;
-         let newName = usernameElement.current.value;
-         let body = { Bio: newBio, Username: newName };
+         const newBio = bioElement.current.value;
+         const newName = usernameElement.current.value;
+         const body = { Bio: newBio, Username: newName };
 
-         let updateOptions = {
+         const updateOptions = {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
          };
-         let updateRequest = await fetch("/api/profile/edit", updateOptions);
-         let updateResponse = await updateRequest.json();
+         const updateRequest = await fetch("/api/profile/edit", updateOptions);
+         const updateResponse = await updateRequest.json();
          updateResponse.status === "ok"
             ? setActionStatus({
                  type: "success",
@@ -235,44 +240,72 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
       return isValid ? (
          <div className={classes.profileContainer}>
             <div className="profile-tabs">
-               <div className="user-tab tab-link">
+               <div className="tab-link">
                   <Link
                      to={location => ({
                         ...location,
                         search: "",
                      })}
                   >
-                     User
+                     <Button
+                        className={classes.tabBtn}
+                        variant={
+                           query === "user" || query === ""
+                              ? "contained"
+                              : "outlined"
+                        }
+                     >
+                        User
+                     </Button>
                   </Link>
                </div>
-               <div className="organization-tab tab-link">
+               <div className="tab-link">
                   <Link
                      to={location => ({
                         ...location,
                         search: "?tab=organizations",
                      })}
                   >
-                     Organizations
+                     <Button
+                        className={classes.tabBtn}
+                        variant={
+                           query === "organizations" ? "contained" : "outlined"
+                        }
+                     >
+                        Organizations
+                     </Button>
                   </Link>
                </div>
-               <div className="project-tab tab-link">
+               <div className="tab-link">
                   <Link
                      to={location => ({
                         ...location,
                         search: "?tab=projects",
                      })}
                   >
-                     Projects
+                     <Button
+                        className={classes.tabBtn}
+                        variant={
+                           query === "projects" ? "contained" : "outlined"
+                        }
+                     >
+                        Projects
+                     </Button>
                   </Link>
                </div>
-               <div className="issue-tab tab-link">
+               <div className="tab-link">
                   <Link
                      to={location => ({
                         ...location,
                         search: "?tab=issues",
                      })}
                   >
-                     Issues
+                     <Button
+                        className={classes.tabBtn}
+                        variant={query === "issues" ? "contained" : "outlined"}
+                     >
+                        Issues
+                     </Button>
                   </Link>
                </div>
             </div>
@@ -288,9 +321,14 @@ function UserProfile({ location, match, User, setChatSettings, navHeight }) {
                   </div>
                   {owner && (
                      <div className="profile-edit">
-                        <button onClick={goToUpdate} id="profileEditBtn">
+                        <Button
+                           color="primary"
+                           variant="outlined"
+                           fullWidth
+                           onClick={goToUpdate}
+                        >
                            Edit Profile
-                        </button>
+                        </Button>
                      </div>
                   )}
                   {!owner && (

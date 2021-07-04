@@ -16,10 +16,6 @@
 
 .tab-link a {
    text-decoration: none;
-   font-size: 1.1rem;
-   font-family: "Poppins", sans-serif;
-   color: lightcyan;
-   border-bottom: 1px solid lightgreen;
 }
 
 #profilePictureBig {
@@ -41,20 +37,6 @@
 
 .upload-image {
    margin: 15px 10px;
-}
-
-#profileEditBtn {
-   width: 100%;
-   padding: 7px;
-   border-radius: 10px;
-   background-color: rgba(224, 255, 255, 0.7);
-   margin: 10px 0px;
-   border: none;
-   outline: none;
-   font-size: 1.1rem;
-   font-weight: 600;
-   font-family: "Roboto", sans-serif;
-   cursor: pointer;
 }
 
 .profile-contents {
