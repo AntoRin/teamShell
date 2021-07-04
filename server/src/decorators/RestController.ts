@@ -3,17 +3,14 @@ import { HandlerMetadata } from "./types";
 
 export function RestController(routePrefix: string) {
    return function (constructor: Function) {
-      const routerInstance: Router = constructor.prototype.constructor.router;
+      const routerInstance: Router = constructor.prototype.routerInstance;
 
       for (const propName of Object.getOwnPropertyNames(
          constructor.prototype
       )) {
          const prop = constructor.prototype[propName];
 
-         if (
-            typeof prop === "function" &&
-            constructor.prototype.hasOwnProperty(propName)
-         ) {
+         if (typeof prop === "function" && propName !== "constructor") {
             try {
                const { routeHandlers, path, restMethod }: HandlerMetadata =
                   prop();

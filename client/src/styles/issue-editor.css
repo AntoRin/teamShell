@@ -1,5 +1,6 @@
 .issue-editor-container {
    width: 100%;
+   max-width: 85vw;
    display: flex;
    justify-content: center;
    font-size: 1.2rem;

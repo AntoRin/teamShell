@@ -56,12 +56,13 @@ const useStyles = makeStyles(theme => ({
       height: "40px",
       borderRadius: "50%",
    },
-   "description-content": {
+   descriptionContent: {
       wordBreak: "break-word",
       overflow: "hidden",
-      backgroundColor: "transparent",
+      backgroundColor: "darkgray",
       display: "flex",
       justifyContent: "center",
+      padding: 0,
    },
 }));
 
@@ -371,12 +372,13 @@ function IssueCard({
                )}
             </CardActions>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-               <CardContent className={classes["description-content"]}>
+               <CardContent className={classes.descriptionContent}>
                   <SunEditor
                      ref={editorRef}
                      {...readonly_editor_config.props}
                      setOptions={readonly_editor_config.options}
                      setContents={description}
+                     setDefaultStyle="background: darkgray; font-size: 20px; user-select: text; border: none; outline: none;"
                   />
                </CardContent>
             </Collapse>

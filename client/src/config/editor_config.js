@@ -6,18 +6,18 @@ export const issue_editor_config = {
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
-      fontSize: [12, 14, 16, 18, 20, 22, 24, 26],
+      fontSize: [18, 20, 22, 24, 26],
       buttonList: [
          ["font", "fontSize", "formatBlock"],
-         ["blockquote"],
          ["bold", "underline", "italic", "strike", "subscript", "superscript"],
          ["fontColor"],
          ["removeFormat"],
-         ["outdent", "indent"],
-         ["align", "horizontalRule", "list", "lineHeight"],
+         ["align", "horizontalRule", "list"],
          ["link", "image"],
          ["fullScreen"],
       ],
+      imageFileInput: false,
+      imageHeightShow: false,
    },
 };
 
@@ -29,16 +29,17 @@ export const solution_editor_config = {
       stickyToolbar: true,
       resizingBar: false,
       defaultStyle: "font-size: 18px",
-      fontSize: [12, 14, 16, 18, 20, 22, 24, 26],
+      fontSize: [18, 20, 22, 24, 26],
       buttonList: [
          ["font", "fontSize", "formatBlock"],
-         ["blockquote"],
          ["bold", "underline", "italic", "strike", "subscript", "superscript"],
          ["removeFormat"],
-         ["align", "horizontalRule", "list", "lineHeight"],
+         ["align", "horizontalRule", "list"],
          ["link", "image"],
          ["fullScreen"],
       ],
+      imageFileInput: false,
+      imageHeightShow: false,
    },
 };
 
