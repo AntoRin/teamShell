@@ -1,13 +1,12 @@
-import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import { organizationServiceClient } from "../services/organization.service";
-import { GET, POST } from "../decorators/ControllerMethods";
-import { RestController } from "../decorators/RestController";
+import { RestController, GET, POST, Factory, UseMiddlewares } from "express-frills";
+import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/organization")
+@UseMiddlewares(checkAuth)
 class OrganizationController {
    private static _controllerInstance: OrganizationController | null = null;
-   private static router = Router();
 
    private constructor() {}
 
@@ -18,34 +17,32 @@ class OrganizationController {
       return this._controllerInstance;
    }
 
-   get routerInstance() {
-      return OrganizationController.router;
-   }
-
    @POST("/create")
+   @Factory
    createNewOrganization() {
       return organizationServiceClient.createNewOrganization;
    }
 
    @GET("/details/:OrganizationName")
+   @Factory
    getSingleOrganization() {
       return organizationServiceClient.getSingleOrganization;
    }
 
    @POST("/edit")
+   @Factory
    editOrganization() {
       return organizationServiceClient.editOrganization;
    }
 
    @POST("/invite/new-user")
+   @Factory
    inviteUserToOrganization() {
-      return [
-         organizationServiceClient.inviteUserToOrganization,
-         handleNotifications,
-      ];
+      return [organizationServiceClient.inviteUserToOrganization, handleNotifications];
    }
 
    @GET("/add/new-user/:userSecret")
+   @Factory
    addUserToOrganizationWithUserSecret() {
       return [
          organizationServiceClient.addUserToOrganizationWithUserSecret,
@@ -54,6 +51,7 @@ class OrganizationController {
    }
 
    @GET("/join-request/:organizationName")
+   @Factory
    sendJoinRequestToOrganization() {
       return [
          organizationServiceClient.sendJoinRequestToOrganization,
@@ -62,22 +60,22 @@ class OrganizationController {
    }
 
    @GET("/accept/new-user")
+   @Factory
    acceptUserToOrganization() {
-      return [
-         organizationServiceClient.acceptUserToOrganization,
-         handleNotifications,
-      ];
+      return [organizationServiceClient.acceptUserToOrganization, handleNotifications];
    }
 
    @GET("/leave/:organizationName")
+   @Factory
    leaveOrganization() {
       return [organizationServiceClient.leaveOrganization, handleNotifications];
    }
 
    @GET("/explore")
+   @Factory
    getExplorerData() {
       return organizationServiceClient.getExplorerData;
    }
 }
 
-export default OrganizationController.controllerInstance.routerInstance;
+export default OrganizationController;

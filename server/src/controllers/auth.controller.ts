@@ -1,65 +1,65 @@
-import { Router } from "express";
-import { GET, POST } from "../decorators/ControllerMethods";
-import { RestController } from "../decorators/RestController";
+import { RestController, GET, POST, Factory } from "express-frills";
 import { authServiceClient } from "../services/auth.service";
 
 @RestController("/api/auth")
-class AuthController {
+export class AuthController {
    private static _controllerInstance: AuthController | null = null;
-   private static router = Router();
 
    private constructor() {}
 
    public static get controllerInstance() {
-      if (!this._controllerInstance)
-         this._controllerInstance = new AuthController();
+      if (!this._controllerInstance) this._controllerInstance = new AuthController();
 
       return this._controllerInstance;
    }
 
-   get routerInstance() {
-      return AuthController.router;
-   }
-
    @POST("/register")
+   @Factory
    registerUser() {
       return authServiceClient.registerUser;
    }
 
    @POST("/login")
+   @Factory
    loginUser() {
       return authServiceClient.loginUser;
    }
 
    @GET("/login/github")
+   @Factory
    loginUserViaGitHub() {
       return authServiceClient.loginUserViaGitHub;
    }
 
    @GET("/login/github/callback")
+   @Factory
    handleGitHubLoginCallback() {
       return authServiceClient.handleGitHubLoginCallback;
    }
 
    @GET("/login/google")
+   @Factory
    loginUserViaGoogle() {
       return authServiceClient.loginUserViaGoogle;
    }
 
    @GET("/login/google/callback")
+   @Factory
    handleGoogleLoginCallback() {
       return authServiceClient.handleGoogleLoginCallback;
    }
 
    @GET("/logout")
+   @Factory
    logoutUser() {
       return authServiceClient.logoutUser;
    }
 
    @GET("/verify")
+   @Factory
    verifyCreds() {
       return authServiceClient.verifyUserCreds;
    }
 }
 
-export default AuthController.controllerInstance.routerInstance;
+export default AuthController;

@@ -1,40 +1,37 @@
-import { Router } from "express";
-import { GET } from "../decorators/ControllerMethods";
-import { RestController } from "../decorators/RestController";
+import { RestController, GET, Factory, UseMiddlewares } from "express-frills";
+import checkAuth from "../middleware/checkAuth";
 import { chatServiceClient } from "../services/chat.service";
 
 @RestController("/api/chat")
+@UseMiddlewares(checkAuth)
 class ChatController {
    private static _controllerInstance: ChatController | null = null;
-   private static router = Router();
 
    private constructor() {}
 
    public static get controllerInstance(): ChatController {
-      if (!this._controllerInstance)
-         this._controllerInstance = new ChatController();
+      if (!this._controllerInstance) this._controllerInstance = new ChatController();
 
       return this._controllerInstance;
    }
 
-   get routerInstance() {
-      return ChatController.router;
-   }
-
    @GET("/chat-history")
+   @Factory
    getChatHistory() {
       return chatServiceClient.getChatHistory;
    }
 
    @GET("/all-messages")
+   @Factory
    getAllUserChatMessages() {
       return chatServiceClient.getAllUserChatMessages;
    }
 
    @GET("/project/:projectName")
+   @Factory
    getAllProjectChatMessages() {
       return chatServiceClient.getAllProjectChatMessages;
    }
 }
 
-export default ChatController.controllerInstance.routerInstance;
+export default ChatController;

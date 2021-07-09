@@ -1,15 +1,13 @@
-import { Router } from "express";
 import { handleNotifications } from "../utils/notificationHandler";
 import multer, { FileFilterCallback } from "multer";
 import { profileServiceClient } from "../services/profile.service";
-import { GET, POST, PUT } from "../decorators/ControllerMethods";
-import { RestController } from "../decorators/RestController";
+import { RestController, GET, POST, PUT, Factory, UseMiddlewares } from "express-frills";
+import checkAuth from "../middleware/checkAuth";
 
 const upload = multer({
    storage: multer.memoryStorage(),
    fileFilter: (_, file, cb: FileFilterCallback) => {
-      if (!file || file.mimetype.split("/")[0] !== "image")
-         cb(new Error("Error parsing file"));
+      if (!file || file.mimetype.split("/")[0] !== "image") cb(new Error("Error parsing file"));
       else cb(null, true);
    },
    limits: {
@@ -19,67 +17,71 @@ const upload = multer({
 const imageParser = upload.single("profileImage");
 
 @RestController("/api/profile")
+@UseMiddlewares(checkAuth)
 class ProfileController {
    private static _controllerInstance: ProfileController | null = null;
-   private static router = Router();
 
    private constructor() {}
 
    public static get controllerInstance() {
-      if (!this._controllerInstance)
-         this._controllerInstance = new ProfileController();
+      if (!this._controllerInstance) this._controllerInstance = new ProfileController();
 
       return this._controllerInstance;
    }
 
-   get routerInstance() {
-      return ProfileController.router;
-   }
-
    @GET("/details/:UniqueUsername")
+   @Factory
    getSingleUser() {
       return profileServiceClient.getSingleUser;
    }
 
    @GET("/profile-image/:UniqueUsername")
+   @Factory
    getUserProfileImage() {
       return profileServiceClient.getUserProfileImage;
    }
 
    @PUT("/edit")
+   @Factory
    editUserProfile() {
       return profileServiceClient.editUserProfile;
    }
 
    @POST("/uploads/profile-image")
+   @Factory
    uploadProfileImage() {
       return [imageParser, profileServiceClient.uploadProfileImage];
    }
 
    @GET("/notifications")
+   @Factory
    getUserNotifications() {
       return profileServiceClient.getUserNotifications;
    }
 
    @POST("/notifications")
+   @Factory
    handleNotifications() {
       return handleNotifications;
    }
 
    @GET("/notifications/seen")
+   @Factory
    updateSeenNotifications() {
       return profileServiceClient.updateSeenNotifications;
    }
 
    @GET("/search")
+   @Factory
    getUserProfilesBasedOnSearchQuery() {
       return profileServiceClient.getUserProfilesBasedOnSearchQuery;
    }
 
    @GET("/all-contacts")
+   @Factory
    getAllUserContacts() {
       return profileServiceClient.getAllUserContacts;
    }
 }
 
-export default ProfileController.controllerInstance.routerInstance;
+export default ProfileController;

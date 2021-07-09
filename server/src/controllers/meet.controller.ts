@@ -1,40 +1,37 @@
-import { Router } from "express";
-import { GET, POST } from "../decorators/ControllerMethods";
-import { RestController } from "../decorators/RestController";
+import { RestController, GET, POST, Factory, UseMiddlewares } from "express-frills";
+import checkAuth from "../middleware/checkAuth";
 import { meetServiceClient } from "../services/meet.service";
 
 @RestController("/api/meet")
+@UseMiddlewares(checkAuth)
 class MeetController {
    private static _controllerInstance: MeetController | null = null;
-   private static router = Router();
 
    private constructor() {}
 
    public static get controllerInstance() {
-      if (!this._controllerInstance)
-         this._controllerInstance = new MeetController();
+      if (!this._controllerInstance) this._controllerInstance = new MeetController();
 
       return this._controllerInstance;
    }
 
-   get routerInstance() {
-      return MeetController.router;
-   }
-
    @POST("/create-room")
+   @Factory
    createNewRoom() {
       return meetServiceClient.createNewRoom;
    }
 
    @GET("/verify-room")
+   @Factory
    verifyRoom() {
       return meetServiceClient.verifyRoom;
    }
 
    @GET("/active-rooms/:projectName")
+   @Factory
    getActiveRooms() {
       return meetServiceClient.getActiveRooms;
    }
 }
 
-export default MeetController.controllerInstance.routerInstance;
+export default MeetController;

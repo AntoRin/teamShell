@@ -5,7 +5,7 @@ import { AuthenticatedRequest } from "../types";
 function checkAuth(req: AuthenticatedRequest, _: Response, next: NextFunction) {
    const token = req.cookies.token;
    try {
-      let thisUser = jwt.verify(token, process.env.JWT_SECRET) as {
+      const thisUser = jwt.verify(token, process.env.JWT_SECRET) as {
          UniqueUsername: string;
          Email: string;
       };
