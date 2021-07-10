@@ -19,11 +19,7 @@ import errorHandler from "./utils/errorHandler";
 
 //Middleware
 import checkAuth from "./middleware/checkAuth";
-import {
-   parseCookies,
-   verifySocketIntegrity,
-   initiateListeners,
-} from "./socketHandlers";
+import { parseCookies, verifySocketIntegrity, initiateListeners } from "./socketHandlers";
 import { UserContextSocket } from "./types";
 
 const app = express();
@@ -63,16 +59,12 @@ mongoose.connect(
       else {
          console.log("[server] Database connection established");
 
-         const server = app.listen(port, () =>
-            console.log(`[server] Listening on port ${port}`)
-         );
+         const server = app.listen(port, () => console.log(`[server] Listening on port ${port}`));
          const io = new SocketServer(server);
          io.use(parseCookies);
          io.use(verifySocketIntegrity);
 
-         io.on("connection", (socket: UserContextSocket) =>
-            initiateListeners(socket, io)
-         );
+         io.on("connection", (socket: UserContextSocket) => initiateListeners(socket, io));
       }
    }
 );
