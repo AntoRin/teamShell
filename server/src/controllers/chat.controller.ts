@@ -4,7 +4,7 @@ import { chatServiceClient } from "../services/chat.service";
 
 @RestController("/api/chat")
 @UseMiddlewares(checkAuth)
-class ChatController {
+export class ChatController {
    private static _controllerInstance: ChatController | null = null;
 
    private constructor() {}
@@ -33,5 +33,3 @@ class ChatController {
       return chatServiceClient.getAllProjectChatMessages;
    }
 }
-
-export default ChatController;

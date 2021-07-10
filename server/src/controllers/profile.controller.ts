@@ -18,7 +18,7 @@ const imageParser = upload.single("profileImage");
 
 @RestController("/api/profile")
 @UseMiddlewares(checkAuth)
-class ProfileController {
+export class ProfileController {
    private static _controllerInstance: ProfileController | null = null;
 
    private constructor() {}
@@ -83,5 +83,3 @@ class ProfileController {
       return profileServiceClient.getAllUserContacts;
    }
 }
-
-export default ProfileController;

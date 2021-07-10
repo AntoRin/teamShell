@@ -18,7 +18,7 @@ const fileParser = upload.single("newDriveFile");
 
 @RestController("/api/project")
 @UseMiddlewares(checkAuth)
-class ProjectController {
+export class ProjectController {
    private static _controllerInstance: ProjectController | null = null;
 
    private constructor() {}
@@ -137,5 +137,3 @@ class ProjectController {
       return projectServiceClient.getProjectDriveFiles;
    }
 }
-
-export default ProjectController;

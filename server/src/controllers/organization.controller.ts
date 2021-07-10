@@ -5,14 +5,13 @@ import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/organization")
 @UseMiddlewares(checkAuth)
-class OrganizationController {
+export class OrganizationController {
    private static _controllerInstance: OrganizationController | null = null;
 
    private constructor() {}
 
    public static get controllerInstance() {
-      if (!this._controllerInstance)
-         this._controllerInstance = new OrganizationController();
+      if (!this._controllerInstance) this._controllerInstance = new OrganizationController();
 
       return this._controllerInstance;
    }
@@ -44,19 +43,13 @@ class OrganizationController {
    @GET("/add/new-user/:userSecret")
    @Factory
    addUserToOrganizationWithUserSecret() {
-      return [
-         organizationServiceClient.addUserToOrganizationWithUserSecret,
-         handleNotifications,
-      ];
+      return [organizationServiceClient.addUserToOrganizationWithUserSecret, handleNotifications];
    }
 
    @GET("/join-request/:organizationName")
    @Factory
    sendJoinRequestToOrganization() {
-      return [
-         organizationServiceClient.sendJoinRequestToOrganization,
-         handleNotifications,
-      ];
+      return [organizationServiceClient.sendJoinRequestToOrganization, handleNotifications];
    }
 
    @GET("/accept/new-user")
@@ -77,5 +70,3 @@ class OrganizationController {
       return organizationServiceClient.getExplorerData;
    }
 }
-
-export default OrganizationController;

@@ -4,7 +4,7 @@ import { meetServiceClient } from "../services/meet.service";
 
 @RestController("/api/meet")
 @UseMiddlewares(checkAuth)
-class MeetController {
+export class MeetController {
    private static _controllerInstance: MeetController | null = null;
 
    private constructor() {}
@@ -33,5 +33,3 @@ class MeetController {
       return meetServiceClient.getActiveRooms;
    }
 }
-
-export default MeetController;

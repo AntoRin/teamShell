@@ -5,7 +5,7 @@ import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/issue")
 @UseMiddlewares(checkAuth)
-class IssueController {
+export class IssueController {
    private static _controllerInstance: IssueController | null = null;
 
    private constructor() {}
@@ -88,5 +88,3 @@ class IssueController {
       return issueServiceClient.deleteSolution;
    }
 }
-
-export default IssueController;
