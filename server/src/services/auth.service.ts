@@ -22,8 +22,7 @@ class AuthService {
          redirectUri: config.googleAuthRedirectUri,
       });
       this.loginUserViaGoogle = this.loginUserViaGoogle.bind(this);
-      this.handleGoogleLoginCallback =
-         this.handleGoogleLoginCallback.bind(this);
+      this.handleGoogleLoginCallback = this.handleGoogleLoginCallback.bind(this);
    }
 
    public static get instance(): AuthService {
@@ -56,8 +55,7 @@ class AuthService {
 
       const present = await User.findOne({ Email });
 
-      if (!present || present.AccountType !== "Email")
-         throw new AppError("AuthenticationError");
+      if (!present || present.AccountType !== "Email") throw new AppError("AuthenticationError");
 
       const verified = await bcrypt.compare(Password, present.Password);
       if (!verified) throw new AppError("AuthenticationError");
@@ -79,10 +77,7 @@ class AuthService {
    }
 
    @ThrowsServiceException
-   public async handleGitHubLoginCallback(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async handleGitHubLoginCallback(req: AuthenticatedRequest, res: Response) {
       const code = req.query.code;
 
       const body = {
@@ -91,17 +86,14 @@ class AuthService {
          code,
       };
 
-      const tokenStream = await fetch(
-         `https://github.com/login/oauth/access_token`,
-         {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-               accept: "application/json",
-            },
-            body: JSON.stringify(body),
-         }
-      );
+      const tokenStream = await fetch(`https://github.com/login/oauth/access_token`, {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+         },
+         body: JSON.stringify(body),
+      });
 
       const token = await tokenStream.json();
 
@@ -125,8 +117,7 @@ class AuthService {
 
       const present = await validateRegistration(userInfo);
 
-      if (present && present.AccountType !== "GitHub")
-         throw new AppError("AuthenticationError");
+      if (present && present.AccountType !== "GitHub") throw new AppError("AuthenticationError");
 
       const loginToken = jwt.sign(
          { UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email },
@@ -134,9 +125,7 @@ class AuthService {
       );
 
       if (present) {
-         return res
-            .cookie("token", loginToken, { httpOnly: true })
-            .redirect("/user/home");
+         return res.cookie("token", loginToken, { httpOnly: true }).redirect("/user/home");
       } else {
          const newUser = new User({
             ...userInfo,
@@ -178,10 +167,7 @@ class AuthService {
    }
 
    @ThrowsServiceException
-   public async handleGoogleLoginCallback(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async handleGoogleLoginCallback(req: AuthenticatedRequest, res: Response) {
       if (req.query.error) throw req.query.error;
 
       const code = req.query.code as string;
@@ -211,26 +197,17 @@ class AuthService {
 
       if (tokens.refresh_token) {
          console.log("Got refToken: ", tokens.refresh_token);
-         await User.updateOne(
-            { UniqueUsername },
-            { GoogleRefreshToken: tokens.refresh_token }
-         );
+         await User.updateOne({ UniqueUsername }, { GoogleRefreshToken: tokens.refresh_token });
       }
 
       const present = await validateRegistration({ UniqueUsername, Email });
 
-      if (present && present.AccountType !== "Google")
-         throw new AppError("AuthenticationError");
+      if (present && present.AccountType !== "Google") throw new AppError("AuthenticationError");
 
-      const loginToken = jwt.sign(
-         { UniqueUsername, Email },
-         process.env.JWT_SECRET
-      );
+      const loginToken = jwt.sign({ UniqueUsername, Email }, process.env.JWT_SECRET);
 
       if (present) {
-         return res
-            .cookie("token", loginToken, { httpOnly: true })
-            .redirect("/user/home");
+         return res.cookie("token", loginToken, { httpOnly: true }).redirect("/user/home");
       } else {
          const userInfo = {
             UniqueUsername,
@@ -259,17 +236,11 @@ class AuthService {
    }
 
    public logoutUser(_: AuthenticatedRequest, res: Response) {
-      return res
-         .cookie("token", "", { httpOnly: true, maxAge: 1 })
-         .redirect("/");
+      return res.cookie("token", "", { httpOnly: true, maxAge: 1 }).redirect("/");
    }
 
    @ThrowsServiceException
-   public async verifyUserCreds(
-      req: AuthenticatedRequest,
-      res: Response,
-      _: NextFunction
-   ) {
+   public async verifyUserCreds(req: AuthenticatedRequest, res: Response, _: NextFunction) {
       const token = req.cookies.token;
 
       const { UniqueUsername, Email } = jwt.verify(
