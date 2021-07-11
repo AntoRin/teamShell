@@ -3,15 +3,7 @@ import { authServiceClient } from "../services/auth.service";
 
 @RestController("/api/auth")
 export class AuthController {
-   private static _controllerInstance: AuthController | null = null;
-
    private constructor() {}
-
-   public static get controllerInstance() {
-      if (!this._controllerInstance) this._controllerInstance = new AuthController();
-
-      return this._controllerInstance;
-   }
 
    @POST("/register")
    @Factory

@@ -1,19 +1,11 @@
-import { RestController, GET, POST, Factory, UseMiddlewares } from "express-frills";
+import { RestController, GET, POST, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 import { meetServiceClient } from "../services/meet.service";
 
 @RestController("/api/meet")
-@UseMiddlewares(checkAuth)
+@OnRequestEntry(checkAuth)
 export class MeetController {
-   private static _controllerInstance: MeetController | null = null;
-
    private constructor() {}
-
-   public static get controllerInstance() {
-      if (!this._controllerInstance) this._controllerInstance = new MeetController();
-
-      return this._controllerInstance;
-   }
 
    @POST("/create-room")
    @Factory

@@ -1,7 +1,7 @@
 import multer from "multer";
 import { handleNotifications } from "../utils/notificationHandler";
 import { projectServiceClient } from "../services/project.service";
-import { RestController, GET, POST, DELETE, Factory, UseMiddlewares } from "express-frills";
+import { RestController, GET, POST, DELETE, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 
 const upload = multer({
@@ -17,17 +17,9 @@ const upload = multer({
 const fileParser = upload.single("newDriveFile");
 
 @RestController("/api/project")
-@UseMiddlewares(checkAuth)
+@OnRequestEntry(checkAuth)
 export class ProjectController {
-   private static _controllerInstance: ProjectController | null = null;
-
    private constructor() {}
-
-   public static get controllerInstance() {
-      if (!this._controllerInstance) this._controllerInstance = new ProjectController();
-
-      return this._controllerInstance;
-   }
 
    @POST("/create")
    @Factory

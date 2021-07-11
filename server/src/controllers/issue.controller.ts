@@ -1,20 +1,12 @@
 import { handleNotifications } from "../utils/notificationHandler";
 import { issueServiceClient } from "../services/issue.service";
-import { RestController, GET, POST, PUT, DELETE, Factory, UseMiddlewares } from "express-frills";
+import { RestController, GET, POST, PUT, DELETE, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/issue")
-@UseMiddlewares(checkAuth)
+@OnRequestEntry(checkAuth)
 export class IssueController {
-   private static _controllerInstance: IssueController | null = null;
-
    private constructor() {}
-
-   public static get controllerInstance() {
-      if (!this._controllerInstance) this._controllerInstance = new IssueController();
-
-      return this._controllerInstance;
-   }
 
    @GET("/details/:IssueID")
    @Factory

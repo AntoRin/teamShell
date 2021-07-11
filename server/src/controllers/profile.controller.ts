@@ -1,7 +1,7 @@
 import { handleNotifications } from "../utils/notificationHandler";
 import multer, { FileFilterCallback } from "multer";
 import { profileServiceClient } from "../services/profile.service";
-import { RestController, GET, POST, PUT, Factory, UseMiddlewares } from "express-frills";
+import { RestController, GET, POST, PUT, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 
 const upload = multer({
@@ -17,17 +17,9 @@ const upload = multer({
 const imageParser = upload.single("profileImage");
 
 @RestController("/api/profile")
-@UseMiddlewares(checkAuth)
+@OnRequestEntry(checkAuth)
 export class ProfileController {
-   private static _controllerInstance: ProfileController | null = null;
-
    private constructor() {}
-
-   public static get controllerInstance() {
-      if (!this._controllerInstance) this._controllerInstance = new ProfileController();
-
-      return this._controllerInstance;
-   }
 
    @GET("/details/:UniqueUsername")
    @Factory

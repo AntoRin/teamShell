@@ -10,7 +10,7 @@ import { parseCookies, verifySocketIntegrity, initiateListeners } from "./socket
 import { UserContextSocket } from "./types";
 import { Server } from "http";
 import errorHandler from "./utils/errorHandler";
-import { ApplicationServer, ErrorHandler, OnResponseEnd, Factory, OnServerActive, OnServerInit, Imports } from "express-frills";
+import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStartup, OnServerInit, Imports } from "express-frills";
 
 @ApplicationServer(null, 5000, true)
 export class Teamshell {
@@ -45,7 +45,7 @@ export class Teamshell {
       console.log("[server] Database connection established");
    }
 
-   @OnServerActive
+   @OnServerStartup
    initSocketServer(server: Server) {
       const io = new SocketServer(server);
       io.use(parseCookies);
@@ -54,7 +54,7 @@ export class Teamshell {
       io.on("connection", (socket: UserContextSocket) => initiateListeners(socket, io));
    }
 
-   @OnResponseEnd
+   @WildcardHandler
    catchAll(_: Request, res: Response) {
       res.sendFile(path.join(__dirname, "../../client/build/index.html"));
    }

@@ -1,20 +1,12 @@
 import { handleNotifications } from "../utils/notificationHandler";
 import { organizationServiceClient } from "../services/organization.service";
-import { RestController, GET, POST, Factory, UseMiddlewares } from "express-frills";
+import { RestController, GET, POST, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/organization")
-@UseMiddlewares(checkAuth)
+@OnRequestEntry(checkAuth)
 export class OrganizationController {
-   private static _controllerInstance: OrganizationController | null = null;
-
    private constructor() {}
-
-   public static get controllerInstance() {
-      if (!this._controllerInstance) this._controllerInstance = new OrganizationController();
-
-      return this._controllerInstance;
-   }
 
    @POST("/create")
    @Factory

@@ -10,7 +10,7 @@ import { UserContextSocket, MessagesType, TokenPayloadType } from "./types";
 import { Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-function parseCookies(socket: UserContextSocket, next: Function) {
+export function parseCookies(socket: UserContextSocket, next: Function) {
    socket.on("disconnect", async () => {
       console.log("Disconnected");
       try {
@@ -20,43 +20,42 @@ function parseCookies(socket: UserContextSocket, next: Function) {
       }
    });
 
-   let unParsedCookies = socket.handshake.headers.cookie!;
-   let allCookies = cookie.parse(unParsedCookies);
-   let token = allCookies.token;
+   const unParsedCookies = socket.handshake.headers.cookie!;
+   const allCookies = cookie.parse(unParsedCookies);
+   const token = allCookies.token;
    socket.authToken = token;
    next();
 }
 
-function verifySocketIntegrity(socket: UserContextSocket, next: Function) {
+export function verifySocketIntegrity(socket: UserContextSocket, next: Function) {
    try {
       if (!socket.authToken) throw new Error("Invalid auth credentials");
 
-      let thisUser = jwt.verify(
-         socket.authToken,
-         process.env.JWT_SECRET
-      ) as TokenPayloadType;
+      const thisUser = jwt.verify(socket.authToken, process.env.JWT_SECRET) as TokenPayloadType;
       socket.userName = thisUser.UniqueUsername;
       return next();
    } catch (error: any) {
-      let err = new Error(error.message);
+      const err = new Error(error.message);
       console.log(err);
       socket.disconnect();
       return next(err);
    }
 }
 
-async function initiateListeners(
-   socket: UserContextSocket,
-   io: Server<DefaultEventsMap, DefaultEventsMap>
-) {
-   console.log("Connected: " + socket.id);
+export async function initiateListeners(socket: UserContextSocket, io: Server<DefaultEventsMap, DefaultEventsMap>) {
    try {
       await redisSetAsync(socket.userName!, socket.id);
    } catch (error) {
       console.log(error);
+      return;
    }
 
-   let UserStatus = User.watch(
+   console.log("Connected: " + socket.id);
+
+   /**
+    * TODO: Turn off change stream listeners after socket disconnection
+    */
+   const UserStatus = User.watch(
       [
          {
             $match: {
@@ -67,7 +66,7 @@ async function initiateListeners(
       { fullDocument: "updateLookup" }
    );
 
-   let ProjectStatus = Project.watch(
+   const ProjectStatus = Project.watch(
       [
          {
             $match: {
@@ -80,7 +79,7 @@ async function initiateListeners(
       }
    );
 
-   let IssueStatus = Issue.watch();
+   const IssueStatus = Issue.watch();
 
    UserStatus.on("change", () => {
       io.to(socket.id).emit("user-data-change");
@@ -94,34 +93,36 @@ async function initiateListeners(
       io.to(socket.id).emit("issue-data-change");
    });
 
-   //Chat
+   /**
+    * * Chat listeners
+    */
    socket.on("message", async data => {
       try {
-         let { from, to, content } = data;
+         const { from, to, content } = data;
 
          if (from !== socket.userName) return;
 
-         let recipientIdentity = await User.findOne({
+         const recipientIdentity = await User.findOne({
             UniqueUsername: to,
          });
 
          if (!recipientIdentity) return;
 
-         let sender = await redisGetAsync(from);
-         let recipient = await redisGetAsync(to);
+         const sender = await redisGetAsync(from);
+         const recipient = await redisGetAsync(to);
 
          if (!sender) throw new Error("There was an error");
 
-         let sorter = [from, to];
+         const sorter = [from, to];
          sorter.sort();
 
-         let messageData: MessagesType = {
+         const messageData: MessagesType = {
             from,
             to,
             content,
          };
 
-         let newChat = await Chat.findOneAndUpdate(
+         const newChat = await Chat.findOneAndUpdate(
             {
                ChatID: sorter[0] + sorter[1],
                Users: [sorter[0], sorter[1]],
@@ -138,9 +139,7 @@ async function initiateListeners(
          );
 
          if (recipient) {
-            io.to(sender)
-               .to(recipient)
-               .emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
+            io.to(sender).to(recipient).emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
          } else {
             io.to(sender).emit(`new-message-${sorter[0]}${sorter[1]}`, newChat);
          }
@@ -149,7 +148,9 @@ async function initiateListeners(
       }
    });
 
-   //Project Chat
+   /**
+    * * Project-chat listeners
+    */
    socket.on("join-project-room", projectName => {
       socket.join(`project-room-${projectName}`);
    });
@@ -168,27 +169,26 @@ async function initiateListeners(
             content = content.toString("base64");
          }
 
-         let newMessageData: MessagesType = {
+         const newMessageData: MessagesType = {
             from,
             content,
             messageType,
          };
 
-         let newMessage = await ProjectChat.findOneAndUpdate(
+         const newMessage = await ProjectChat.findOneAndUpdate(
             { ProjectName },
             { $push: { Messages: { $each: [newMessageData], $position: 0 } } },
             { returnOriginal: false, upsert: true }
          );
-         io.to(`project-room-${ProjectName}`).emit(
-            "new-incoming-message",
-            newMessage.Messages[0]
-         );
+         io.to(`project-room-${ProjectName}`).emit("new-incoming-message", newMessage.Messages[0]);
       } catch (error) {
          console.log(error);
       }
    });
 
-   //Meet
+   /**
+    * * Handle meet room set-up
+    */
    socket.on("join-meet-room", roomId => socket.join(roomId));
 
    socket.on("leave-meet-room", (roomId, peerName) => {
@@ -196,29 +196,17 @@ async function initiateListeners(
       socket.leave(roomId);
    });
 
-   socket.on("new-peer-joined", ({ peerName, roomId }) =>
-      socket.to(roomId).emit("new-peer", peerName)
+   socket.on("new-peer-joined", ({ peerName, roomId }) => socket.to(roomId).emit("new-peer", peerName));
+
+   socket.on("call-offer-specific-peer", ({ offer, roomId, peerName, callerName }) =>
+      socket.to(roomId).emit(`call-offer-${peerName}`, offer, callerName)
    );
 
-   socket.on(
-      "call-offer-specific-peer",
-      ({ offer, roomId, peerName, callerName }) =>
-         socket.to(roomId).emit(`call-offer-${peerName}`, offer, callerName)
+   socket.on("call-answer-specific-peer", ({ answer, roomId, userName, callerName }) =>
+      socket.to(roomId).emit(`call-answer-${userName}-${callerName}`, answer)
    );
 
-   socket.on(
-      "call-answer-specific-peer",
-      ({ answer, roomId, userName, callerName }) =>
-         socket.to(roomId).emit(`call-answer-${userName}-${callerName}`, answer)
-   );
-
-   socket.on(
-      "new-ice-candidate-for-specific-peer",
-      ({ iceCandidate, roomId, peerName, callerName }) =>
-         socket
-            .to(roomId)
-            .emit(`new-ice-candidate-${peerName}-${callerName}`, iceCandidate)
+   socket.on("new-ice-candidate-for-specific-peer", ({ iceCandidate, roomId, peerName, callerName }) =>
+      socket.to(roomId).emit(`new-ice-candidate-${peerName}-${callerName}`, iceCandidate)
    );
 }
-
-export { parseCookies, verifySocketIntegrity, initiateListeners };
