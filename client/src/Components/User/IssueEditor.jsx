@@ -35,22 +35,18 @@ function IssueEditor({ activeProject, User, done }) {
    async function handleIssueCreation(event) {
       event.preventDefault();
 
-      if (!/[a-bA-B]/.test(editorRef.current.editor.getText().trim())) return;
+      if (!/.*\S.*/.test(editorRef.current.editor.getText().trim())) return;
 
-      const userInActiveProject = User.Projects.find(
-         project => project.ProjectName === activeProject
-      );
+      const userInActiveProject = User.Projects.find(project => project.ProjectName === activeProject);
 
       const Project_id = userInActiveProject._id;
 
       if (!Project_id) return;
 
       try {
-         const IssueDescriptionRaw =
-            editorRef.current.editor.core.getContents();
+         const IssueDescriptionRaw = editorRef.current.editor.core.getContents();
 
-         const IssueDescription =
-            editorRef.current.editor.util.HTMLEncoder(IssueDescriptionRaw);
+         const IssueDescription = editorRef.current.editor.util.HTMLEncoder(IssueDescriptionRaw);
 
          const body = {
             IssueTitle: issueTitle,
@@ -84,26 +80,12 @@ function IssueEditor({ activeProject, User, done }) {
 
    return (
       <div className="issue-editor-container">
-         <form
-            onSubmit={handleIssueCreation}
-            id="issueEditorForm"
-            autoComplete="off"
-         >
+         <form onSubmit={handleIssueCreation} id="issueEditorForm" autoComplete="off">
             <div className="issue-title">
-               <input
-                  value={issueTitle}
-                  onChange={handleChange}
-                  type="text"
-                  id="issueTitleInput"
-                  required
-                  placeholder="Issue Title"
-               />
+               <input value={issueTitle} onChange={handleChange} type="text" id="issueTitleInput" required placeholder="Issue Title" />
             </div>
             <div className="issue-body">
-               <SunEditor
-                  ref={editorRef}
-                  setOptions={issue_editor_config.options}
-               />
+               <SunEditor ref={editorRef} setOptions={issue_editor_config.options} />
             </div>
             <Button
                type="submit"

@@ -1,6 +1,6 @@
 import { Document, ObjectId } from "mongoose";
 
-export interface ProjectMdoel extends Document {
+export interface ProjectModel extends Document {
    ProjectName: string;
    ProjectDescription: string;
    ParentOrganization: string;

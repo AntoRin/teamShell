@@ -6,13 +6,13 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 import * as controllers from "./controllers";
-import { parseCookies, verifySocketIntegrity, initiateListeners } from "./socketHandlers";
+import { socketController } from "./socket-connection/SocketController";
 import { UserContextSocket } from "./types";
 import { Server } from "http";
 import errorHandler from "./utils/errorHandler";
 import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStartup, OnServerInit, Imports } from "express-frills";
 
-@ApplicationServer(null, 5000, true)
+@ApplicationServer(null, 5000, false)
 export class Teamshell {
    @Imports
    controllers() {
@@ -48,10 +48,10 @@ export class Teamshell {
    @OnServerStartup
    initSocketServer(server: Server) {
       const io = new SocketServer(server);
-      io.use(parseCookies);
-      io.use(verifySocketIntegrity);
+      io.use(socketController.parseCookies);
+      io.use(socketController.verifySocketIntegrity);
 
-      io.on("connection", (socket: UserContextSocket) => initiateListeners(socket, io));
+      io.on("connection", (socket: UserContextSocket) => socketController.initiateListeners(socket, io));
    }
 
    @WildcardHandler

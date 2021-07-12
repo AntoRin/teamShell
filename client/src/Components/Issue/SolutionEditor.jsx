@@ -11,13 +11,12 @@ function SolutionEditor({ issueDetails, User }) {
    async function handleNewSolution(event) {
       event.preventDefault();
 
-      if (!/[a-bA-B]/.test(editorRef.current.editor.getText().trim())) return;
+      if (!/.*\S.*/.test(editorRef.current.editor.getText().trim())) return;
 
       try {
          const solutionPlainText = editorRef.current.editor.core.getContents();
 
-         const solutionEncoded =
-            editorRef.current.editor.util.HTMLEncoder(solutionPlainText);
+         const solutionEncoded = editorRef.current.editor.util.HTMLEncoder(solutionPlainText);
 
          const body = {
             Issue_id: issueDetails._id,
@@ -31,14 +30,10 @@ function SolutionEditor({ issueDetails, User }) {
             body: JSON.stringify(body),
          };
 
-         const newSolution = await fetch(
-            "/api/issue/solution/create",
-            postOptions
-         );
+         const newSolution = await fetch("/api/issue/solution/create", postOptions);
          const solutionResponse = await newSolution.json();
 
-         if (solutionResponse.status === "ok")
-            editorRef.current.editor.core.setContents("");
+         if (solutionResponse.status === "ok") editorRef.current.editor.core.setContents("");
       } catch (error) {
          console.error(error.message);
       }
