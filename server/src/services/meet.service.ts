@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Component } from "express-frills";
 import jwt from "jsonwebtoken";
 import { ThrowsServiceException } from "../decorators/ServiceException";
 import Project from "../models/Project";
@@ -6,19 +7,13 @@ import { redisLpushAsync, redisLRangeAsync } from "../redisConfig";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 
-class MeetService {
-   private static _serviceInstance: MeetService | null = null;
+@Component()
+export class MeetService {
    private readonly ROOM_PREFIX: string = "MeetRoom:";
 
-   private constructor() {
+   public constructor() {
       this.createNewRoom = this.createNewRoom.bind(this);
       this.getActiveRooms = this.getActiveRooms.bind(this);
-   }
-
-   public static get instance(): MeetService {
-      if (!this._serviceInstance) this._serviceInstance = new MeetService();
-
-      return this._serviceInstance;
    }
 
    @ThrowsServiceException
@@ -32,23 +27,16 @@ class MeetService {
 
       if (!project) throw new AppError("BadRequestError");
 
-      if (!project.Members.includes(UniqueUsername))
-         throw new AppError("UnauthorizedRequestError");
+      if (!project.Members.includes(UniqueUsername)) throw new AppError("UnauthorizedRequestError");
 
-      const roomId = jwt.sign(
-         { projectName, roomName, creator: UniqueUsername },
-         process.env.ROOM_JWT_SECRET
-      );
+      const roomId = jwt.sign({ projectName, roomName, creator: UniqueUsername }, process.env.ROOM_JWT_SECRET);
 
       const roomDetails = {
          roomName,
          roomId,
       };
 
-      await redisLpushAsync(
-         `${this.ROOM_PREFIX}${projectName}`,
-         JSON.stringify(roomDetails)
-      );
+      await redisLpushAsync(`${this.ROOM_PREFIX}${projectName}`, JSON.stringify(roomDetails));
 
       return res.json({ status: "ok", data: roomId });
    }
@@ -58,18 +46,14 @@ class MeetService {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const roomId = req.query.roomId as string;
 
-      const { projectName, roomName, creator } = jwt.verify(
-         roomId,
-         process.env.ROOM_JWT_SECRET
-      ) as any;
+      const { projectName, roomName, creator } = jwt.verify(roomId, process.env.ROOM_JWT_SECRET) as any;
       const project = await Project.findOne({
          ProjectName: projectName,
       }).lean();
 
       if (!project) throw new AppError("BadRequestError");
 
-      if (!project.Members.includes(UniqueUsername))
-         throw new AppError("UnauthorizedRequestError");
+      if (!project.Members.includes(UniqueUsername)) throw new AppError("UnauthorizedRequestError");
 
       return res.json({ status: "ok", data: { roomName, creator } });
    }
@@ -80,16 +64,10 @@ class MeetService {
 
       if (!projectName) throw new AppError("BadRequestError");
 
-      const projectMeetRooms = await redisLRangeAsync(
-         `${this.ROOM_PREFIX}${projectName}`,
-         0,
-         -1
-      );
+      const projectMeetRooms = await redisLRangeAsync(`${this.ROOM_PREFIX}${projectName}`, 0, -1);
 
       if (!projectMeetRooms) throw new AppError("BadRequestError");
 
       return res.json({ status: "ok", data: projectMeetRooms });
    }
 }
-
-export const meetServiceClient: MeetService = MeetService.instance;

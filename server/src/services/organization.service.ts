@@ -8,29 +8,16 @@ import AppError from "../utils/AppError";
 import { OrganizationModel } from "../interfaces/OrganizationModel";
 import Project from "../models/Project";
 import { ThrowsServiceException } from "../decorators/ServiceException";
+import { Component } from "express-frills";
 
-class OrganizationService {
-   private static _serviceInstance: OrganizationService | null = null;
-
-   private constructor() {}
-
-   public static get instance(): OrganizationService {
-      if (!this._serviceInstance)
-         this._serviceInstance = new OrganizationService();
-
-      return this._serviceInstance;
-   }
+@Component()
+export class OrganizationService {
+   public constructor() {}
 
    @ThrowsServiceException
-   public async createNewOrganization(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async createNewOrganization(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
-      const {
-         OrganizationName,
-         Description,
-      }: { OrganizationName: string; Description: string } = req.body;
+      const { OrganizationName, Description }: { OrganizationName: string; Description: string } = req.body;
 
       const org = new Organization({
          OrganizationName,
@@ -62,10 +49,7 @@ class OrganizationService {
    }
 
    @ThrowsServiceException
-   public async getSingleOrganization(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async getSingleOrganization(req: AuthenticatedRequest, res: Response) {
       const OrganizationName = req.params.OrganizationName;
 
       const org = await Organization.findOne({ OrganizationName }).lean();
@@ -86,22 +70,14 @@ class OrganizationService {
 
       if (!organization) throw new AppError("BadRequestError");
 
-      if (organization.Creator !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (organization.Creator !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
-      await Organization.updateOne(
-         { OrganizationName: Org },
-         { $set: { Description, Public } }
-      );
+      await Organization.updateOne({ OrganizationName: Org }, { $set: { Description, Public } });
       return res.json({ status: "ok", data: "" });
    }
 
    @ThrowsServiceException
-   public async inviteUserToOrganization(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async inviteUserToOrganization(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { recipient, organizationName } = req.body;
 
@@ -111,8 +87,7 @@ class OrganizationService {
 
       if (!org) throw new AppError("BadRequestError");
 
-      if (org.Creator !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (org.Creator !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
       const recipientData = await User.findOne({
          UniqueUsername: recipient,
@@ -151,32 +126,21 @@ class OrganizationService {
    }
 
    @ThrowsServiceException
-   public async addUserToOrganizationWithUserSecret(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async addUserToOrganizationWithUserSecret(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const { userSecret } = req.params;
 
       const user = await User.findOne({ UniqueUsername, Email });
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      const { _id, OrganizationName } = jwt.verify(
-         userSecret,
-         process.env.ORG_JWT_SECRET
-      ) as any;
+      const { _id, OrganizationName } = jwt.verify(userSecret, process.env.ORG_JWT_SECRET) as any;
 
       if (_id === user._id.toString()) {
          const checkIsMember = await Organization.findOne({
             OrganizationName,
          });
-         if (checkIsMember?.Members.includes(user.UniqueUsername))
-            throw new AppError("OrgInvitationReboundError");
-         const Org = await Organization.findOneAndUpdate(
-            { OrganizationName },
-            { $push: { Members: user.UniqueUsername } }
-         );
+         if (checkIsMember?.Members.includes(user.UniqueUsername)) throw new AppError("OrgInvitationReboundError");
+         const Org = await Organization.findOneAndUpdate({ OrganizationName }, { $push: { Members: user.UniqueUsername } });
          await User.updateOne(
             { _id: user._id },
             {
@@ -214,11 +178,7 @@ class OrganizationService {
    }
 
    @ThrowsServiceException
-   public async sendJoinRequestToOrganization(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async sendJoinRequestToOrganization(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { organizationName } = req.params;
 
@@ -228,8 +188,7 @@ class OrganizationService {
 
       if (!org) throw new AppError("BadRequestError");
 
-      if (org.Members.includes(UniqueUsername))
-         throw new AppError("OrgInvitationReboundError");
+      if (org.Members.includes(UniqueUsername)) throw new AppError("OrgInvitationReboundError");
 
       if (!org.Public) throw new AppError("UnauthorizedRequestError");
 
@@ -252,11 +211,7 @@ class OrganizationService {
    }
 
    @ThrowsServiceException
-   public async acceptUserToOrganization(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async acceptUserToOrganization(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { newUser, requestedOrganization } = req.query as {
          newUser: string;
          requestedOrganization: string;
@@ -269,11 +224,9 @@ class OrganizationService {
 
       if (!org) throw new AppError("BadRequestError");
 
-      if (org.Creator !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (org.Creator !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
-      if (org.Members.includes(newUser))
-         throw new AppError("OrgInvitationReboundError");
+      if (org.Members.includes(newUser)) throw new AppError("OrgInvitationReboundError");
 
       const updatedOrganization = (await Organization.findOneAndUpdate(
          { OrganizationName: org.OrganizationName },
@@ -331,11 +284,7 @@ class OrganizationService {
    }
 
    @ThrowsServiceException
-   public async leaveOrganization(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async leaveOrganization(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const organizationName = req.params.organizationName;
 
@@ -343,19 +292,13 @@ class OrganizationService {
 
       if (!user) throw new AppError("ServerError");
 
-      const userInOrg = user?.Organizations.find(
-         org => org.OrganizationName === organizationName
-      );
+      const userInOrg = user?.Organizations.find(org => org.OrganizationName === organizationName);
 
       if (!userInOrg) throw new AppError("NoActionRequiredError");
 
-      if (userInOrg.Status === "Creator")
-         throw new AppError("IrrevertibleActionError");
+      if (userInOrg.Status === "Creator") throw new AppError("IrrevertibleActionError");
 
-      await User.updateOne(
-         { UniqueUsername, Email },
-         { $pull: { Organizations: { OrganizationName: organizationName } } }
-      );
+      await User.updateOne({ UniqueUsername, Email }, { $pull: { Organizations: { OrganizationName: organizationName } } });
 
       await User.updateOne(
          { UniqueUsername, Email },
@@ -364,10 +307,7 @@ class OrganizationService {
          }
       );
 
-      await Organization.updateOne(
-         { OrganizationName: organizationName },
-         { $pull: { Members: UniqueUsername } }
-      );
+      await Organization.updateOne({ OrganizationName: organizationName }, { $pull: { Members: UniqueUsername } });
 
       await Project.updateMany(
          { Members: UniqueUsername },
@@ -411,6 +351,3 @@ class OrganizationService {
       });
    }
 }
-
-export const organizationServiceClient: OrganizationService =
-   OrganizationService.instance;

@@ -3,26 +3,17 @@ import Chat from "../models/Chat";
 import ProjectChat from "../models/ProjectChat";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import { ThrowsServiceException } from "../decorators/ServiceException";
+import { Component } from "express-frills";
 
-class ChatService {
-   private static _serviceInstance: ChatService | null = null;
-
-   private constructor() {}
-
-   public static get instance(): ChatService {
-      if (!this._serviceInstance) this._serviceInstance = new ChatService();
-
-      return this._serviceInstance;
-   }
+@Component()
+export class ChatService {
+   public constructor() {}
 
    @ThrowsServiceException
    public async getChatHistory(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
 
-      const chatHistory = await Chat.find(
-         { Users: UniqueUsername },
-         { Messages: 0 }
-      ).sort({ updatedAt: -1 });
+      const chatHistory = await Chat.find({ Users: UniqueUsername }, { Messages: 0 }).sort({ updatedAt: -1 });
 
       const memberList = chatHistory.map(chat => {
          const thisRecipient = chat.Users.find(user => user !== UniqueUsername);
@@ -33,10 +24,7 @@ class ChatService {
    }
 
    @ThrowsServiceException
-   public async getAllUserChatMessages(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async getAllUserChatMessages(req: AuthenticatedRequest, res: Response) {
       const { User1, User2 } = req.query as { User1: string; User2: string };
       const sorter = [User1, User2];
       sorter.sort();
@@ -44,16 +32,11 @@ class ChatService {
 
       const chat = await Chat.findOne({ ChatID });
 
-      return chat
-         ? res.json({ status: "ok", data: chat })
-         : res.json({ status: "ok", data: [] });
+      return chat ? res.json({ status: "ok", data: chat }) : res.json({ status: "ok", data: [] });
    }
 
    @ThrowsServiceException
-   public async getAllProjectChatMessages(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async getAllProjectChatMessages(req: AuthenticatedRequest, res: Response) {
       const projectName = req.params.projectName;
 
       const chat = await ProjectChat.findOne({
@@ -69,5 +52,3 @@ class ChatService {
       return res.json({ status: "ok", data: orderedMessages });
    }
 }
-
-export const chatServiceClient: ChatService = ChatService.instance;

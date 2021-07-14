@@ -11,36 +11,28 @@ import config from "../config";
 import stream from "stream";
 import DriveFile from "../models/DriveFile";
 import { ThrowsServiceException } from "../decorators/ServiceException";
+import { Component } from "express-frills";
 
-class ProjectService {
-   private static _serviceInstance: ProjectService | null = null;
+@Component()
+export class ProjectService {
    private _googleClient: Auth.OAuth2Client;
 
-   private constructor() {
+   public constructor() {
       this._googleClient = new google.auth.OAuth2({
          clientId: config.googleClientId,
          clientSecret: config.googleClientSecret,
          redirectUri: config.googleDriveRedirectUri,
       });
 
-      this.authorizeGoogleDriveUsage =
-         this.authorizeGoogleDriveUsage.bind(this);
+      this.authorizeGoogleDriveUsage = this.authorizeGoogleDriveUsage.bind(this);
 
-      this.handleGoogleDriveAuthorizationCallback =
-         this.handleGoogleDriveAuthorizationCallback.bind(this);
+      this.handleGoogleDriveAuthorizationCallback = this.handleGoogleDriveAuthorizationCallback.bind(this);
 
       this.listAllDriveFiles = this.listAllDriveFiles.bind(this);
 
       this.createDriveFile = this.createDriveFile.bind(this);
 
-      this.deleteFileFromGoogleDrive =
-         this.deleteFileFromGoogleDrive.bind(this);
-   }
-
-   public static get instance(): ProjectService {
-      if (!this._serviceInstance) this._serviceInstance = new ProjectService();
-
-      return this._serviceInstance;
+      this.deleteFileFromGoogleDrive = this.deleteFileFromGoogleDrive.bind(this);
    }
 
    @ThrowsServiceException
@@ -148,8 +140,7 @@ class ProjectService {
 
       if (!projectDetails) throw new AppError("BadRequestError");
 
-      if (!projectDetails.Members.includes(UniqueUsername))
-         throw new AppError("UnauthorizedRequestError");
+      if (!projectDetails.Members.includes(UniqueUsername)) throw new AppError("UnauthorizedRequestError");
 
       return res.json({ status: "ok", data: projectDetails });
    }
@@ -185,19 +176,12 @@ class ProjectService {
    public async editProject(req: AuthenticatedRequest, res: Response) {
       const { ProjectName, ProjectDescription, InviteOnly } = req.body;
 
-      await Project.updateOne(
-         { ProjectName },
-         { $set: { ProjectDescription, InviteOnly } }
-      );
+      await Project.updateOne({ ProjectName }, { $set: { ProjectDescription, InviteOnly } });
       return res.json({ status: "ok" });
    }
 
    @ThrowsServiceException
-   public async inviteUserToProject(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async inviteUserToProject(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { recipient, projectName } = req.body;
 
@@ -207,8 +191,7 @@ class ProjectService {
 
       if (!project) throw new AppError("BadRequestError");
 
-      if (project.Creator !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (project.Creator !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
       const recipientData = await User.findOne({
          UniqueUsername: recipient,
@@ -216,10 +199,7 @@ class ProjectService {
 
       if (!recipientData) throw new AppError("UnauthorizedRequestError");
 
-      const invitationSecret = jwt.sign(
-         { _id: recipientData._id, ProjectName: project.ProjectName },
-         process.env.ORG_JWT_SECRET
-      );
+      const invitationSecret = jwt.sign({ _id: recipientData._id, ProjectName: project.ProjectName }, process.env.ORG_JWT_SECRET);
 
       const inviteLink = `/api/project/add/new-user/${invitationSecret}`;
 
@@ -247,39 +227,27 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async addUserToProjectWithUserSecret(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async addUserToProjectWithUserSecret(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const { userSecret } = req.params;
 
       const user = await User.findOne({ UniqueUsername, Email });
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      const { _id, ProjectName } = jwt.verify(
-         userSecret,
-         process.env.ORG_JWT_SECRET
-      ) as any;
+      const { _id, ProjectName } = jwt.verify(userSecret, process.env.ORG_JWT_SECRET) as any;
 
       if (_id === user._id.toString()) {
          const checkIsMember = await Project.findOne({ ProjectName });
 
-         if (checkIsMember?.Members.includes(user.UniqueUsername))
-            throw new AppError("ProjectInvitationReboundError");
+         if (checkIsMember?.Members.includes(user.UniqueUsername)) throw new AppError("ProjectInvitationReboundError");
 
          const parentOrg = await Organization.findOne({
             OrganizationName: checkIsMember?.ParentOrganization,
          });
 
-         if (!parentOrg?.Members.includes(user.UniqueUsername))
-            throw new AppError("OrganizationAuthFailError");
+         if (!parentOrg?.Members.includes(user.UniqueUsername)) throw new AppError("OrganizationAuthFailError");
 
-         const project = await Project.findOneAndUpdate(
-            { ProjectName },
-            { $push: { Members: user.UniqueUsername } }
-         );
+         const project = await Project.findOneAndUpdate({ ProjectName }, { $push: { Members: user.UniqueUsername } });
 
          if (!project) throw new AppError("ServerError");
 
@@ -323,11 +291,7 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async handleUserRequestToJoinProject(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async handleUserRequestToJoinProject(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { projectName } = req.body;
 
@@ -336,14 +300,10 @@ class ProjectService {
       });
       if (!project) throw new AppError("BadRequestError");
 
-      if (project.Members.includes(UniqueUsername))
-         throw new AppError("ProjectInvitationReboundError");
+      if (project.Members.includes(UniqueUsername)) throw new AppError("ProjectInvitationReboundError");
 
       if (!project.InviteOnly) {
-         await Project.findOneAndUpdate(
-            { ProjectName: project.ProjectName },
-            { $push: { Members: UniqueUsername } }
-         );
+         await Project.findOneAndUpdate({ ProjectName: project.ProjectName }, { $push: { Members: UniqueUsername } });
 
          await User.updateOne(
             { UniqueUsername },
@@ -397,11 +357,7 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async acceptUserToProject(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async acceptUserToProject(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { newUser, requestedProject } = req.query as {
          newUser: string;
          requestedProject: string;
@@ -414,11 +370,9 @@ class ProjectService {
 
       if (!project) throw new AppError("BadRequestError");
 
-      if (project.Creator !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (project.Creator !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
-      if (project.Members.includes(newUser))
-         throw new AppError("ProjectInvitationReboundError");
+      if (project.Members.includes(newUser)) throw new AppError("ProjectInvitationReboundError");
 
       const updatedProject = await Project.findOneAndUpdate(
          { ProjectName: requestedProject },
@@ -479,34 +433,21 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async leaveProject(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async leaveProject(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const projectName = req.params.projectName;
 
       const user = await User.findOne({ UniqueUsername, Email }).lean();
 
-      const userInProject = user?.Projects.find(
-         project => project.ProjectName === projectName
-      );
+      const userInProject = user?.Projects.find(project => project.ProjectName === projectName);
 
       if (!userInProject) throw new AppError("NoActionRequiredError");
 
-      if (userInProject.Status === "Creator")
-         throw new AppError("IrrevertibleActionError");
+      if (userInProject.Status === "Creator") throw new AppError("IrrevertibleActionError");
 
-      await User.updateOne(
-         { UniqueUsername, Email },
-         { $pull: { Projects: { ProjectName: projectName } } }
-      );
+      await User.updateOne({ UniqueUsername, Email }, { $pull: { Projects: { ProjectName: projectName } } });
 
-      await Project.updateOne(
-         { ProjectName: projectName },
-         { $pull: { Members: UniqueUsername } }
-      );
+      await Project.updateOne({ ProjectName: projectName }, { $pull: { Members: UniqueUsername } });
 
       const notification = {
          Initiator: UniqueUsername,
@@ -528,10 +469,7 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async authorizeGoogleDriveUsage(
-      _: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async authorizeGoogleDriveUsage(_: AuthenticatedRequest, res: Response) {
       const scopes = "https://www.googleapis.com/auth/drive.file";
       const authUrl = this._googleClient.generateAuthUrl({
          scope: scopes,
@@ -543,10 +481,7 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async handleGoogleDriveAuthorizationCallback(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async handleGoogleDriveAuthorizationCallback(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       console.log(UniqueUsername);
       if (req.query.error) throw req.query.error;
@@ -558,10 +493,7 @@ class ProjectService {
 
       if (tokens.refresh_token) {
          console.log("Got refToken: ", tokens.refresh_token);
-         await User.updateOne(
-            { UniqueUsername },
-            { GoogleRefreshToken: tokens.refresh_token }
-         );
+         await User.updateOne({ UniqueUsername }, { GoogleRefreshToken: tokens.refresh_token });
       }
 
       return res.redirect("/user/environment");
@@ -628,10 +560,7 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async deleteFileFromGoogleDrive(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async deleteFileFromGoogleDrive(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { fileId } = req.body;
 
@@ -653,17 +582,12 @@ class ProjectService {
    }
 
    @ThrowsServiceException
-   public async addFileToProjectDrive(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async addFileToProjectDrive(req: AuthenticatedRequest, res: Response) {
       let { UniqueUsername } = req.thisUser as RequestUserType;
       let { body: fileData } = req;
 
       let user = await User.findOne({ UniqueUsername }).lean();
-      let userInProject = user?.Projects.find(
-         project => project.ProjectName === fileData.project
-      );
+      let userInProject = user?.Projects.find(project => project.ProjectName === fileData.project);
       if (!userInProject) throw new AppError("UnauthorizedRequestError");
 
       let driveFile = new DriveFile(fileData);
@@ -673,18 +597,13 @@ class ProjectService {
       return res.json({ status: "ok", data: "File added to project" });
    }
 
-   public async removeFileFromProjectDrive(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
+   public async removeFileFromProjectDrive(req: AuthenticatedRequest, res: Response, next: NextFunction) {
       let { UniqueUsername } = req.thisUser as RequestUserType;
       let { fileId } = req.body;
 
       try {
          let file = await DriveFile.findOne({ id: fileId });
-         if (file?.creator !== UniqueUsername)
-            throw new AppError("UnauthorizedRequestError");
+         if (file?.creator !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
          await DriveFile.deleteOne({ id: fileId });
 
@@ -700,18 +619,12 @@ class ProjectService {
       const requestedProject = req.params.ProjectName;
 
       const user = await User.findOne({ UniqueUsername }).lean();
-      const userInProject = user?.Projects.find(
-         project => project.ProjectName === requestedProject
-      );
+      const userInProject = user?.Projects.find(project => project.ProjectName === requestedProject);
 
       if (!userInProject) throw new AppError("UnauthorizedRequestError");
 
-      const files = await DriveFile.find({ project: requestedProject })
-         .lean()
-         .sort({ createdTime: -1 });
+      const files = await DriveFile.find({ project: requestedProject }).lean().sort({ createdTime: -1 });
 
       return res.json({ status: "ok", data: files });
    }
 }
-
-export const projectServiceClient: ProjectService = ProjectService.instance;

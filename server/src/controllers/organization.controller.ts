@@ -1,64 +1,64 @@
 import { handleNotifications } from "../utils/notificationHandler";
-import { organizationServiceClient } from "../services/organization.service";
+import { OrganizationService } from "../services/organization.service";
 import { RestController, GET, POST, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/organization")
 @OnRequestEntry(checkAuth)
 export class OrganizationController {
-   private constructor() {}
+   public constructor(private _organizationServiceClient: OrganizationService) {}
 
    @POST("/create")
    @Factory
    createNewOrganization() {
-      return organizationServiceClient.createNewOrganization;
+      return this._organizationServiceClient.createNewOrganization;
    }
 
    @GET("/details/:OrganizationName")
    @Factory
    getSingleOrganization() {
-      return organizationServiceClient.getSingleOrganization;
+      return this._organizationServiceClient.getSingleOrganization;
    }
 
    @POST("/edit")
    @Factory
    editOrganization() {
-      return organizationServiceClient.editOrganization;
+      return this._organizationServiceClient.editOrganization;
    }
 
    @POST("/invite/new-user")
    @Factory
    inviteUserToOrganization() {
-      return [organizationServiceClient.inviteUserToOrganization, handleNotifications];
+      return [this._organizationServiceClient.inviteUserToOrganization, handleNotifications];
    }
 
    @GET("/add/new-user/:userSecret")
    @Factory
    addUserToOrganizationWithUserSecret() {
-      return [organizationServiceClient.addUserToOrganizationWithUserSecret, handleNotifications];
+      return [this._organizationServiceClient.addUserToOrganizationWithUserSecret, handleNotifications];
    }
 
    @GET("/join-request/:organizationName")
    @Factory
    sendJoinRequestToOrganization() {
-      return [organizationServiceClient.sendJoinRequestToOrganization, handleNotifications];
+      return [this._organizationServiceClient.sendJoinRequestToOrganization, handleNotifications];
    }
 
    @GET("/accept/new-user")
    @Factory
    acceptUserToOrganization() {
-      return [organizationServiceClient.acceptUserToOrganization, handleNotifications];
+      return [this._organizationServiceClient.acceptUserToOrganization, handleNotifications];
    }
 
    @GET("/leave/:organizationName")
    @Factory
    leaveOrganization() {
-      return [organizationServiceClient.leaveOrganization, handleNotifications];
+      return [this._organizationServiceClient.leaveOrganization, handleNotifications];
    }
 
    @GET("/explore")
    @Factory
    getExplorerData() {
-      return organizationServiceClient.getExplorerData;
+      return this._organizationServiceClient.getExplorerData;
    }
 }

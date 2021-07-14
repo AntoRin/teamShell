@@ -8,17 +8,11 @@ import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 import { UserSolutionsType } from "../interfaces/UserModel";
 import { ThrowsServiceException } from "../decorators/ServiceException";
+import { Component } from "express-frills";
 
-class IssueService {
-   private static _serviceInstance: IssueService | null;
-
-   private constructor() {}
-
-   public static get instance(): IssueService {
-      if (!this._serviceInstance) this._serviceInstance = new IssueService();
-
-      return this._serviceInstance;
-   }
+@Component()
+export class IssueService {
+   public constructor() {}
 
    @ThrowsServiceException
    public async getSingleIssue(req: AuthenticatedRequest, res: Response) {
@@ -81,19 +75,9 @@ class IssueService {
    }
 
    @ThrowsServiceException
-   public async createNewIssue(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async createNewIssue(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
-      const {
-         IssueTitle,
-         IssueDescription,
-         ProjectContext,
-         Project_id,
-         Creator,
-      } = req.body;
+      const { IssueTitle, IssueDescription, ProjectContext, Project_id, Creator } = req.body;
 
       const issue = {
          IssueTitle,
@@ -104,8 +88,7 @@ class IssueService {
          Active: true,
       };
 
-      if (Creator.UniqueUsername !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (Creator.UniqueUsername !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
       const newIssue = new Issue(issue);
 
@@ -119,10 +102,7 @@ class IssueService {
       };
 
       await Promise.all([
-         Project.updateOne(
-            { _id: Project_id },
-            { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }
-         ),
+         Project.updateOne({ _id: Project_id }, { $push: { IssuesRef: { $each: [newIssueId], $position: 0 } } }),
          User.updateOne(
             { UniqueUsername, Email },
             {
@@ -164,21 +144,15 @@ class IssueService {
          IssueTitle,
       };
 
-      if (User_UniqueUsername !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (User_UniqueUsername !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
       const user = await User.findOne({ UniqueUsername, _id: User_id });
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      const bookmarked = user.Issues.Bookmarked.find(
-         bookmark => bookmark._id.toString() === Issue_id_object.toString()
-      );
+      const bookmarked = user.Issues.Bookmarked.find(bookmark => bookmark._id.toString() === Issue_id_object.toString());
 
       if (bookmarked) throw new AppError("NoActionRequiredError");
 
-      await User.updateOne(
-         { _id: User_id, UniqueUsername },
-         { $push: { "Issues.Bookmarked": { $each: [issue], $position: 0 } } }
-      );
+      await User.updateOne({ _id: User_id, UniqueUsername }, { $push: { "Issues.Bookmarked": { $each: [issue], $position: 0 } } });
       return res.json({ status: "ok", data: "Issue bookmarked" });
    }
 
@@ -189,22 +163,16 @@ class IssueService {
 
       const Issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
 
-      if (User_UniqueUsername !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (User_UniqueUsername !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
       const user = await User.findOne({ UniqueUsername, _id: User_id });
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      const bookmarked = user.Issues.Bookmarked.find(
-         bookmark => bookmark._id.toString() === Issue_id_object.toString()
-      );
+      const bookmarked = user.Issues.Bookmarked.find(bookmark => bookmark._id.toString() === Issue_id_object.toString());
 
       const typeCompatiblePullKey = "Issues.Bookmarked" as string;
 
       if (!bookmarked) throw new AppError("NoActionRequiredError");
-      await User.updateOne(
-         { _id: User_id, UniqueUsername },
-         { $pull: { [typeCompatiblePullKey]: { _id: Issue_id_object } } }
-      );
+      await User.updateOne({ _id: User_id, UniqueUsername }, { $pull: { [typeCompatiblePullKey]: { _id: Issue_id_object } } });
       return res.json({ status: "ok", data: "Bookmark removed" });
    }
 
@@ -214,8 +182,7 @@ class IssueService {
       const { Issue_id } = req.body;
 
       const issue = await Issue.findOne({ _id: Issue_id });
-      if (issue?.Creator.UniqueUsername !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (issue?.Creator.UniqueUsername !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
       if (!issue.Active) throw new AppError("NoActionRequiredError");
       await Issue.updateOne({ _id: Issue_id }, { $set: { Active: false } });
       return res.json({ status: "ok", data: "Issue closed" });
@@ -227,8 +194,7 @@ class IssueService {
       const { Issue_id } = req.body;
 
       const issue = await Issue.findOne({ _id: Issue_id });
-      if (issue?.Creator.UniqueUsername !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (issue?.Creator.UniqueUsername !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
       if (issue?.Active) throw new AppError("NoActionRequiredError");
       await Issue.updateOne({ _id: Issue_id }, { $set: { Active: true } });
       return res.json({ status: "ok", data: "Issue closed" });
@@ -241,18 +207,14 @@ class IssueService {
       const issue_id_object = new mongoose.mongo.ObjectId(Issue_id);
 
       const issue = await Issue.findOne({ _id: Issue_id });
-      if (issue?.Creator.UniqueUsername !== UniqueUsername)
-         throw new AppError("UnauthorizedRequestError");
+      if (issue?.Creator.UniqueUsername !== UniqueUsername) throw new AppError("UnauthorizedRequestError");
 
       const typeCompatibleCreatedPullKey = "Issues.Created" as string;
       const typeCompatibleBookmarkedPullKey = "Issues.Bookmarked" as string;
 
       await Promise.all([
          Issue.deleteOne({ _id: issue_id_object }),
-         Project.updateOne(
-            { _id: Project_id },
-            { $pull: { IssuesRef: issue_id_object } }
-         ),
+         Project.updateOne({ _id: Project_id }, { $pull: { IssuesRef: issue_id_object } }),
          User.updateOne(
             { UniqueUsername },
             {
@@ -275,11 +237,7 @@ class IssueService {
    }
 
    @ThrowsServiceException
-   public async createNewSolution(
-      req: AuthenticatedRequest,
-      _: Response,
-      next: NextFunction
-   ) {
+   public async createNewSolution(req: AuthenticatedRequest, _: Response, next: NextFunction) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
       const { Issue_id, SolutionBody } = req.body;
 
@@ -341,14 +299,9 @@ class IssueService {
    }
 
    @ThrowsServiceException
-   public async addLikeToSolution(
-      req: AuthenticatedRequest,
-      res: Response,
-      next: NextFunction
-   ) {
+   public async addLikeToSolution(req: AuthenticatedRequest, res: Response, next: NextFunction) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
-      const { user_id, solution_id, solution_creator, issueTitle, issueId } =
-         req.body;
+      const { user_id, solution_id, solution_creator, issueTitle, issueId } = req.body;
 
       const userRef = {
          _id: user_id,
@@ -387,19 +340,13 @@ class IssueService {
    }
 
    @ThrowsServiceException
-   public async removeLikeFromSolution(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async removeLikeFromSolution(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const { solution_id } = req.body;
 
       const typeCompatiblePullKey = "Solutions.$.LikedBy" as string;
 
-      await Issue.updateOne(
-         { "Solutions._id": solution_id },
-         { $pull: { [typeCompatiblePullKey]: { UniqueUsername } } }
-      );
+      await Issue.updateOne({ "Solutions._id": solution_id }, { $pull: { [typeCompatiblePullKey]: { UniqueUsername } } });
       return res.json({ status: "ok", data: "Like removed" });
    }
 
@@ -432,5 +379,3 @@ class IssueService {
       return res.json({ status: "ok", data: "Solution deleted" });
    }
 }
-
-export const issueServiceClient: IssueService = IssueService.instance;

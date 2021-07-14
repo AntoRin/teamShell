@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Component } from "express-frills";
 import { ThrowsServiceException } from "../decorators/ServiceException";
 import { UserModel } from "../interfaces/UserModel";
 import ProfileImage from "../models/ProfileImage";
@@ -6,16 +7,9 @@ import User from "../models/User";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 
-class ProfileService {
-   private static _serviceInstance: ProfileService | null = null;
-
-   private constructor() {}
-
-   public static get instance(): ProfileService {
-      if (!this._serviceInstance) this._serviceInstance = new ProfileService();
-
-      return this._serviceInstance;
-   }
+@Component()
+export class ProfileService {
+   public constructor() {}
 
    @ThrowsServiceException
    public async getSingleUser(req: AuthenticatedRequest, res: Response) {
@@ -90,11 +84,7 @@ class ProfileService {
 
       const ImageData = buffer.toString("base64");
 
-      await ProfileImage.updateOne(
-         { UserContext: UniqueUsername },
-         { ImageData },
-         { upsert: true }
-      );
+      await ProfileImage.updateOne({ UserContext: UniqueUsername }, { ImageData }, { upsert: true });
 
       return res.json({ status: "ok", data: "Image Uploaded" });
    }
@@ -110,10 +100,7 @@ class ProfileService {
    }
 
    @ThrowsServiceException
-   public async updateSeenNotifications(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async updateSeenNotifications(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername, Email } = req.thisUser as RequestUserType;
 
       await User.updateOne(
@@ -125,10 +112,7 @@ class ProfileService {
    }
 
    @ThrowsServiceException
-   public async getUserProfilesBasedOnSearchQuery(
-      req: AuthenticatedRequest,
-      res: Response
-   ) {
+   public async getUserProfilesBasedOnSearchQuery(req: AuthenticatedRequest, res: Response) {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const query = req.query.user;
 
@@ -141,11 +125,7 @@ class ProfileService {
       let searchData: Array<string | null> = ["Not found"];
 
       if (regexSearch.length > 0)
-         searchData = regexSearch.map(resultUser =>
-            resultUser.UniqueUsername !== UniqueUsername
-               ? resultUser.UniqueUsername
-               : null
-         );
+         searchData = regexSearch.map(resultUser => (resultUser.UniqueUsername !== UniqueUsername ? resultUser.UniqueUsername : null));
 
       return res.json({ status: "ok", data: searchData });
    }
@@ -184,15 +164,10 @@ class ProfileService {
       ];
 
       const sameOrgAggregation = await User.aggregate(aggregrationPipeline);
-      const contacts = sameOrgAggregation[0].MembersOfSameOrg.map(
-         (member: UserModel) =>
-            member.UniqueUsername !== UniqueUsername
-               ? member.UniqueUsername
-               : null
+      const contacts = sameOrgAggregation[0].MembersOfSameOrg.map((member: UserModel) =>
+         member.UniqueUsername !== UniqueUsername ? member.UniqueUsername : null
       );
 
       return res.json({ status: "ok", data: contacts });
    }
 }
-
-export const profileServiceClient: ProfileService = ProfileService.instance;

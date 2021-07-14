@@ -10,23 +10,22 @@ import { socketController } from "./socket-connection/SocketController";
 import { UserContextSocket } from "./types";
 import { Server } from "http";
 import errorHandler from "./utils/errorHandler";
-import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStartup, OnServerInit, Imports } from "express-frills";
+import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStartup, OnServerInit } from "express-frills";
 
-@ApplicationServer(null, 5000, false)
+@ApplicationServer({
+   port: 5000,
+   controllers: [
+      controllers.AuthController,
+      controllers.ProfileController,
+      controllers.OrganizationController,
+      controllers.ProjectController,
+      controllers.IssueController,
+      controllers.ChatController,
+      controllers.MeetController,
+   ],
+   verbose: "no",
+})
 export class Teamshell {
-   @Imports
-   controllers() {
-      return [
-         controllers.AuthController,
-         controllers.ProfileController,
-         controllers.OrganizationController,
-         controllers.ProjectController,
-         controllers.IssueController,
-         controllers.ChatController,
-         controllers.MeetController,
-      ];
-   }
-
    @OnServerInit
    initializeAppMiddlewares(app: Application) {
       app.use(express.json({ limit: 500000 }));

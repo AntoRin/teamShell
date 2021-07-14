@@ -1,55 +1,55 @@
 import { RestController, GET, POST, Factory } from "express-frills";
-import { authServiceClient } from "../services/auth.service";
+import { AuthService } from "../services/auth.service";
 
 @RestController("/api/auth")
 export class AuthController {
-   private constructor() {}
+   public constructor(private _authServiceClient: AuthService) {}
 
    @POST("/register")
    @Factory
    registerUser() {
-      return authServiceClient.registerUser;
+      return this._authServiceClient.registerUser;
    }
 
    @POST("/login")
    @Factory
    loginUser() {
-      return authServiceClient.loginUser;
+      return this._authServiceClient.loginUser;
    }
 
    @GET("/login/github")
    @Factory
    loginUserViaGitHub() {
-      return authServiceClient.loginUserViaGitHub;
+      return this._authServiceClient.loginUserViaGitHub;
    }
 
    @GET("/login/github/callback")
    @Factory
    handleGitHubLoginCallback() {
-      return authServiceClient.handleGitHubLoginCallback;
+      return this._authServiceClient.handleGitHubLoginCallback;
    }
 
    @GET("/login/google")
    @Factory
    loginUserViaGoogle() {
-      return authServiceClient.loginUserViaGoogle;
+      return this._authServiceClient.loginUserViaGoogle;
    }
 
    @GET("/login/google/callback")
    @Factory
    handleGoogleLoginCallback() {
-      return authServiceClient.handleGoogleLoginCallback;
+      return this._authServiceClient.handleGoogleLoginCallback;
    }
 
    @GET("/logout")
    @Factory
    logoutUser() {
-      return authServiceClient.logoutUser;
+      return this._authServiceClient.logoutUser;
    }
 
    @GET("/verify")
    @Factory
    verifyCreds() {
-      return authServiceClient.verifyUserCreds;
+      return this._authServiceClient.verifyUserCreds;
    }
 }

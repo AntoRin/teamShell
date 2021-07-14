@@ -1,82 +1,82 @@
 import { handleNotifications } from "../utils/notificationHandler";
-import { issueServiceClient } from "../services/issue.service";
+import { IssueService } from "../services/issue.service";
 import { RestController, GET, POST, PUT, DELETE, Factory, OnRequestEntry } from "express-frills";
 import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/issue")
 @OnRequestEntry(checkAuth)
 export class IssueController {
-   private constructor() {}
+   public constructor(private _issueServiceClient: IssueService) {}
 
    @GET("/details/:IssueID")
    @Factory
    getSingleIssue() {
-      return issueServiceClient.getSingleIssue;
+      return this._issueServiceClient.getSingleIssue;
    }
 
    @GET("/snippet/:IssueID")
    @Factory
    getIssueSnippet() {
-      return issueServiceClient.getIssueSnippet;
+      return this._issueServiceClient.getIssueSnippet;
    }
 
    @POST("/create")
    @Factory
    createNewIssue() {
-      return [issueServiceClient.createNewIssue, handleNotifications];
+      return [this._issueServiceClient.createNewIssue, handleNotifications];
    }
 
    @PUT("/bookmark")
    @Factory
    bookmarkIssue() {
-      return issueServiceClient.bookmarkIssue;
+      return this._issueServiceClient.bookmarkIssue;
    }
 
    @PUT("/bookmark/remove")
    @Factory
    removeBookmark() {
-      return issueServiceClient.removeBookmark;
+      return this._issueServiceClient.removeBookmark;
    }
 
    @PUT("/close")
    @Factory
    closeIssue() {
-      return issueServiceClient.closeIssue;
+      return this._issueServiceClient.closeIssue;
    }
 
    @PUT("/reopen")
    @Factory
    reopenIssue() {
-      return issueServiceClient.reopenIssue;
+      return this._issueServiceClient.reopenIssue;
    }
 
    @DELETE("/delete")
    @Factory
    deleteIssue() {
-      return issueServiceClient.deleteIssue;
+      return this._issueServiceClient.deleteIssue;
    }
 
    @POST("/solution/create")
    @Factory
    createNewSolution() {
-      return [issueServiceClient.createNewSolution, handleNotifications];
+      return [this._issueServiceClient.createNewSolution, handleNotifications];
    }
 
    @POST("/solution/add-like")
    @Factory
    addLikeToSolution() {
-      return [issueServiceClient.addLikeToSolution, handleNotifications];
+      return [this._issueServiceClient.addLikeToSolution, handleNotifications];
    }
 
    @POST("/solution/remove-like")
    @Factory
    removeLikeFromSolution() {
-      return issueServiceClient.removeLikeFromSolution;
+      return this._issueServiceClient.removeLikeFromSolution;
    }
 
    @DELETE("/solution/delete/:solutionId")
    @Factory
    deleteSolution() {
-      return issueServiceClient.deleteSolution;
+      return this._issueServiceClient.deleteSolution;
    }
 }

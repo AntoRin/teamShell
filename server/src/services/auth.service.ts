@@ -10,12 +10,13 @@ import config from "../config";
 import validateRegistration from "../utils/validateRegistration";
 import ProfileImage from "../models/ProfileImage";
 import { ThrowsServiceException } from "../decorators/ServiceException";
+import { Component } from "express-frills";
 
-class AuthService {
-   private static _serviceInstance: AuthService | null = null;
+@Component()
+export class AuthService {
    private _googleClient: Auth.OAuth2Client;
 
-   private constructor() {
+   public constructor() {
       this._googleClient = new google.auth.OAuth2({
          clientId: config.googleClientId,
          clientSecret: config.googleClientSecret,
@@ -23,12 +24,6 @@ class AuthService {
       });
       this.loginUserViaGoogle = this.loginUserViaGoogle.bind(this);
       this.handleGoogleLoginCallback = this.handleGoogleLoginCallback.bind(this);
-   }
-
-   public static get instance(): AuthService {
-      if (!this._serviceInstance) this._serviceInstance = new AuthService();
-
-      return this._serviceInstance;
    }
 
    @ThrowsServiceException
@@ -59,10 +54,7 @@ class AuthService {
 
       const verified = await bcrypt.compare(Password, present.Password);
       if (!verified) throw new AppError("AuthenticationError");
-      const token = jwt.sign(
-         { UniqueUsername: present.UniqueUsername, Email },
-         process.env.JWT_SECRET
-      );
+      const token = jwt.sign({ UniqueUsername: present.UniqueUsername, Email }, process.env.JWT_SECRET);
       return res
          .cookie("token", token, {
             httpOnly: true,
@@ -71,9 +63,7 @@ class AuthService {
    }
 
    public loginUserViaGitHub(_: AuthenticatedRequest, res: Response) {
-      return res.redirect(
-         `https://github.com/login/oauth/authorize?client_id=${config.githubClientId}&scope=user`
-      );
+      return res.redirect(`https://github.com/login/oauth/authorize?client_id=${config.githubClientId}&scope=user`);
    }
 
    @ThrowsServiceException
@@ -119,10 +109,7 @@ class AuthService {
 
       if (present && present.AccountType !== "GitHub") throw new AppError("AuthenticationError");
 
-      const loginToken = jwt.sign(
-         { UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email },
-         process.env.JWT_SECRET
-      );
+      const loginToken = jwt.sign({ UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email }, process.env.JWT_SECRET);
 
       if (present) {
          return res.cookie("token", loginToken, { httpOnly: true }).redirect("/user/home");
@@ -151,11 +138,7 @@ class AuthService {
    }
 
    public loginUserViaGoogle(_: AuthenticatedRequest, res: Response) {
-      const scopes = [
-         "https://www.googleapis.com/auth/userinfo.email",
-         "https://www.googleapis.com/auth/userinfo.profile",
-         "openid",
-      ];
+      const scopes = ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile", "openid"];
 
       const authUrl = this._googleClient.generateAuthUrl({
          scope: scopes,
@@ -184,16 +167,9 @@ class AuthService {
          },
       };
 
-      const userDataStream = await fetch(
-         "https://www.googleapis.com/oauth2/v3/userinfo",
-         getOptions
-      );
+      const userDataStream = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", getOptions);
 
-      const {
-         name: UniqueUsername,
-         picture: ImageData,
-         email: Email,
-      } = await userDataStream.json();
+      const { name: UniqueUsername, picture: ImageData, email: Email } = await userDataStream.json();
 
       if (tokens.refresh_token) {
          console.log("Got refToken: ", tokens.refresh_token);
@@ -243,15 +219,10 @@ class AuthService {
    public async verifyUserCreds(req: AuthenticatedRequest, res: Response, _: NextFunction) {
       const token = req.cookies.token;
 
-      const { UniqueUsername, Email } = jwt.verify(
-         token,
-         process.env.JWT_SECRET
-      ) as TokenPayloadType;
+      const { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET) as TokenPayloadType;
       const present = await validateRegistration({ UniqueUsername, Email });
       if (!present) throw new AppError("AuthenticationError");
 
       return res.json({ status: "ok", User: present });
    }
 }
-
-export const authServiceClient: AuthService = AuthService.instance;
