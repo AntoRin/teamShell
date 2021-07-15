@@ -54,7 +54,7 @@ export class AuthService {
 
       const verified = await bcrypt.compare(Password, present.Password);
       if (!verified) throw new AppError("AuthenticationError");
-      const token = jwt.sign({ UniqueUsername: present.UniqueUsername, Email }, process.env.JWT_SECRET);
+      const token = jwt.sign({ UniqueUsername: present.UniqueUsername, Email }, process.env.JWT_SECRET!);
       return res
          .cookie("token", token, {
             httpOnly: true,
@@ -109,7 +109,7 @@ export class AuthService {
 
       if (present && present.AccountType !== "GitHub") throw new AppError("AuthenticationError");
 
-      const loginToken = jwt.sign({ UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email }, process.env.JWT_SECRET);
+      const loginToken = jwt.sign({ UniqueUsername: userInfo.UniqueUsername, Email: userInfo.Email }, process.env.JWT_SECRET!);
 
       if (present) {
          return res.cookie("token", loginToken, { httpOnly: true }).redirect("/user/home");
@@ -180,7 +180,7 @@ export class AuthService {
 
       if (present && present.AccountType !== "Google") throw new AppError("AuthenticationError");
 
-      const loginToken = jwt.sign({ UniqueUsername, Email }, process.env.JWT_SECRET);
+      const loginToken = jwt.sign({ UniqueUsername, Email }, process.env.JWT_SECRET!);
 
       if (present) {
          return res.cookie("token", loginToken, { httpOnly: true }).redirect("/user/home");
@@ -219,7 +219,7 @@ export class AuthService {
    public async verifyUserCreds(req: AuthenticatedRequest, res: Response, _: NextFunction) {
       const token = req.cookies.token;
 
-      const { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET) as TokenPayloadType;
+      const { UniqueUsername, Email } = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayloadType;
       const present = await validateRegistration({ UniqueUsername, Email });
       if (!present) throw new AppError("AuthenticationError");
 

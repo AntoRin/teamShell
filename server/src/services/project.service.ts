@@ -199,7 +199,7 @@ export class ProjectService {
 
       if (!recipientData) throw new AppError("UnauthorizedRequestError");
 
-      const invitationSecret = jwt.sign({ _id: recipientData._id, ProjectName: project.ProjectName }, process.env.ORG_JWT_SECRET);
+      const invitationSecret = jwt.sign({ _id: recipientData._id, ProjectName: project.ProjectName }, process.env.ORG_JWT_SECRET!);
 
       const inviteLink = `/api/project/add/new-user/${invitationSecret}`;
 
@@ -234,7 +234,7 @@ export class ProjectService {
       const user = await User.findOne({ UniqueUsername, Email });
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      const { _id, ProjectName } = jwt.verify(userSecret, process.env.ORG_JWT_SECRET) as any;
+      const { _id, ProjectName } = jwt.verify(userSecret, process.env.ORG_JWT_SECRET!) as any;
 
       if (_id === user._id.toString()) {
          const checkIsMember = await Project.findOne({ ProjectName });

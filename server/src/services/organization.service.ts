@@ -97,7 +97,7 @@ export class OrganizationService {
 
       const invitationSecret = jwt.sign(
          { _id: recipientData._id, OrganizationName: org.OrganizationName },
-         process.env.ORG_JWT_SECRET
+         process.env.ORG_JWT_SECRET!
       );
 
       const inviteLink = `/api/organization/add/new-user/${invitationSecret}`;
@@ -133,7 +133,7 @@ export class OrganizationService {
       const user = await User.findOne({ UniqueUsername, Email });
       if (!user) throw new AppError("UnauthorizedRequestError");
 
-      const { _id, OrganizationName } = jwt.verify(userSecret, process.env.ORG_JWT_SECRET) as any;
+      const { _id, OrganizationName } = jwt.verify(userSecret, process.env.ORG_JWT_SECRET!) as any;
 
       if (_id === user._id.toString()) {
          const checkIsMember = await Organization.findOne({

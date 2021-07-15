@@ -29,7 +29,7 @@ export class MeetService {
 
       if (!project.Members.includes(UniqueUsername)) throw new AppError("UnauthorizedRequestError");
 
-      const roomId = jwt.sign({ projectName, roomName, creator: UniqueUsername }, process.env.ROOM_JWT_SECRET);
+      const roomId = jwt.sign({ projectName, roomName, creator: UniqueUsername }, process.env.ROOM_JWT_SECRET!);
 
       const roomDetails = {
          roomName,
@@ -46,7 +46,7 @@ export class MeetService {
       const { UniqueUsername } = req.thisUser as RequestUserType;
       const roomId = req.query.roomId as string;
 
-      const { projectName, roomName, creator } = jwt.verify(roomId, process.env.ROOM_JWT_SECRET) as any;
+      const { projectName, roomName, creator } = jwt.verify(roomId, process.env.ROOM_JWT_SECRET!) as any;
       const project = await Project.findOne({
          ProjectName: projectName,
       }).lean();

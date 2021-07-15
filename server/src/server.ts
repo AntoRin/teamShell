@@ -23,7 +23,7 @@ import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStar
       controllers.ChatController,
       controllers.MeetController,
    ],
-   verbose: "no",
+   verbose: "minimal",
 })
 export class Teamshell {
    @OnServerInit
@@ -35,7 +35,7 @@ export class Teamshell {
 
    @OnServerInit
    async initializeConnections() {
-      await mongoose.connect(process.env.MONGO_URI, {
+      await mongoose.connect(process.env.MONGO_URI!, {
          useUnifiedTopology: true,
          useNewUrlParser: true,
          useCreateIndex: true,

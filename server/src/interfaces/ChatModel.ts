@@ -3,6 +3,6 @@ import { MessagesType } from "../types";
 
 export interface ChatModel extends Document {
    ChatID: string;
-   Users: Array<string>;
+   Users: string[];
    Messages: [MessagesType];
 }

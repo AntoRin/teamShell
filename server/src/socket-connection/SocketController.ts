@@ -36,7 +36,7 @@ class SocketController {
       try {
          if (!socket.authToken) throw new Error("Invalid auth credentials");
 
-         const thisUser = jwt.verify(socket.authToken, process.env.JWT_SECRET) as TokenPayloadType;
+         const thisUser = jwt.verify(socket.authToken, process.env.JWT_SECRET!) as TokenPayloadType;
          socket.userName = thisUser.UniqueUsername;
          return next();
       } catch (error: any) {
