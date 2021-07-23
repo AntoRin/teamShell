@@ -8,7 +8,7 @@ import { AuthenticatedRequest, RequestUserType } from "../types";
 import AppError from "../utils/AppError";
 import { UserSolutionsType } from "../interfaces/UserModel";
 import { ThrowsServiceException } from "../decorators/ServiceException";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 
 @Component()
 export class IssueService {

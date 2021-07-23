@@ -1,7 +1,7 @@
 import { handleNotifications } from "../utils/notificationHandler";
 import multer, { FileFilterCallback } from "multer";
 import { ProfileService } from "../services/profile.service";
-import { RestController, GET, POST, PUT, Factory, OnRequestEntry } from "express-frills";
+import { RestController, GET, POST, PUT, Factory, OnRequestEntry } from "dipress";
 import checkAuth from "../middleware/checkAuth";
 import { RequestHandler } from "express";
 

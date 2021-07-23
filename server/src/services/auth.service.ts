@@ -10,7 +10,7 @@ import config from "../config";
 import validateRegistration from "../utils/validateRegistration";
 import ProfileImage from "../models/ProfileImage";
 import { ThrowsServiceException } from "../decorators/ServiceException";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 
 @Component()
 export class AuthService {

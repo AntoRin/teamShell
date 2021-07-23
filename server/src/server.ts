@@ -1,8 +1,9 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, Response } from "express";
 import mongoose from "mongoose";
 import { Server as SocketServer } from "socket.io";
-import path from "path";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { ApplicationServer, ErrorHandler, Factory, OnServerInit, OnServerStartup, Res, WildcardHandler } from "dipress";
 import dotenv from "dotenv";
 dotenv.config();
 import * as controllers from "./controllers";
@@ -10,7 +11,6 @@ import { socketController } from "./socket-connection/SocketController";
 import { UserContextSocket } from "./types";
 import { Server } from "http";
 import errorHandler from "./utils/errorHandler";
-import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStartup, OnServerInit } from "express-frills";
 
 @ApplicationServer({
    port: 5000,
@@ -23,7 +23,7 @@ import { ApplicationServer, ErrorHandler, WildcardHandler, Factory, OnServerStar
       controllers.ChatController,
       controllers.MeetController,
    ],
-   verbose: "minimal",
+   verbose: "no",
 })
 export class Teamshell {
    @OnServerInit
@@ -54,7 +54,7 @@ export class Teamshell {
    }
 
    @WildcardHandler
-   catchAll(_: Request, res: Response) {
+   catchAll(@Res() res: Response) {
       res.sendFile(path.join(__dirname, "../../client/build/index.html"));
    }
 

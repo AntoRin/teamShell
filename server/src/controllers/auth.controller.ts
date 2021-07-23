@@ -1,4 +1,4 @@
-import { RestController, GET, POST, Factory } from "express-frills";
+import { RestController, GET, POST, Factory } from "dipress";
 import { AuthService } from "../services/auth.service";
 
 @RestController("/api/auth")

@@ -3,7 +3,7 @@ import Chat from "../models/Chat";
 import ProjectChat from "../models/ProjectChat";
 import { AuthenticatedRequest, RequestUserType } from "../types";
 import { ThrowsServiceException } from "../decorators/ServiceException";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 
 @Component()
 export class ChatService {

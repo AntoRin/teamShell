@@ -1,6 +1,6 @@
 import { handleNotifications } from "../utils/notificationHandler";
 import { OrganizationService } from "../services/organization.service";
-import { RestController, GET, POST, Factory, OnRequestEntry } from "express-frills";
+import { RestController, GET, POST, Factory, OnRequestEntry } from "dipress";
 import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/organization")

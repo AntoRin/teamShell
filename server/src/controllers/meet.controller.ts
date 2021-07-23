@@ -1,4 +1,4 @@
-import { RestController, GET, POST, Factory, OnRequestEntry } from "express-frills";
+import { RestController, GET, POST, Factory, OnRequestEntry } from "dipress";
 import checkAuth from "../middleware/checkAuth";
 import { MeetService } from "../services/meet.service";
 

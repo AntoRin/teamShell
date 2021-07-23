@@ -4,24 +4,24 @@ import cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import Chat from "../models/Chat";
-import Issue from "../models/Issue";
-import Project from "../models/Project";
-import ProjectChat from "../models/ProjectChat";
 import User from "../models/User";
+import ProjectChat from "../models/ProjectChat";
+import Issue from "../models/Issue";
 import { ProjectModel } from "../interfaces/ProjectModel";
+import Chat from "../models/Chat";
 import { redisDelAsync, redisGetAsync, redisSetAsync } from "../redisConfig";
+import Project from "../models/Project";
 import { MessagesType, TokenPayloadType, UserContextSocket } from "../types";
 
 class SocketController {
-   private static _ControllerInstance: SocketController | null = null;
+   private static _Instance: SocketController | null = null;
 
    private constructor() {}
 
    public static get Instance() {
-      if (!this._ControllerInstance) this._ControllerInstance = new SocketController();
+      if (!SocketController._Instance) SocketController._Instance = new SocketController();
 
-      return this._ControllerInstance;
+      return SocketController._Instance;
    }
 
    public parseCookies(socket: UserContextSocket, next: Function): void {

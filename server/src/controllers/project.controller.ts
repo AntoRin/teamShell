@@ -1,7 +1,7 @@
 import multer, { FileFilterCallback } from "multer";
 import { handleNotifications } from "../utils/notificationHandler";
 import { ProjectService } from "../services/project.service";
-import { RestController, GET, POST, DELETE, Factory, OnRequestEntry } from "express-frills";
+import { RestController, GET, POST, DELETE, Factory, OnRequestEntry } from "dipress";
 import checkAuth from "../middleware/checkAuth";
 import { RequestHandler } from "express";
 

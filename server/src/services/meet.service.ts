@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 import jwt from "jsonwebtoken";
 import { ThrowsServiceException } from "../decorators/ServiceException";
 import Project from "../models/Project";

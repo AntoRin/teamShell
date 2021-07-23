@@ -11,7 +11,7 @@ import config from "../config";
 import stream from "stream";
 import DriveFile from "../models/DriveFile";
 import { ThrowsServiceException } from "../decorators/ServiceException";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 
 @Component()
 export class ProjectService {

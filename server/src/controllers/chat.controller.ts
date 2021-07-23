@@ -1,4 +1,4 @@
-import { RestController, GET, Factory, OnRequestEntry } from "express-frills";
+import { RestController, GET, Factory, OnRequestEntry } from "dipress";
 import checkAuth from "../middleware/checkAuth";
 import { ChatService } from "../services/chat.service";
 

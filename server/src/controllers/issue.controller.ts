@@ -1,6 +1,6 @@
 import { handleNotifications } from "../utils/notificationHandler";
 import { IssueService } from "../services/issue.service";
-import { RestController, GET, POST, PUT, DELETE, Factory, OnRequestEntry } from "express-frills";
+import { RestController, GET, POST, PUT, DELETE, Factory, OnRequestEntry } from "dipress";
 import checkAuth from "../middleware/checkAuth";
 
 @RestController("/api/issue")

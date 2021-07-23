@@ -8,7 +8,7 @@ import AppError from "../utils/AppError";
 import { OrganizationModel } from "../interfaces/OrganizationModel";
 import Project from "../models/Project";
 import { ThrowsServiceException } from "../decorators/ServiceException";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 
 @Component()
 export class OrganizationService {

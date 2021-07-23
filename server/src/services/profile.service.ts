@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Component } from "express-frills";
+import { Component } from "dipress";
 import { ThrowsServiceException } from "../decorators/ServiceException";
 import { UserModel } from "../interfaces/UserModel";
 import ProfileImage from "../models/ProfileImage";
